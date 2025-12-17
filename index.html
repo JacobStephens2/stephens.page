@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jacob Stephens</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0D3PS27FK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-W0D3PS27FK');
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 1px;
+            background: #1a1a1a;
+        }
+
+        h1 {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: #666;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #1a1a1a;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: 400;
+            font-size: 0.95rem;
+            letter-spacing: 0.01em;
+        }
+
+        .nav-item:hover {
+            color: #000;
+            padding-left: 1rem;
+            border-bottom-color: #1a1a1a;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 1px;
+            background: #1a1a1a;
+            transition: width 0.3s ease;
+        }
+
+        .nav-item:hover::before {
+            width: 0.5rem;
+        }
+
+        .nav-label {
+            flex: 1;
+        }
+
+        .nav-description {
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: 300;
+            margin-left: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-item:hover .nav-description {
+            opacity: 1;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .footer-text {
+            font-size: 0.8rem;
+            color: #999;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-item {
+                font-size: 0.9rem;
+            }
+            
+            .nav-description {
+                display: none;
+            }
+        }
+
+        /* Subtle animation for page load */
+        .container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Jacob Stephens</h1>
+            <div class="subtitle">Digital Portfolio</div>
+        </header>
+
+        <nav class="navigation">
+            <a href="/about.html" class="nav-item">
+                <span class="nav-label">About</span>
+                <span class="nav-description">Professional profile & expertise</span>
+            </a>
+            <a href="/portfolio.html" class="nav-item">
+                <span class="nav-label">Portfolio</span>
+                <span class="nav-description">Selected projects & work samples</span>
+            </a>
+            <a href="https://resume.jacobstephens.net/" class="nav-item">
+                <span class="nav-label">Resume</span>
+                <span class="nav-description">Professional experience & qualifications</span>
+            </a>
+            <a href="https://jacobstephens.net/" class="nav-item">
+                <span class="nav-label">Personal Website</span>
+                <span class="nav-description">Portfolio & personal projects</span>
+            </a>
+            <a href="https://github.com/JacobStephens2" class="nav-item">
+                <span class="nav-label">GitHub</span>
+                <span class="nav-description">Code repositories & contributions</span>
+            </a>
+            <a href="https://www.linkedin.com/in/jacob-stephens-0b034a200/" class="nav-item">
+                <span class="nav-label">LinkedIn</span>
+                <span class="nav-description">Professional network & connections</span>
+            </a>
+            <a href="https://www.youtube.com/@jacobstephens1804" class="nav-item">
+                <span class="nav-label">YouTube</span>
+                <span class="nav-description">Video content</span>
+            </a>
+            <a href="https://open.spotify.com/user/jacobstephens" class="nav-item">
+                <span class="nav-label">Spotify</span>
+                <span class="nav-description">Musical interests & playlists</span>
+            </a>
+        </nav>
+
+        <footer class="footer">
+            <div class="footer-text">© <span id="current-year"></span> Jacob Stephens</div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

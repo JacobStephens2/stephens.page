@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Jacob Stephens</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0D3PS27FK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-W0D3PS27FK');
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 1px;
+            background: #1a1a1a;
+        }
+
+        h1 {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: #666;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #1a1a1a;
+        }
+
+        .back-link::before {
+            content: '← ';
+            margin-right: 0.5rem;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .portfolio-item {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .portfolio-item:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .portfolio-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background: #f8f8f8;
+            display: block;
+        }
+
+        .portfolio-content {
+            padding: 1.5rem;
+        }
+
+        .portfolio-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .portfolio-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .portfolio-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .portfolio-link {
+            font-size: 0.85rem;
+            color: #1a1a1a;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease;
+            font-weight: 400;
+        }
+
+        .portfolio-link:hover {
+            border-bottom-color: #1a1a1a;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .footer-text {
+            font-size: 0.8rem;
+            color: #999;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* Subtle animation for page load */
+        .container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">Back to Home</a>
+        
+        <header class="header">
+            <h1>Portfolio</h1>
+            <div class="subtitle">Selected Projects</div>
+        </header>
+
+        <div class="portfolio-grid" id="portfolio-grid">
+            <!-- Portfolio items will be dynamically added here -->
+            <div class="portfolio-item">
+                <img src="screenshots/wedding.stephens.page.png" alt="Wedding Website" class="portfolio-image" onerror="this.style.display='none'">
+                <div class="portfolio-content">
+                    <h2 class="portfolio-title">Wedding Website</h2>
+                    <p class="portfolio-description">A beautiful wedding website with RSVP functionality, story timeline, and photo galleries. Features responsive design and database integration.</p>
+                    <div class="portfolio-links">
+                        <a href="https://wedding.stephens.page" class="portfolio-link" target="_blank">Visit Site</a>
+                        <a href="https://github.com/JacobStephens2" class="portfolio-link" target="_blank">GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <img src="screenshots/dailydozen.jacobstephens.net.png" alt="Daily Dozen" class="portfolio-image" onerror="this.style.display='none'">
+                <div class="portfolio-content">
+                    <h2 class="portfolio-title">Daily Dozen</h2>
+                    <p class="portfolio-description">Full-stack responsive mobile web application for nutrition tracking with intuitive user interface, implementing both frontend and backend functionality.</p>
+                    <div class="portfolio-links">
+                        <a href="https://dailydozen.jacobstephens.net/" class="portfolio-link" target="_blank">Visit Site</a>
+                        <a href="https://github.com/JacobStephens2" class="portfolio-link" target="_blank">GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <img src="screenshots/wadadli.stephens.page.png" alt="Wadadli Flare Catering" class="portfolio-image" onerror="this.style.display='none'">
+                <div class="portfolio-content">
+                    <h2 class="portfolio-title">Wadadli Flare Catering</h2>
+                    <p class="portfolio-description">A catering website showcasing diverse culinary capabilities with clean, modern design and Caribbean-inspired colors. Features menu galleries and contact forms.</p>
+                    <div class="portfolio-links">
+                        <a href="https://wadadli.stephens.page" class="portfolio-link" target="_blank">Visit Site</a>
+                        <a href="https://github.com/JacobStephens2" class="portfolio-link" target="_blank">GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <img src="screenshots/chestercounty-life.com.png" alt="Chester County Life" class="portfolio-image" onerror="this.style.display='none'">
+                <div class="portfolio-content">
+                    <h2 class="portfolio-title">Chester County Life</h2>
+                    <p class="portfolio-description">PCI-compliant subscription payment system using Stripe API integration, implementing payment processing and enabling automated recurring revenue functionality.</p>
+                    <div class="portfolio-links">
+                        <a href="https://chestercounty-life.com/" class="portfolio-link" target="_blank">Visit Site</a>
+                        <a href="https://github.com/JacobStephens2" class="portfolio-link" target="_blank">GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <img src="screenshots/artifact.stewardgoods.com.png" alt="Artifact CMS" class="portfolio-image" onerror="this.style.display='none'">
+                <div class="portfolio-content">
+                    <h2 class="portfolio-title">Artifact CMS</h2>
+                    <p class="portfolio-description">Custom full-stack content management system with PHP backend and MySQL database, providing flexible content organization, user management, and administrative capabilities.</p>
+                    <div class="portfolio-links">
+                        <a href="https://artifact.stewardgoods.com/" class="portfolio-link" target="_blank">Visit Site</a>
+                        <a href="https://github.com/JacobStephens2" class="portfolio-link" target="_blank">GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <img src="screenshots/resume.jacobstephens.net.png" alt="Resume Website" class="portfolio-image" onerror="this.style.display='none'">
+                <div class="portfolio-content">
+                    <h2 class="portfolio-title">Resume Website</h2>
+                    <p class="portfolio-description">A clean, professional resume website showcasing work experience, education, and skills. Optimized for performance.</p>
+                    <div class="portfolio-links">
+                        <a href="https://resume.jacobstephens.net/" class="portfolio-link" target="_blank">Visit Site</a>
+                        <a href="https://github.com/JacobStephens2" class="portfolio-link" target="_blank">GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-text">© <span id="current-year"></span> Jacob Stephens</div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
+

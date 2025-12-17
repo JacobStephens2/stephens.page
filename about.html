@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Jacob Stephens</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0D3PS27FK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-W0D3PS27FK');
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 1px;
+            background: #1a1a1a;
+        }
+
+        h1 {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: #666;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #1a1a1a;
+        }
+
+        .back-link::before {
+            content: '← ';
+            margin-right: 0.5rem;
+        }
+
+        .content-section {
+            margin-bottom: 3rem;
+        }
+
+        .content-section h2 {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+
+        .content-section h3 {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.3rem;
+            font-weight: 400;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #1a1a1a;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: #333;
+            line-height: 1.7;
+        }
+
+        .content-section ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .content-section li {
+            margin-bottom: 0.5rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background: #f8f8f8;
+            border-left: 3px solid #1a1a1a;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f8f8;
+            border-radius: 4px;
+        }
+
+        .stat-number {
+            font-family: 'Crimson Text', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .footer-text {
+            font-size: 0.8rem;
+            color: #999;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+
+            .content-section h2 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Subtle animation for page load */
+        .container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">Back to Home</a>
+        
+        <header class="header">
+            <h1>About</h1>
+            <div class="subtitle">Professional Profile</div>
+        </header>
+
+        <div class="content-section">
+            <div class="highlight-box">
+                <p><strong>Jacob Stephens is a senior-level infrastructure developer and systems architect</strong> who specializes in building automated systems, preventing revenue loss, and creating scalable infrastructure. Over four years at Educational Travel Adventures (2022-2025), he delivered 8,339 commits across 300,000+ files, demonstrating exceptional productivity, proactive code quality practices, and technical leadership through comprehensive documentation and systematic refactoring.</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Professional Identity</h2>
+            <p>Jacob is not just a feature developer—he's an infrastructure engineer who builds the systems that enable business operations. His work creates the foundation that other developers build upon, with a focus on automation, reliability, and operational efficiency.</p>
+            
+            <h3>Core Strengths</h3>
+            <ul>
+                <li><strong>Infrastructure Architecture:</strong> Designs and implements automated systems that run 24/7 without human intervention, focusing on business-critical operations</li>
+                <li><strong>Code Quality Leadership:</strong> Proactive refactoring (148 commits in 2025, 12.3x increase from 2024), comprehensive documentation, and systematic bug prevention</li>
+                <li><strong>Business Impact Focus:</strong> Builds systems that prevent revenue loss, automate operational processes, and improve system performance (5-10s → &lt;1s load times)</li>
+                <li><strong>Technical Excellence:</strong> Senior-level coding practices, performance optimization expertise, API integration, and database optimization</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>Career Highlights</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">8,339</div>
+                    <div class="stat-label">Total Commits</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">300,000+</div>
+                    <div class="stat-label">Files Changed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2,856</div>
+                    <div class="stat-label">2025 Commits</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">148</div>
+                    <div class="stat-label">Refactoring Commits</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Technical Expertise</h2>
+            <h3>Primary Skills</h3>
+            <ul>
+                <li><strong>Languages:</strong> PHP (Advanced, 20+ year legacy system expertise), MySQL, JavaScript, Linux/Unix</li>
+                <li><strong>Systems & Architecture:</strong> API Integration (Twilio, Textable, email services), Queue Systems, Caching Systems, Cron Jobs, RESTful APIs</li>
+                <li><strong>Development Practices:</strong> Code Refactoring, Documentation, Security (SQL injection prevention, input validation), Performance Optimization, Automated Testing</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>Business Impact</h2>
+            <h3>Revenue Protection</h3>
+            <ul>
+                <li>Automated cancellation systems preventing bad debt accumulation</li>
+                <li>Payment notification automation ensuring timely customer communication</li>
+                <li>TranSafe and Monetra payment processing integration</li>
+                <li>Bank account encryption system for sensitive financial data</li>
+            </ul>
+
+            <h3>Operational Efficiency</h3>
+            <ul>
+                <li>24/7 automation systems running continuously without human intervention</li>
+                <li>Performance improvements: 5-10 second load times → under 1 second</li>
+                <li>80%+ reduction in manual processes</li>
+                <li>Internal tools for expense management, reporting, and operational systems</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>Career Trajectory</h2>
+            <h3>2022: Foundation & Large-Scale Refactoring</h3>
+            <p>1,980 commits across 66,081 files. Major focus on codebase modernization, infrastructure improvements, and large-scale refactoring. Implemented TranSafe and Monetra payment processing integration across both Tourbot and customerweb platforms.</p>
+
+            <h3>2023: Feature Development & PHP 8 Migration</h3>
+            <p>1,320 commits across 35,775 files. Delivered major new features including lead management system, product alert systems, and PHP 8 migration. Implemented bank account encryption system and security improvements.</p>
+
+            <h3>2024: System Enhancement & Cleanup</h3>
+            <p>2,220 commits with focus on code quality improvements, maintenance, and system-wide enhancements.</p>
+
+            <h3>2025: Infrastructure Excellence</h3>
+            <p>2,856 commits (29% increase from 2024) with 12.3x increase in refactoring focus. Delivered critical infrastructure including automated reservation cancellation systems, payment notification queues, SMS integration, and performance optimization (5-10s → &lt;1s load times).</p>
+        </div>
+
+        <div class="content-section">
+            <h2>Work Style & Approach</h2>
+            <p><strong>Development Philosophy:</strong> "Build systems that work, then make them better"</p>
+            <ul>
+                <li><strong>Quality over Quantity:</strong> While highly productive (2,856 commits/year), focuses on maintainable, well-documented code</li>
+                <li><strong>Proactive Maintenance:</strong> Regular refactoring and bug fixes prevent issues before they occur</li>
+                <li><strong>Documentation First:</strong> Comprehensive documentation supports team collaboration and knowledge sharing</li>
+                <li><strong>Infrastructure Thinking:</strong> Builds systems that support long-term business needs, not just immediate features</li>
+                <li><strong>Security Conscious:</strong> Security considerations integrated into all development</li>
+            </ul>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-text">© <span id="current-year"></span> Jacob Stephens</div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jacob Stephens</title>
+    <title>Jacob Stephens | Infrastructure Developer</title>
+    <meta name="description" content="Jacob Stephens builds automation, infrastructure, and revenue-critical systems. Explore selected work, technical background, and contact information.">
+    <meta property="og:title" content="Jacob Stephens | Infrastructure Developer">
+    <meta property="og:description" content="Automation, infrastructure, and revenue-critical systems with a focus on reliability and business impact.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://stephens.page/">
+    <meta property="og:site_name" content="Jacob Stephens">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Jacob Stephens | Infrastructure Developer">
+    <meta name="twitter:description" content="Explore selected work, technical background, and contact information for Jacob Stephens.">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0D3PS27FK"></script>
     <script>
@@ -13,8 +22,19 @@
 
       gtag('config', 'G-W0D3PS27FK');
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #f6f1e8;
+            --panel: rgba(255, 252, 246, 0.88);
+            --text: #181512;
+            --muted: #625a52;
+            --line: rgba(24, 21, 18, 0.12);
+            --accent: #9b4d24;
+            --accent-soft: rgba(155, 77, 36, 0.12);
+            --shadow: 0 24px 60px rgba(45, 32, 18, 0.12);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -23,150 +43,262 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
+            background:
+                radial-gradient(circle at top left, rgba(155, 77, 36, 0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(84, 111, 98, 0.18), transparent 24%),
+                linear-gradient(180deg, #fbf7f1 0%, var(--bg) 100%);
+            color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 4rem 2rem;
-            flex: 1;
+            padding: 2.5rem 1.5rem 4rem;
+        }
+
+        .site-header {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 4rem;
-            position: relative;
+        .site-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.4rem;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.02em;
         }
 
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 1px;
-            background: #1a1a1a;
+        .site-contact {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.92rem;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.25s ease, color 0.25s ease;
+        }
+
+        .site-contact:hover,
+        .site-contact:focus-visible {
+            color: var(--text);
+            border-color: var(--text);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.9fr);
+            gap: 1.5rem;
+            align-items: stretch;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-panel,
+        .hero-metrics,
+        .links-panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-panel {
+            padding: 2.5rem;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.35rem 0.8rem;
+            margin-bottom: 1.25rem;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         h1 {
             font-family: 'Crimson Text', serif;
-            font-size: 2.5rem;
-            font-weight: 400;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.5rem;
-            color: #1a1a1a;
+            font-size: clamp(2.8rem, 5vw, 4.7rem);
+            line-height: 0.96;
+            letter-spacing: -0.05em;
+            margin-bottom: 1rem;
+            max-width: 12ch;
         }
 
-        .subtitle {
-            font-size: 0.95rem;
-            font-weight: 300;
-            color: #666;
-            letter-spacing: 0.05em;
+        .hero-intro {
+            font-size: 1.14rem;
+            color: var(--muted);
+            max-width: 58ch;
+            margin-bottom: 1.6rem;
+        }
+
+        .impact-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .impact-pill {
+            padding: 0.55rem 0.8rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(24, 21, 18, 0.09);
+            font-size: 0.88rem;
+            color: var(--text);
+        }
+
+        .cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.9rem;
+        }
+
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0.8rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        }
+
+        .cta:hover,
+        .cta:focus-visible {
+            transform: translateY(-1px);
+        }
+
+        .cta-primary {
+            background: var(--text);
+            color: #fff;
+            box-shadow: 0 12px 28px rgba(24, 21, 18, 0.18);
+        }
+
+        .cta-secondary {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(24, 21, 18, 0.12);
+        }
+
+        .hero-metrics {
+            padding: 1.5rem;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .metrics-title {
+            font-size: 0.86rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .metric {
+            padding: 1rem 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .metric:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .metric-value {
+            display: block;
+            font-family: 'Crimson Text', serif;
+            font-size: 2rem;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.35rem;
+        }
+
+        .metric-label {
+            font-size: 0.92rem;
+            color: var(--muted);
+        }
+
+        .links-panel {
+            padding: 1.25rem;
+        }
+
+        .links-title {
+            font-size: 0.86rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.9rem;
         }
 
         .navigation {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            display: grid;
+            gap: 0.75rem;
         }
 
         .nav-item {
-            display: flex;
-            align-items: center;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 0.8rem;
+            align-items: start;
             text-decoration: none;
-            color: #1a1a1a;
-            padding: 1rem 0;
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.3s ease;
-            position: relative;
-            font-weight: 400;
-            font-size: 0.95rem;
-            letter-spacing: 0.01em;
+            color: var(--text);
+            padding: 1rem 1.1rem;
+            border-radius: 16px;
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.62);
+            transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
         }
 
-        .nav-item:hover {
-            color: #000;
-            padding-left: 1rem;
-            border-bottom-color: #1a1a1a;
+        .nav-item:hover,
+        .nav-item:focus-visible {
+            transform: translateX(4px);
+            border-color: rgba(24, 21, 18, 0.14);
+            background: rgba(255, 255, 255, 0.9);
         }
 
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 1px;
-            background: #1a1a1a;
-            transition: width 0.3s ease;
-        }
-
-        .nav-item:hover::before {
-            width: 0.5rem;
+        .nav-main {
+            display: grid;
+            gap: 0.25rem;
         }
 
         .nav-label {
-            flex: 1;
+            font-size: 1rem;
+            font-weight: 600;
         }
 
         .nav-description {
-            font-size: 0.8rem;
-            color: #888;
-            font-weight: 300;
-            margin-left: 1rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.5;
         }
 
-        .nav-item:hover .nav-description {
-            opacity: 1;
+        .nav-arrow {
+            font-size: 1rem;
+            color: var(--accent);
         }
 
         .footer {
             text-align: center;
-            margin-top: 4rem;
-            padding-top: 2rem;
-            border-top: 1px solid #f0f0f0;
+            margin-top: 2rem;
+            padding-top: 1.2rem;
+            color: var(--muted);
+            font-size: 0.82rem;
+            letter-spacing: 0.04em;
         }
 
-        .footer-text {
-            font-size: 0.8rem;
-            color: #999;
-            font-weight: 300;
-            letter-spacing: 0.05em;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 2rem 1.5rem;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .nav-item {
-                font-size: 0.9rem;
-            }
-            
-            .nav-description {
-                display: none;
-            }
-        }
-
-        /* Subtle animation for page load */
         .container {
             animation: fadeInUp 0.8s ease-out;
         }
@@ -174,59 +306,162 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(18px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.25rem 1rem 2.5rem;
+            }
+
+            .site-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .hero-panel,
+            .hero-metrics,
+            .links-panel {
+                border-radius: 18px;
+            }
+
+            .hero-panel {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                max-width: none;
+            }
+
+            .hero-intro {
+                font-size: 1rem;
+            }
+
+            .nav-item {
+                grid-template-columns: 1fr auto;
+                padding: 0.95rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>Jacob Stephens</h1>
-            <div class="subtitle">Digital Portfolio</div>
+        <header class="site-header">
+            <a href="/" class="site-title">Jacob Stephens</a>
+            <a href="mailto:jacob@stephens.page" class="site-contact">jacob@stephens.page</a>
         </header>
 
-        <nav class="navigation">
-            <a href="/about.html" class="nav-item">
-                <span class="nav-label">About</span>
-                <span class="nav-description">Professional profile & expertise</span>
-            </a>
-            <a href="/portfolio.html" class="nav-item">
-                <span class="nav-label">Portfolio</span>
-                <span class="nav-description">Selected projects & work samples</span>
-            </a>
-            <a href="https://resume.stephens.page/" class="nav-item">
-                <span class="nav-label">Resume</span>
-                <span class="nav-description">Professional experience & qualifications</span>
-            </a>
-            <a href="https://jacobstephens.net/" class="nav-item">
-                <span class="nav-label">Personal Website</span>
-                <span class="nav-description">Portfolio & personal projects</span>
-            </a>
-            <a href="https://github.com/JacobStephens2" class="nav-item">
-                <span class="nav-label">GitHub</span>
-                <span class="nav-description">Code repositories & contributions</span>
-            </a>
-            <a href="https://www.linkedin.com/in/jacob-stephens-0b034a200/" class="nav-item">
-                <span class="nav-label">LinkedIn</span>
-                <span class="nav-description">Professional network & connections</span>
-            </a>
-            <a href="https://www.youtube.com/@jacobstephens1804" class="nav-item">
-                <span class="nav-label">YouTube</span>
-                <span class="nav-description">Video content</span>
-            </a>
-            <a href="https://open.spotify.com/user/jacobstephens" class="nav-item">
-                <span class="nav-label">Spotify</span>
-                <span class="nav-description">Musical interests & playlists</span>
-            </a>
-        </nav>
+        <main>
+            <section class="hero">
+                <div class="hero-panel">
+                    <div class="eyebrow">Infrastructure Developer</div>
+                    <h1>Automation, reliability, and revenue-critical systems.</h1>
+                    <p class="hero-intro">I build the operational foundation behind businesses: payment flows, queue-driven automations, internal tools, performance improvements, and the infrastructure that has to keep working when money and operations are on the line.</p>
+                    <div class="impact-strip">
+                        <span class="impact-pill">8,339 commits across 4 years</span>
+                        <span class="impact-pill">Business-critical automations</span>
+                        <span class="impact-pill">Performance tuning and refactoring</span>
+                    </div>
+                    <div class="cta-row">
+                        <a href="/portfolio.html" class="cta cta-primary">View Selected Work</a>
+                        <a href="https://resume.stephens.page/" class="cta cta-secondary">Resume</a>
+                        <a href="mailto:jacob@stephens.page" class="cta cta-secondary">Contact</a>
+                    </div>
+                </div>
+
+                <aside class="hero-metrics" aria-label="Career highlights">
+                    <div class="metrics-title">Recent Highlights</div>
+                    <div class="metric">
+                        <span class="metric-value">24/7</span>
+                        <span class="metric-label">Automations supporting live operations without manual intervention</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">&lt;1s</span>
+                        <span class="metric-label">Performance wins from previously slow 5 to 10 second workflows</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">PHP + MySQL</span>
+                        <span class="metric-label">Legacy-heavy systems modernized through refactoring and systems work</span>
+                    </div>
+                </aside>
+            </section>
+
+            <section class="links-panel">
+                <div class="links-title">Start Here</div>
+                <nav class="navigation" aria-label="Primary links">
+                    <a href="/portfolio.html" class="nav-item">
+                        <div class="nav-main">
+                            <span class="nav-label">Portfolio</span>
+                            <span class="nav-description">Selected projects, screenshots, and the business problems each system solves.</span>
+                        </div>
+                        <span class="nav-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a href="https://resume.stephens.page/" class="nav-item">
+                        <div class="nav-main">
+                            <span class="nav-label">Resume</span>
+                            <span class="nav-description">Professional experience, technical background, and career history.</span>
+                        </div>
+                        <span class="nav-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a href="/about.html" class="nav-item">
+                        <div class="nav-main">
+                            <span class="nav-label">About</span>
+                            <span class="nav-description">How I work, what I build, and where my engineering strength is strongest.</span>
+                        </div>
+                        <span class="nav-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a href="https://blog.stephens.page/" class="nav-item">
+                        <div class="nav-main">
+                            <span class="nav-label">Blog</span>
+                            <span class="nav-description">Writing, essays, and longer-form thinking about systems, work, and ideas.</span>
+                        </div>
+                        <span class="nav-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a href="https://github.com/JacobStephens2" class="nav-item">
+                        <div class="nav-main">
+                            <span class="nav-label">GitHub</span>
+                            <span class="nav-description">Public repositories, experiments, and code you can inspect directly.</span>
+                        </div>
+                        <span class="nav-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a href="https://www.linkedin.com/in/jacob-stephens-0b034a200/" class="nav-item">
+                        <div class="nav-main">
+                            <span class="nav-label">LinkedIn</span>
+                            <span class="nav-description">Professional profile, work history, and network context.</span>
+                        </div>
+                        <span class="nav-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a href="https://www.youtube.com/@jacobstephens1804" class="nav-item">
+                        <div class="nav-main">
+                            <span class="nav-label">YouTube</span>
+                            <span class="nav-description">Video content and public-facing media projects.</span>
+                        </div>
+                        <span class="nav-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a href="https://open.spotify.com/user/jacobstephens" class="nav-item">
+                        <div class="nav-main">
+                            <span class="nav-label">Spotify</span>
+                            <span class="nav-description">A more personal trail for anyone curious beyond the professional profile.</span>
+                        </div>
+                        <span class="nav-arrow" aria-hidden="true">↗</span>
+                    </a>
+                </nav>
+            </section>
+        </main>
 
         <footer class="footer">
-            <div class="footer-text">© <span id="current-year"></span> Jacob Stephens</div>
+            © <span id="current-year"></span> Jacob Stephens
         </footer>
     </div>
 

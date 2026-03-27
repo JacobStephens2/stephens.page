@@ -195,6 +195,7 @@
         .hero-metrics {
             padding: 1.5rem;
             display: grid;
+            align-content: start;
             gap: 1rem;
         }
 
@@ -206,14 +207,18 @@
             color: var(--muted);
         }
 
-        .metric {
-            padding: 1rem 0;
-            border-top: 1px solid var(--line);
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
         }
 
-        .metric:first-of-type {
-            border-top: none;
-            padding-top: 0;
+        .metric {
+            min-height: 150px;
+            padding: 1rem;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.56);
         }
 
         .metric-value {
@@ -222,7 +227,7 @@
             font-size: 2rem;
             line-height: 1;
             letter-spacing: -0.04em;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.45rem;
         }
 
         .metric-label {
@@ -340,6 +345,14 @@
                 padding: 1.5rem;
             }
 
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metric {
+                min-height: auto;
+            }
+
             h1 {
                 max-width: none;
             }
@@ -382,17 +395,23 @@
 
                 <aside class="hero-metrics" aria-label="Career highlights">
                     <div class="metrics-title">Recent Highlights</div>
-                    <div class="metric">
-                        <span class="metric-value">24/7</span>
-                        <span class="metric-label">Automations supporting live operations without manual intervention</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-value">&lt;1s</span>
-                        <span class="metric-label">Performance wins from previously slow 5 to 10 second workflows</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-value">PHP + MySQL</span>
-                        <span class="metric-label">Legacy-heavy systems modernized through refactoring and systems work</span>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-value">8,339</span>
+                            <span class="metric-label">Commits across four years supporting production systems, maintenance, tooling, and cleanup work.</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">2,856</span>
+                            <span class="metric-label">Commits in 2025 alone, with a major increase in refactoring and infrastructure-focused delivery.</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">148</span>
+                            <span class="metric-label">Refactoring commits in 2025, reflecting deliberate codebase improvement instead of pure feature churn.</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">&lt;1s</span>
+                            <span class="metric-label">Representative performance wins on workflows that previously took roughly 5 to 10 seconds.</span>
+                        </div>
                     </div>
                 </aside>
             </section>

@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#9b4d24">
     <title>vaulted-agent | vaultedagent.com</title>
-    <meta name="description" content="vaulted-agent is a launcher. It resolves secret values from a vault backend into the child environment, then execs Claude Code, Codex, Grok, or Kimi. v0.4.15.">
+    <meta name="description" content="vaulted-agent is a launcher. It resolves secret values from a vault backend into the child environment, then execs Claude Code, Codex, Grok, or Kimi. v0.4.16.">
     <meta property="og:title" content="vaulted-agent - launcher for agents with vault-backed secrets">
     <meta property="og:description" content="Harness, manifest, backend. Manager token stays out of the child environment. Bitwarden SM, 1Password, pass, sops. macOS and Linux.">
     <meta property="og:type" content="website">
@@ -23,7 +23,7 @@
     <meta property="og:site_name" content="vaulted-agent">
     <link rel="canonical" href="https://vaultedagent.com/">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="vaulted-agent v0.4.15">
+    <meta name="twitter:title" content="vaulted-agent v0.4.16">
     <meta name="twitter:description" content="Install the launcher. Run va setup. Start an agent with va claude or va grok.">
     <meta name="twitter:image" content="https://vaultedagent.com/tool.png">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0D3PS27FK"></script>
@@ -655,8 +655,8 @@
             </span>
         </div>
 
-        <span class="eyebrow">Open source · macOS · Linux · v0.4.15</span>
-        <h1>vaulted-agent <span class="version-pill">v0.4.15</span></h1>
+        <span class="eyebrow">Open source · macOS · Linux · v0.4.16</span>
+        <h1>vaulted-agent <span class="version-pill">v0.4.16</span></h1>
         <p class="lede">
             AI coding agents need secret values (API keys and related credentials).
             Many setups put those values in local <code>.env</code> files.
@@ -730,7 +730,7 @@
                 </div>
                 <p class="note" style="margin-top:0.4rem">
                     Supported systems: macOS and Linux.
-                    The install script pins release <code>v0.4.15</code>.
+                    The install script pins release <code>v0.4.16</code>.
                     Linux assets are static musl binaries.
                     The installer can create harnesses for agents found on <code>PATH</code>.
                 </p>
@@ -963,7 +963,7 @@ sudo va uninstall</code></pre>
                 </svg>
             </button>
             <pre id="cmd-github"><code># From source instead of the one-liner:
-git clone --branch v0.4.15 --depth 1 \
+git clone --branch v0.4.16 --depth 1 \
   https://github.com/JacobStephens2/vaulted-agent-launcher
 cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
         </div>
@@ -1015,6 +1015,7 @@ cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
                     <li><code>secrets validate</code> resolves every ref against the vault (live pre-flight)</li>
                     <li>A failed launch names the variables a bad resolve implicates</li>
                     <li>Harness <code>alias = TARGET = SOURCE</code> renames an injected secret for that child env only</li>
+                    <li>Kimi custom providers take keys in <code>~/.kimi-code/config.toml</code> (env inject is a no-op; doctor warns)</li>
                     <li><code>doctor</code> runs as the same user a launch would use</li>
                     <li>Unreadable manager-token files are not reported as missing</li>
                     <li>Service-user re-exec keeps original argv for sudoers</li>
@@ -1040,7 +1041,7 @@ cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
             </div>
         </div>
         <p style="color:var(--muted);font-size:0.95rem;margin:0.5rem 0 0">
-            Current release: <code>v0.4.15</code> (Rust launcher since <code>v0.4.0</code>).
+            Current release: <code>v0.4.16</code> (Rust launcher since <code>v0.4.0</code>).
             Design walkthrough:
             <a href="https://stephens.page/blog/one-vault-three-agents-writing-the-pattern-down-found-five-bugs/">One Vault, Three Agents</a>.
         </p>
@@ -1067,7 +1068,7 @@ cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
                 </svg>
                 Docs on GitHub
             </a>
-            <a class="cta cta-secondary" href="https://github.com/JacobStephens2/vaulted-agent-launcher/releases/tag/v0.4.15">v0.4.15 release notes</a>
+            <a class="cta cta-secondary" href="https://github.com/JacobStephens2/vaulted-agent-launcher/releases/tag/v0.4.16">v0.4.16 release notes</a>
             <a class="cta cta-secondary" href="https://inkvoke.dev">inkvoke</a>
         </div>
 
@@ -1080,7 +1081,7 @@ cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
                     </svg>
                     JacobStephens2/vaulted-agent-launcher
                 </a>
-                · MIT · v0.4.15 · <a href="https://stephens.page/">stephens.page</a>
+                · MIT · v0.4.16 · <a href="https://stephens.page/">stephens.page</a>
             </p>
             <p>&copy; <span id="current-year"></span> Stephens Page LLC</p>
         </footer>

@@ -2,7 +2,7 @@
 
 **Full agent contract:** [AGENTS.md](./AGENTS.md) (also https://vaultedagent.com/AGENTS.md)
 
-Current pin: **v0.4.15**
+Current pin: **v0.4.16**
 
 ```bash
 curl -fsSL https://vaultedagent.com/install.sh | bash
@@ -13,4 +13,4 @@ va secrets validate
 
 Product: https://vaultedagent.com/ · Repo README: https://github.com/JacobStephens2/vaulted-agent-launcher#readme
 
-v0.4.15 (#67): harness `alias = TARGET = SOURCE` copies an injected secret onto another name in that harness's child env only (fail closed if source missing).
+v0.4.16 (#69): kimi is env-blind for custom OpenAI-compatible providers — keys in `~/.kimi-code/config.toml`, harness stays on empty.env, doctor warns if a vault manifest is attached. Shared `etc/env-blind-agents` for install + doctor.

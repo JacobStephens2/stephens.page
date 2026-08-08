@@ -265,30 +265,29 @@ html[data-theme="dark"] .cs-diagram marker path {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
-/* Show the icon for the mode you can switch *to*. */
+/* Show the icon for the *current* preference (not the next click target).
+   Cycle is system → light → dark → system; the button label says what the
+   next click will do. Showing "system" while forced dark made it look like
+   system mode was active when the page did not match the OS. */
 .theme-toggle .icon-sun,
-.theme-toggle .icon-moon {
+.theme-toggle .icon-moon,
+.theme-toggle .icon-system {
     display: none;
 }
 
-html[data-theme="dark"] .theme-toggle .icon-sun {
+/* System (no data-theme) → monitor */
+html:not([data-theme="light"]):not([data-theme="dark"]) .theme-toggle .icon-system {
     display: block;
 }
 
-html[data-theme="light"] .theme-toggle .icon-moon {
+/* Light → sun */
+html[data-theme="light"] .theme-toggle .icon-sun {
     display: block;
 }
 
-@media (prefers-color-scheme: dark) {
-    html:not([data-theme="light"]):not([data-theme="dark"]) .theme-toggle .icon-sun {
-        display: block;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    html:not([data-theme="light"]):not([data-theme="dark"]) .theme-toggle .icon-moon {
-        display: block;
-    }
+/* Dark → moon */
+html[data-theme="dark"] .theme-toggle .icon-moon {
+    display: block;
 }
 
 @media (prefers-reduced-motion: reduce) {

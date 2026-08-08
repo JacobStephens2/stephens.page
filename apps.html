@@ -56,7 +56,7 @@
         a:hover, a:focus-visible { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.12em; }
 
         .container {
-            max-width: 760px;
+            max-width: 1280px;
             margin: 0 auto;
             padding: 1.5rem 1.1rem 3rem;
         }
@@ -102,8 +102,8 @@
 
         .apps-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.2rem;
             margin-top: 2rem;
             padding-top: 1.25rem;
             border-top: 1px solid var(--rule);
@@ -113,20 +113,21 @@
             background: var(--surface);
             border: 1px solid var(--rule);
             border-radius: 8px;
-            padding: 1.4rem;
+            padding: 0;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         .app-shot {
             display: block;
             width: 100%;
-            height: 400px;
+            height: 280px;
             object-fit: contain;
             object-position: center;
-            border-radius: 6px;
-            border: 1px solid var(--rule);
-            margin-bottom: 1.1rem;
+            border-radius: 0;
+            border: none;
+            margin-bottom: 0;
             background: var(--soft);
         }
 
@@ -135,14 +136,14 @@
             font-weight: 600;
             font-size: 1.35rem;
             color: var(--brand);
-            margin-bottom: 0.5rem;
+            margin: 0 1.35rem 0.5rem;
         }
 
         .app-desc {
             color: var(--muted);
             font-size: 0.97rem;
             line-height: 1.55;
-            margin-bottom: 1rem;
+            margin: 0 1.35rem 1rem;
             flex: 1;
         }
 
@@ -150,7 +151,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.4rem;
-            margin-bottom: 1.1rem;
+            margin: 0 1.35rem 1.1rem;
         }
 
         .app-tags span {
@@ -161,6 +162,10 @@
             border: 1px solid var(--rule);
             padding: 0.2rem 0.6rem;
             border-radius: 999px;
+        }
+
+        .app-links {
+            margin: 0 1.35rem 1.35rem;
         }
 
         .app-links a {
@@ -195,13 +200,17 @@
             display: block;
             width: 100%;
             margin-bottom: 1.1rem;
-            border-radius: 6px;
+            border-radius: 0;
             overflow: hidden;
         }
         .image-button .app-shot { margin-bottom: 0; border: none; border-radius: 0; }
 
         .image-frame { position: relative; display: block; width: 100%; margin-bottom: 1.1rem; }
         .image-frame > .image-button { margin-bottom: 0; }
+        .app-card > .image-button,
+        .app-card > .image-frame {
+            margin-bottom: 1.1rem;
+        }
         .card-nav {
             position: absolute;
             top: 50%;
@@ -393,15 +402,15 @@
             </div>
 
             <div class="app-card">
-                <button class="image-button" type="button" data-image="screenshots/Macro-Tracker-Android-app-screenshot.jpg" data-images="screenshots/Macro-Tracker-Android-app-screenshot.jpg,screenshots/Macro-Tracker-Portrait-Screenshot.png,screenshots/macros.stephens.page.png,screenshots/macros.stephens.page-2.png" data-captions="Android app,Mobile web,Web app,Web app (detail)" data-title="Macros Tracker"><img class="app-shot" src="screenshots/Macro-Tracker-Android-app-screenshot.jpg" alt="Macros Tracker screenshot" loading="lazy"></button>
-                <div class="app-name">Macros Tracker</div>
+                <button class="image-button" type="button" data-image="screenshots/fareloch-mobile.png" data-images="screenshots/fareloch-mobile.png,screenshots/fareloch.app.png,screenshots/fareloch.app-detail.png" data-captions="Mobile web,Web app,Recipes" data-title="Fareloch"><img class="app-shot" src="screenshots/fareloch-mobile.png" alt="Fareloch screenshot" loading="lazy"></button>
+                <div class="app-name">Fareloch</div>
                 <p class="app-desc">A self-hosted nutrition tracker built as a MyFitnessPal replacement - barcode scanning, recipe management, API-backed food search, charts, and offline support.</p>
                 <div class="app-tags"><span>TypeScript</span><span>Express</span><span>SQLite</span><span>PWA</span></div>
-                <div class="app-links"><a href="https://macros.stephens.page">Visit &#8599;</a></div>
+                <div class="app-links"><a href="https://fareloch.app">Visit &#8599;</a></div>
             </div>
 
             <div class="app-card">
-                <button class="image-button" type="button" data-image="screenshots/exodus-android-app-screenshot.jpg" data-images="screenshots/exodus-android-app-screenshot.jpg,screenshots/exodus40lite.stephens.page.png" data-captions="Android app,Web app" data-title="Horarium"><img class="app-shot" src="screenshots/exodus-android-app-screenshot.jpg" alt="Horarium screenshot" loading="lazy"></button>
+                <button class="image-button" type="button" data-image="screenshots/horarium-mobile.png" data-images="screenshots/horarium-mobile.png,screenshots/horarium.us.png" data-captions="Mobile web,Web app" data-title="Horarium"><img class="app-shot" src="screenshots/horarium-mobile.png" alt="Horarium screenshot" loading="lazy"></button>
                 <div class="app-name">Horarium</div>
                 <p class="app-desc">A rule of life tracker for a parish men's group — prayer, fasting, almsgiving, and fraternity every day, all year. A faithful rhythm for every season.</p>
                 <div class="app-tags"><span>PHP</span><span>JavaScript</span><span>PWA</span><span>Capacitor</span></div>
@@ -409,11 +418,11 @@
             </div>
 
             <div class="app-card">
-                <button class="image-button" type="button" data-image="screenshots/Android-Artifact-app-screenshot.jpg" data-images="screenshots/Android-Artifact-app-screenshot.jpg,screenshots/artifact.stewardgoods.com.png" data-captions="Android app,Web app" data-title="Artifact Manager"><img class="app-shot" src="screenshots/Android-Artifact-app-screenshot.jpg" alt="Artifact Manager screenshot" loading="lazy"></button>
-                <div class="app-name">Artifact Manager</div>
+                <button class="image-button" type="button" data-image="screenshots/keeplore-mobile.png" data-images="screenshots/keeplore-mobile.png,screenshots/keeplore.app.png" data-captions="Mobile web,Web app" data-title="Keeplore"><img class="app-shot" src="screenshots/keeplore-mobile.png" alt="Keeplore screenshot" loading="lazy"></button>
+                <div class="app-name">Keeplore</div>
                 <p class="app-desc">A multi-tenant possessions tracker that operationalizes the Minimalists' 90/90 Rule - log when you use what you own, see what's due next, and decide what to declutter.</p>
                 <div class="app-tags"><span>PHP</span><span>MySQL</span><span>REST API</span><span>PWA</span></div>
-                <div class="app-links"><a href="https://artifact.stewardgoods.com/">Visit &#8599;</a></div>
+                <div class="app-links"><a href="https://keeplore.app/">Visit &#8599;</a></div>
             </div>
 
             <div class="app-card">

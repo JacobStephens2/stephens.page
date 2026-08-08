@@ -393,29 +393,29 @@ p {
     pointer-events: none;
 }
 
+/* Show the icon for the *current* preference (not the next click target).
+   Cycle is system → light → dark → system; the button label says what the
+   next click will do. Showing "system" while forced dark made it look like
+   system mode was active when the page did not match the OS. */
 .theme-toggle .icon-sun,
-.theme-toggle .icon-moon {
+.theme-toggle .icon-moon,
+.theme-toggle .icon-system {
     display: none;
 }
 
-html[data-theme="dark"] .theme-toggle .icon-sun {
+/* System (no data-theme) → monitor */
+html:not([data-theme="light"]):not([data-theme="dark"]) .theme-toggle .icon-system {
     display: block;
 }
 
-html[data-theme="light"] .theme-toggle .icon-moon {
+/* Light → sun */
+html[data-theme="light"] .theme-toggle .icon-sun {
     display: block;
 }
 
-@media (prefers-color-scheme: dark) {
-    html:not([data-theme="light"]):not([data-theme="dark"]) .theme-toggle .icon-sun {
-        display: block;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    html:not([data-theme="light"]):not([data-theme="dark"]) .theme-toggle .icon-moon {
-        display: block;
-    }
+/* Dark → moon */
+html[data-theme="dark"] .theme-toggle .icon-moon {
+    display: block;
 }
 
 .header-actions {

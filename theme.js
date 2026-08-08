@@ -1,8 +1,8 @@
 /**
  * Theme controller for stephens.page
  *
- * Default: follow prefers-color-scheme (no data-theme attribute).
- * Toggle: pin light or dark in localStorage and set data-theme.
+ * Default: follow prefers-color-scheme (no data-theme attribute) - "system".
+ * Toggle cycles: system → light → dark → system.
  * Storage key: "theme" → "light" | "dark" | null (system)
  */
 (function () {
@@ -16,17 +16,22 @@
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
+  /** Stored preference: "light" | "dark" | null (system). */
   function readStored() {
     try {
       var v = localStorage.getItem(STORAGE_KEY);
       if (v === THEME_LIGHT || v === THEME_DARK) return v;
+      // Treat legacy or explicit "system" the same as unset.
+      if (v === 'system') {
+        localStorage.removeItem(STORAGE_KEY);
+      }
     } catch (e) { /* private mode / blocked storage */ }
     return null;
   }
 
   function writeStored(value) {
     try {
-      if (value === null) localStorage.removeItem(STORAGE_KEY);
+      if (value === null || value === 'system') localStorage.removeItem(STORAGE_KEY);
       else localStorage.setItem(STORAGE_KEY, value);
     } catch (e) { /* ignore */ }
   }
@@ -36,6 +41,13 @@
     var stored = readStored();
     if (stored) return stored;
     return systemPrefersDark() ? THEME_DARK : THEME_LIGHT;
+  }
+
+  /** Next preference in the cycle: system → light → dark → system. */
+  function nextPreference(stored) {
+    if (stored === null) return THEME_LIGHT;
+    if (stored === THEME_LIGHT) return THEME_DARK;
+    return null;
   }
 
   function applyTheme(preference) {
@@ -56,7 +68,7 @@
   }
 
   function toggleTheme() {
-    var next = effectiveTheme() === THEME_DARK ? THEME_LIGHT : THEME_DARK;
+    var next = nextPreference(readStored());
     writeStored(next);
     applyTheme(next);
   }
@@ -73,17 +85,25 @@
       '</svg>' +
       '<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
         '<path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5z"></path>' +
+      '</svg>' +
+      '<svg class="icon-system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<rect x="2" y="3" width="20" height="14" rx="2"></rect>' +
+        '<path d="M8 21h8M12 17v4"></path>' +
       '</svg>';
     btn.addEventListener('click', toggleTheme);
     return btn;
   }
 
   function updateToggleLabels() {
-    var next = effectiveTheme() === THEME_DARK ? 'light' : 'dark';
-    var label = 'Switch to ' + next + ' mode';
+    var stored = readStored();
+    var current = stored === null ? 'system' : stored;
+    var next = nextPreference(stored);
+    var nextLabel = next === null ? 'system' : next;
+    var label = 'Theme: ' + current + ' (click for ' + nextLabel + ')';
     document.querySelectorAll('.theme-toggle').forEach(function (btn) {
       btn.setAttribute('aria-label', label);
       btn.setAttribute('title', label);
+      btn.setAttribute('data-theme-pref', current);
     });
   }
 

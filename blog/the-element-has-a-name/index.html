@@ -584,12 +584,11 @@
                     <li class="fam"><a href="#page-blocks"><span class="n">9</span><span class="t">Page-level blocks</span><span class="c" data-toc-fam="page"></span></a></li>
                     <li><a href="#native"><span class="n">10</span><span class="t">What the browser exposes</span><span class="c">Fig. 7</span></a></li>
                     <li><a href="#shoelace"><span class="n">11</span><span class="t">Hand-rolled vs. a design system</span><span class="c">Fig. 8</span></a></li>
-                    <li><a href="#contract"><span class="n">12</span><span class="t">A name is a behavioral contract</span></a></li>
-                    <li><a href="#collisions"><span class="n">13</span><span class="t">The names that collide</span></a></li>
-                    <li><a href="#recall"><span class="n">14</span><span class="t">Recognition is not the skill</span><span class="c">Fig. 9</span></a></li>
-                    <li><a href="#quiz-section"><span class="n">15</span><span class="t">The quiz at the door</span><span class="c">Fig. 10</span></a></li>
-                    <li><a href="#still-open"><span class="n">16</span><span class="t">What's still open</span></a></li>
-                    <li><a href="#sources"><span class="n">17</span><span class="t">Sources</span></a></li>
+                    <li><a href="#collisions"><span class="n">12</span><span class="t">The names that collide</span></a></li>
+                    <li><a href="#recall"><span class="n">13</span><span class="t">Recognition is not the skill</span><span class="c">Fig. 9</span></a></li>
+                    <li><a href="#quiz-section"><span class="n">14</span><span class="t">The quiz at the door</span><span class="c">Fig. 10</span></a></li>
+                    <li><a href="#still-open"><span class="n">15</span><span class="t">What's still open</span></a></li>
+                    <li><a href="#sources"><span class="n">16</span><span class="t">Sources</span></a></li>
                 </ol>
             </nav>
 
@@ -983,7 +982,7 @@
                             <div class="skel" aria-hidden="true"><i style="width:80%"></i><i style="width:95%"></i><i style="width:60%"></i></div>
                         </div>
                         <div class="spec spec-box" data-el="Backdrop" data-fam="status" data-also="scrim, overlay">
-                            <div class="backdrop-demo">Content behind<div class="scrim">Backdrop</div></div>
+                            <div class="backdrop-demo">Content behind<div class="scrim" aria-hidden="true"></div></div>
                         </div>
                         <div class="spec spec-box" data-el="Badge" data-fam="status" data-also="notification dot, counter">
                             <span class="stackh" style="gap:1.2rem">
@@ -1274,14 +1273,6 @@
                 <div class="fig-caption">Click-to-load, because the library is real and costs real bytes. The Shoelace column renders <code>&lt;sl-select&gt;</code>, <code>&lt;sl-switch&gt;</code>, and <code>&lt;sl-rating&gt;</code> as actual custom elements, themed to the site palette by mapping <code>--sl-color-primary-600</code> onto <code>--brand</code>, and it follows the light/dark toggle by swapping the <code>sl-theme-dark</code> class. If jsDelivr is unreachable the cell says so and the hand-rolled column is unaffected.</div>
             </div>
 
-            <h2 id="contract">A name is a behavioral contract, and I failed my own test</h2>
-
-            <p>I sent this page out for an adversarial review and got the criticism I deserved. The reviewer went through the specimens with a keyboard instead of a mouse, and several did not do what their labels promised. The tab bar ignored arrow keys, so it was a row of buttons wearing tab roles. The action menus used the <code>popover</code> attribute and stopped there: no <code>role="menu"</code>, no focus moving in, no arrow keys, and picking an item did nothing. The rating announced <code>role="radiogroup"</code> and contained zero radios. The floating action button was a <code>&lt;span&gt;</code>. The autocomplete was a text input beside matches you could not select. The context menu opened only by right-clicking a <code>&lt;div&gt;</code> nothing could focus.</p>
-
-            <p>On a page arguing that the noun determines the implementation, that is <em>the same mistake</em> the post exists to warn about: I used the word and skipped the contract. All of it is fixed above - tabs take arrow keys with one tab stop, menus carry menu roles and move focus and run their command, the rating is a real radio group, the FAB is a button, the autocomplete is the <a href="https://www.w3.org/WAI/ARIA/apg/patterns/combobox/" rel="noopener">combobox pattern</a>, and the context menu answers Enter and Shift+F10. Try them with the keyboard.</p>
-
-            <p>Two I labeled instead of fixing: the data grid is a sortable table, the tree view is nested disclosures. Building the full APG patterns would have doubled the page for no extra teaching, so each carries a caveat naming what it is missing. That is the honest lesson: <strong>a name is a promise about roles, state, focus, and keyboard behavior, and if you cannot keep it you owe the reader the gap in writing.</strong> "Add a data grid" and "add a sortable table" are different tickets, and the difference is a week.</p>
-
             <h2 id="collisions">The names that collide</h2>
 
             <p>These are the collisions that have actually cost me time. Each one is a case where two sources use the same word for different components, or different words for the same component.</p>
@@ -1330,7 +1321,7 @@
                         <div class="drill-fb" id="drillFb" role="status"></div>
                     </div>
                 </div>
-                <div class="fig-caption">Each round clones a real <code>.spec</code> node out of the page, removes its label and its explanatory note, strips the ids so nothing collides, and marks the stage <code>inert</code> so the clone is neither clickable nor reachable by Tab. Grading normalizes case and punctuation and accepts every synonym in the specimen's own <code>data-also</code> attribute. 28 specimens are in the pool, drawn from all five families so the practice is interleaved rather than blocked.</div>
+                <div class="fig-caption">Each round clones a real <code>.spec</code> node out of the page, removes its label and its explanatory note, strips the ids so nothing collides, and marks the stage <code>inert</code> so the clone is neither clickable nor reachable by Tab. Visible text that would spell the answer (or a synonym) is redacted in the clone, so a button that says &ldquo;Open drawer&rdquo; on the page does not give the game away here. Grading normalizes case and punctuation and accepts every synonym in the specimen's own <code>data-also</code> attribute. The pool is every labeled specimen on the page, shuffled once per pass, so families stay interleaved rather than blocked.</div>
             </div>
 
             <h2 id="quiz-section">The quiz at the door</h2>
@@ -1433,7 +1424,7 @@
 
             <p>The second thing I would change is the shape. This page argues three things at once - that precise component language pays, that here are 103 specimens, and that native primitives have caught up - and the review made a fair case that the breadth fights the teaching. Nobody retains 103 names in one sitting, and eight quiz questions barely sample them. The better structure is probably an essay on the "dropdown" ambiguity and the expensive collisions, a separate atlas with per-item provenance and behavior contracts, and a separate browser lab. I have not split it, because the specimen sheet <em>is</em> the argument: the labels only teach while you are standing in front of the live thing. If a second post comes out of this, it will be the atlas.</p>
 
-            <p>The third question is whether the labels helped. Litt's own caveat is that interactive figures become a crutch: you push the buttons, feel competent, retain nothing. The recall drill sharpened that worry rather than settling it. I can measure whether you produce the word, but only for the 28 specimens in the pool and only in the same session - which is exactly the retrieval-strength reading the Bjorks warn is misleading. The honest experiment is a drill that comes back in a week, and a page cannot do that. Building this taught me two things I did not know: <code>&lt;details name&gt;</code> makes an exclusive accordion with no JavaScript, and a "modal" was never a component. Whether reading it does the same for you is the test I still cannot run.</p>
+            <p>The third question is whether the labels helped. Litt's own caveat is that interactive figures become a crutch: you push the buttons, feel competent, retain nothing. The recall drill sharpened that worry rather than settling it. I can measure whether you produce the word, but only in the same session - which is exactly the retrieval-strength reading the Bjorks warn is misleading. The honest experiment is a drill that comes back in a week, and a page cannot do that. Building this taught me two things I did not know: <code>&lt;details name&gt;</code> makes an exclusive accordion with no JavaScript, and a "modal" was never a component. Whether reading it does the same for you is the test I still cannot run.</p>
 
             <h2 id="sources">Sources</h2>
 
@@ -2412,17 +2403,32 @@
         });
 
         /* ---------- 7b. Recall drill (Fig. 9) ---------- */
-        /* Interleaved across all five families on purpose - blocked practice inflates
-           retrieval strength without touching storage strength (Bjork & Bjork). */
-        var DRILL_POOL = [
-            'Breadcrumbs', 'Pagination', 'Navigation bar', 'Bottom navigation', 'Stepper',
-            'Kebab menu', 'Meatball menu', 'Bento menu', 'Hamburger menu',
-            'Toggle switch', 'Segmented control', 'Input stepper', 'Filter chip', 'Transfer list', 'Rating',
-            'Skeleton screen', 'Spinner', 'Badge', 'Empty state', 'Backdrop',
-            'Card', 'Timeline', 'Tree view', 'Sparkline',
-            'Hero', 'Pricing table', 'Logo cloud', 'FAQ'
-        ];
+        /* Pool = every labeled specimen on the page, shuffled (Fisher-Yates) once per
+           pass so families stay interleaved rather than blocked. Blocked practice
+           inflates retrieval strength without touching storage strength (Bjork & Bjork). */
         var SUFFIXES = ['menu', 'bar', 'button', 'control', 'field', 'screen', 'state', 'view', 'block', 'switch'];
+
+        function buildDrillPool() {
+            var seen = Object.create(null);
+            var pool = [];
+            Array.prototype.forEach.call(document.querySelectorAll('.spec[data-el]'), function (el) {
+                /* Specimens inside the drill stage itself would be circular. */
+                if (el.closest && el.closest('#drillStage, #fig9')) return;
+                var name = el.getAttribute('data-el');
+                if (!name || seen[name]) return;
+                seen[name] = true;
+                pool.push(name);
+            });
+            return pool;
+        }
+        function shuffleInPlace(arr) {
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+            }
+            return arr;
+        }
+        var DRILL_POOL = buildDrillPool();
 
         function normAns(s) {
             return String(s).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -2443,18 +2449,73 @@
             });
             return out;
         }
+        /* Phrases that would print the answer on the specimen itself. Prefer longer
+           matches first so "bottom sheet" wins over "sheet". Always keep the primary
+           name (even short ones like "Tag"); for synonyms, skip tokens under 4 chars
+           so "CTA" or "tag" does not over-redact ordinary UI copy. */
+        function spoilerPhrases(spec) {
+            var phrases = [];
+            var seen = Object.create(null);
+            function add(s, force) {
+                var n = normAns(s);
+                if (!n || seen[n]) return;
+                if (!force && n.length < 4) return;
+                seen[n] = true;
+                phrases.push(n);
+            }
+            add(spec.getAttribute('data-el'), true);
+            (spec.getAttribute('data-also') || '').split(',').forEach(function (s) { add(s, false); });
+            acceptedFor(spec).forEach(function (s) { add(s, false); });
+            phrases.sort(function (a, b) { return b.length - a.length; });
+            return phrases;
+        }
+        function scrubSpoilers(root, phrases) {
+            if (!phrases.length) return;
+            var reParts = phrases.map(function (p) {
+                return p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+            });
+            var re = new RegExp('\\b(?:' + reParts.join('|') + ')\\b', 'gi');
+            var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+            var nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            nodes.forEach(function (node) {
+                var v = node.nodeValue;
+                if (!v) return;
+                var next = v.replace(re, '····');
+                if (next !== v) node.nodeValue = next;
+            });
+            Array.prototype.forEach.call(root.querySelectorAll('*'), function (el) {
+                ['aria-label', 'title', 'alt', 'placeholder'].forEach(function (attr) {
+                    if (!el.hasAttribute(attr)) return;
+                    var v = el.getAttribute(attr);
+                    if (!v) return;
+                    var next = v.replace(re, '····');
+                    if (next !== v) el.setAttribute(attr, next);
+                });
+            });
+        }
         function stageClone(spec) {
             var c = spec.cloneNode(true);
-            var t = c.querySelector('.spec-tag');
-            if (t) t.parentNode.removeChild(t);
-            Array.prototype.forEach.call(c.querySelectorAll('.demo-note'), function (n) { n.parentNode.removeChild(n); });
+            /* Labels are useful on the page; in the drill they are the answer. */
+            Array.prototype.forEach.call(c.querySelectorAll('.spec-tag'), function (n) {
+                n.parentNode.removeChild(n);
+            });
+            Array.prototype.forEach.call(c.querySelectorAll('.demo-note'), function (n) {
+                n.parentNode.removeChild(n);
+            });
             Array.prototype.forEach.call(c.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
             Array.prototype.forEach.call(c.querySelectorAll('[popovertarget]'), function (n) { n.removeAttribute('popovertarget'); });
             /* <details name> groups across the whole document, so a cloned FAQ would
                close the real one. Strip the grouping from the copy. */
             Array.prototype.forEach.call(c.querySelectorAll('details[name]'), function (n) { n.removeAttribute('name'); });
             c.removeAttribute('id');
-            ['data-el', 'data-fam', 'data-also'].forEach(function (a) { c.removeAttribute(a); });
+            Array.prototype.forEach.call(
+                [c].concat(Array.prototype.slice.call(c.querySelectorAll('[data-el], [data-fam], [data-also]'))),
+                function (n) {
+                    ['data-el', 'data-fam', 'data-also'].forEach(function (a) { n.removeAttribute(a); });
+                }
+            );
+            scrubSpoilers(c, spoilerPhrases(spec));
             c.className = '';
             /* pointer-events only stops the mouse - cloned controls stayed keyboard
                focusable and half-working, since cloneNode does not copy listeners.
@@ -2470,19 +2531,26 @@
             drillCheck = document.getElementById('drillCheck'),
             drillReveal = document.getElementById('drillReveal'),
             drillStart = document.getElementById('drillStart');
-        var drillQueue = [], drillCur = null, drillRight = 0, drillDone = 0, drillScored = false;
+        var drillQueue = [], drillCur = null, drillRight = 0, drillDone = 0, drillScored = false,
+            drillPass = 0, drillDeckSize = DRILL_POOL.length;
 
         function drillScoreText() {
-            drillScoreEl.textContent = drillDone
-                ? drillRight + ' / ' + drillDone + ' recalled'
-                : 'Not started';
+            if (!drillDone) {
+                drillScoreEl.textContent = 'Not started · ' + drillDeckSize + ' in the deck';
+                return;
+            }
+            var left = drillQueue.length;
+            drillScoreEl.textContent = drillRight + ' / ' + drillDone + ' recalled'
+                + (left ? ' · ' + left + ' left this pass' : ' · pass complete');
+        }
+        function refillDrillQueue() {
+            drillQueue = shuffleInPlace(DRILL_POOL.slice());
+            drillPass++;
         }
         function drillNext() {
-            if (!drillQueue.length) {
-                drillQueue = DRILL_POOL.slice().sort(function () { return Math.random() - 0.5; });
-            }
+            if (!drillQueue.length) refillDrillQueue();
             var name = drillQueue.shift();
-            var spec = document.querySelector('.spec[data-el="' + name + '"]');
+            var spec = document.querySelector('.spec[data-el="' + name.replace(/"/g, '') + '"]');
             if (!spec) { drillNext(); return; }
             drillCur = spec;
             drillScored = false;
@@ -2494,6 +2562,7 @@
             drillReveal.disabled = false;
             drillFb.textContent = '';
             drillStart.textContent = 'Skip';
+            drillScoreText();
             drillInput.focus();
         }
         function drillGrade() {
@@ -2531,6 +2600,8 @@
             drillFb.appendChild(s);
             drillStart.textContent = 'Next';
         });
+        /* Show deck size before the first Start click. */
+        drillScoreText();
 
         /* ---------- 8. Quiz ---------- */
         var answered = 0, total = document.querySelectorAll('#quiz .qz').length;

@@ -6,3 +6,6 @@ private/.env
 # Runtime community gallery (images + manifest written by try-submit.php)
 gpt-image/gallery/*
 !gpt-image/gallery/.gitkeep
+
+# Deploy-time backups of the hosted bootstrap installer
+vaulted-agent/*.bak

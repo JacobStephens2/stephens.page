@@ -1,15 +1,9 @@
 # Analytics by Google Tag
 Here is the Google Tag for this site's Analytics:
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-W0D3PS27FK"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-W0D3PS27FK');
-</script>
+<!-- Umami (self-hosted) - analytics + session replay -->
+<script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
+<script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
 
 # Portfolio
 There should be a portfolio page which highlights some of Jacob's projects. These projects can be found on his GitHub page at https://github.com/JacobStephens2.

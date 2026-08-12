@@ -4,15 +4,9 @@ This website should be accessible at https://resume.jacobstephens.net. The SSL c
 # Analytics by Google Tag
 Here is the Google Tag for this site's Analytics:
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-SCMG0LPKD5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-SCMG0LPKD5');
-</script>
+<!-- Umami (self-hosted) - analytics + session replay -->
+<script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
+<script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
 
 # Source Material
 The resume should take into account the information in the resume.jacobstephens.net/private/reports folder

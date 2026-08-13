@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    <!-- AI agents: the machine-oriented version of this post is at
+         /blog/the-master-window-takes-everyone-with-it/agents.md (text/markdown). -->
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="/bee-favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Master Window Takes Everyone With It | Jacob Stephens</title>
+    <link rel="canonical" href="https://stephens.page/blog/the-master-window-takes-everyone-with-it/">
+    <link rel="alternate" type="text/markdown" href="/blog/the-master-window-takes-everyone-with-it/agents.md" title="Agent-oriented version (markdown)">
+    <meta name="description" content="Running unclebob/swarm-forge's six-pack under muxboard on one droplet, and the teardown defect it exposed: quitting the specifier killed the other five agents mid-turn in under twelve seconds, with no guard and no prompt.">
+    <meta property="og:title" content="The Master Window Takes Everyone With It">
+    <meta property="og:description" content="Six AI agents on one tmux socket, watched from a browser tab. Exiting one of them ended the other five mid-turn. The blast radius was correct; the timing was the bug.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://stephens.page/blog/the-master-window-takes-everyone-with-it/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="The Master Window Takes Everyone With It">
+    <meta name="twitter:description" content="Six AI agents on one tmux socket, watched from a browser tab. Exiting one of them ended the other five mid-turn. The blast radius was correct; the timing was the bug.">
+    <!-- Umami (self-hosted) - analytics + session replay -->
+    <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
+    <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #181512; --brand: #9b4d24; --brand-ink: #ffffff; --muted: #625a52;
+            --surface: #ffffff; --soft: #efe9df; --rule: #d6d1c9; --code-bg: #efe9df; --bar-bg: #ece6dc;
+            --alive: #2f7d4f; --dead: #a33a2a; --warn: #8a6d1f; --tint: rgba(155, 77, 36, 0.07);
+        }
+        html[data-theme="dark"] { --alive: #7fbf95; --dead: #e08a76; --warn: #d8bd6a; --tint: rgba(212, 160, 122, 0.10); }
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]):not([data-theme="dark"]) { --alive: #7fbf95; --dead: #e08a76; --warn: #d8bd6a; --tint: rgba(212, 160, 122, 0.10); }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; background: var(--surface); color: var(--ink); line-height: 1.7; min-height: 100vh; }
+        .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.75rem; }
+        .back-link, .contact-link { color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+        .back-link:hover, .contact-link:hover, .back-link:focus-visible, .contact-link:focus-visible { color: var(--brand); text-decoration: underline; text-underline-offset: 0.12em; }
+        article.note { padding: 0; }
+        .eyebrow { display: inline-block; margin-bottom: 0.9rem; color: var(--brand); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+        h1.title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: clamp(2rem, 4vw, 2.8rem); line-height: 1.08; letter-spacing: -0.01em; margin-bottom: 1rem; }
+        .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.6rem; padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule); }
+        .meta strong { color: var(--ink); font-weight: 700; }
+        h2 { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: var(--brand); margin-top: 2.2rem; margin-bottom: 0.8rem; }
+        p { margin-bottom: 1rem; color: var(--ink); }
+        ol, ul { margin-bottom: 1rem; padding-left: 1.4rem; }
+        ol li, ul li { margin-bottom: 0.4rem; }
+        code { background: var(--code-bg); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.92em; }
+        pre { background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.82rem; line-height: 1.5; margin-bottom: 1.2rem; }
+        pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+        a { color: var(--brand); text-decoration: none; }
+        a:hover { text-decoration: underline; text-underline-offset: 0.12em; }
+        /* Figure component */
+        .fig { margin: 1.4rem 0 1.6rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); overflow: hidden; }
+        .fig-head { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--rule); background: var(--soft); }
+        .fig-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brand); }
+        .fig-body { padding: 0.9rem; }
+        .fig-caption { padding: 0.65rem 0.9rem 0.75rem; color: var(--muted); font-size: 0.88rem; border-top: 1px dashed var(--rule); line-height: 1.55; }
+        .fig-scroll { overflow-x: auto; }
+        .panel-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+        .fig img { max-width: 100%; height: auto; display: block; border-radius: 4px; border: 1px solid var(--rule); }
+        /* Controls */
+        .btn { font: inherit; font-size: 0.82rem; font-weight: 600; padding: 0.34rem 0.7rem; border: 1px solid var(--rule); border-radius: 5px; background: var(--surface); color: var(--ink); cursor: pointer; }
+        .btn:hover, .btn:focus-visible { border-color: var(--brand); color: var(--brand); }
+        .btn[aria-pressed="true"], .btn.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+        .ctl-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+        .chk { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; padding: 0.2rem 0.45rem; border: 1px solid var(--rule); border-radius: 5px; }
+        /* Timeline */
+        .tl-row { display: grid; grid-template-columns: 13.5rem 1fr; gap: 0.5rem; align-items: center; margin-bottom: 0.3rem; }
+        .tl-name { font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tl-track { position: relative; height: 1.15rem; background: var(--bar-bg); border-radius: 3px; overflow: hidden; }
+        .tl-bar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--alive); width: 0; }
+        .tl-bar.dead { background: var(--dead); }
+        /* the interval within which every swarm session died: known bound, unknown instant */
+        .tl-band { position: absolute; top: 0; bottom: 0; pointer-events: none;
+            background: repeating-linear-gradient(45deg, transparent 0 4px, var(--dead) 4px 5px); opacity: 0.55; }
+        .tl-exit { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--brand); }
+        .tl-clock { font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.85rem; color: var(--ink); }
+        .tl-legend { font-size: 0.78rem; color: var(--muted); margin-top: 0.5rem; }
+        .out { font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.78rem; background: var(--code-bg); border-radius: 5px; padding: 0.6rem 0.7rem; white-space: pre-wrap; word-break: break-word; }
+        .verdict { font-weight: 700; font-size: 0.9rem; margin-top: 0.5rem; }
+        .verdict.kill { color: var(--dead); }
+        .verdict.hold { color: var(--alive); }
+        /* Quiz */
+        .qz { border: 1px solid var(--rule); border-radius: 8px; padding: 0.85rem 0.95rem; margin-bottom: 0.9rem; background: var(--surface); }
+        .qz-q { font-weight: 600; margin-bottom: 0.6rem; }
+        .qz-opts { display: flex; flex-direction: column; gap: 0.35rem; }
+        .qz-opt { text-align: left; font: inherit; font-size: 0.9rem; padding: 0.4rem 0.6rem; border: 1px solid var(--rule); border-radius: 5px; background: var(--surface); color: var(--ink); cursor: pointer; }
+        .qz-opt:hover { border-color: var(--brand); }
+        .qz-opt.right { border-color: var(--alive); color: var(--alive); font-weight: 600; }
+        .qz-opt.wrong { border-color: var(--dead); color: var(--dead); }
+        .expl { margin-top: 0.6rem; font-size: 0.88rem; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 0.7rem; }
+        .qz-score { font-weight: 700; margin-top: 0.6rem; }
+        /* Sources + provenance */
+        .sources { margin-top: 1rem; font-size: 0.9rem; }
+        .sources h3 { font-family: 'Source Sans 3', Arial, sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 1rem 0 0.5rem; }
+        .sources ul { list-style: none; padding-left: 0; margin-bottom: 0; }
+        .sources li { padding: 0.3rem 0; border-bottom: 1px solid var(--rule); color: var(--muted); line-height: 1.5; }
+        .sources li:last-child { border-bottom: 0; }
+        .sources .cite-title { color: var(--ink); font-weight: 600; }
+        .ai-note { margin-top: 2rem; padding: 1rem 1.2rem; background: var(--soft); border-left: 3px solid var(--brand); border-radius: 0 6px 6px 0; color: var(--muted); font-size: 0.9rem; }
+        .footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); text-align: center; color: var(--muted); font-size: 0.85rem; }
+        @media (max-width: 640px) { .container { padding: 1.25rem 1rem 2.5rem; } .topbar { flex-direction: column; align-items: flex-start; } .tl-row { grid-template-columns: 8rem 1fr; } }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+    </style>
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/theme.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <span style="display:flex;flex-wrap:wrap;gap:1.1rem">
+                <a href="/blog/" class="back-link">&larr; All posts</a>
+                <a href="https://github.com/JacobStephens2/stephens.page/tree/main/blog/the-master-window-takes-everyone-with-it/" class="back-link" rel="noopener">Source on GitHub</a>
+            </span>
+            <a href="mailto:jacob@stephens.page" class="contact-link">jacob@stephens.page</a>
+        </div>
+
+        <article class="note">
+            <div class="eyebrow">Notes &middot; Agent Swarms</div>
+            <h1 class="title">The Master Window Takes Everyone With It</h1>
+            <p class="meta"><strong>August 12, 2026</strong> &middot; ~2,250 words &middot; 4 live figures, 2 screenshots, and a quiz &middot; reading this as an AI agent? <a href="/blog/the-master-window-takes-everyone-with-it/agents.md">agents.md</a> is for you</p>
+
+            <p>Typing <code>/exit</code> in one agent's window killed the other five, mid-turn, in under twelve seconds. That is the defect. The reason I can put a number on it instead of a shrug is that all six agents were on one browser page at the time, so "they all disappeared" became a pair of timestamps and a process count.</p>
+
+            <p>The setup: Robert C. Martin's <a href="https://github.com/unclebob/swarm-forge" rel="noopener">swarm-forge</a>, running its <code>six-pack</code> configuration, on my droplet, watched through <a href="https://muxboard.dev" rel="noopener">muxboard</a> 0.1.5 - a Flask app I wrote that lists tmux sessions and attaches to them over a WebSocket. Six agents, six tmux sessions, one page. The pairing was supposed to be a demo. It turned into a bug report.</p>
+
+            <h2>Six agents, two tmux servers, one box</h2>
+
+            <p>swarm-forge's six-pack is a pipeline of six roles that hand work down a chain: specifier, coder, cleaner, architect, hardender, QA. Each role gets its own git worktree and its own tmux session, and each runs a real coding CLI. My <code>swarmforge.conf</code> mixes them - <code>claude</code> for the roles where design judgment carries the work (specifier, coder, architect), <code>grok</code> for the mechanical gates (cleaner, hardender, QA).</p>
+
+            <p>The detail that matters for observability is that swarm-forge does not use your default tmux server. It mints a private socket named after a CRC32 of the project directory (<code>swarmforge.bb:463-465</code>), so a six-pack lands on something like <code>/tmp/swarmforge-jacob/2116901388.sock</code>. Run <code>tmux ls</code> in your shell while a swarm is running and you will see nothing. That is good hygiene and terrible visibility.</p>
+
+            <div class="fig" id="fig1">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 1 &middot; One host, two tmux servers</span>
+                </div>
+                <div class="fig-body">
+                    <div id="mm1" class="fig-scroll"></div>
+                </div>
+                <div class="fig-caption">Rendered live in your browser by <a href="https://mermaid.js.org" rel="noopener">mermaid.js</a> v11 from the source below, themed from this page's CSS variables. If the CDN is unreachable the source stays visible as text. A muxboard <code>Host</code> entry is one tmux <em>server</em>, not one machine, which is why the same droplet appears twice.</div>
+            </div>
+
+            <details style="margin-bottom:1.2rem">
+                <summary style="cursor:pointer;color:var(--muted);font-size:0.88rem">Mermaid source for Fig. 1</summary>
+                <pre id="mm1src"><code>flowchart TB
+  B["Browser tab"] --&gt; M["muxboard 0.1.5"]
+  M --&gt;|"local=True, default socket"| D["tmux server: /tmp/tmux-1002/default"]
+  M --&gt;|"tmux_socket_file"| S["tmux server: /tmp/swarmforge-jacob/2116901388.sock"]
+  D --&gt; D1["muxboard-swarmforge (my own shell)"]
+  S --&gt; R1["swarmforge-specifier (claude)"]
+  S --&gt; R2["swarmforge-coder (claude)"]
+  S --&gt; R3["swarmforge-cleaner (grok)"]
+  S --&gt; R4["swarmforge-architect (claude)"]
+  S --&gt; R5["swarmforge-hardender (grok)"]
+  S --&gt; R6["swarmforge-QA (grok)"]</code></pre>
+            </details>
+
+            <p>muxboard 0.1.5 added <code>tmux_socket_file</code> for exactly this shape (<code>inventory.py:96-103</code>): point a host at a <em>file</em> whose first line is the socket path, and it re-reads that file on every sweep. Hardcoding the socket would break the moment the CRC changed for a different project directory. swarm-forge publishes the path to <code>.swarmforge/tmux-socket</code>, so the two tools compose without either knowing about the other.</p>
+
+            <p>The obvious objection: why not just point swarm-forge at the default socket and skip the indirection? Because the private socket is the thing that keeps the swarm's teardown from touching your other work, which is the one part of this story that goes right. More on that after it goes wrong.</p>
+
+            <div class="fig" id="fig2">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 2 &middot; The dashboard, mid-run</span>
+                </div>
+                <div class="fig-body">
+                    <img src="muxboard-two-sockets.png" alt="muxboard dashboard listing two hosts: stephens droplet with sessions muxboard-swarmforge and test, and swarm-forge six-pack with the six swarmforge role sessions in pipeline order, each with attach and kill buttons." width="2880" height="2000" loading="lazy">
+                </div>
+                <div class="fig-caption">Screenshot, captured with headless Chromium against the live board at 23:29 on 2026-08-12. Two host cards, one droplet. Sessions sort in declared pipeline order, not alphabetically - the specifier is the entry point and the only path back to master, and it sorts last under any sane collation.</div>
+            </div>
+
+            <p>The second card is the swarm. Six roles, window counts, created times, last activity, and whether anything is attached. It refreshes off a 60-second background sweep, so the page reads from a cache and never blocks on the sweep.</p>
+
+            <p>Clicking <em>attach</em> opens a real terminal for that role, xterm.js over a WebSocket, and you are inside the agent's TUI - scrollback, spinner, token counter and all.</p>
+
+            <div class="fig" id="fig3">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 3 &middot; Attached to the specifier, mid-turn</span>
+                </div>
+                <div class="fig-body">
+                    <img src="muxboard-attach-specifier.png" alt="A browser terminal attached to the swarmforge-specifier tmux session, showing the agent writing features/attach-kill.feature, with a churning spinner reading 3m 27s and 14.5k tokens." width="2880" height="1640" loading="lazy">
+                </div>
+                <div class="fig-caption">Screenshot of the same board's attach page. The specifier is writing <code>features/attach-kill.feature</code>, 62 lines of Gherkin, with the header showing <code>connected</code> and the spinner at 3m 27s / 14.5k tokens. This is the view that made the teardown legible: you can see which agents are working and which are idle, from a phone.</div>
+            </div>
+
+            <h2>The teardown is bolted to one window and only one</h2>
+
+            <p>swarm-forge cleans up after itself when you are done. The way it knows you are done is that the specifier's CLI process exited. Here is the actual rule, from <code>swarmforge/scripts/swarmforge.bb:344-350</code> - the launcher appends a teardown suffix to a role's shell command only when that role's index is zero:</p>
+
+            <pre><code>(cond-&gt; (str base (case agent ...))
+  (= index 0)
+  (str "; exit_code=$?; SWARMFORGE_TERMINAL_BACKEND=" (sq (:terminal-backend ctx))
+       " nohup " (sq (str (fs/path (:script-dir ctx) "swarm-cleanup.sh")))
+       " " (sq (:tmux-socket ctx))
+       " " (sq (str (:window-ids-file ctx)))
+       (apply str (map #(str " " (sq (:session %))) (:roles ctx)))
+       " &gt;/dev/null 2&gt;&amp;1 &amp; disown; exit $exit_code"))</code></pre>
+
+            <p>Index 0 is the specifier, because that is the order the roles are declared in <code>swarmforge.conf</code>. Before you read further, call your shot - White and Gunstone's predict-observe-explain, and the cheapest teaching trick there is. Pick a role in the figure below and decide whether its shell command carries the teardown, then check.</p>
+
+            <div class="fig" id="fig4">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 4 &middot; Which window carries the kill list</span>
+                    <span class="ctl-row" id="roleBtns"></span>
+                </div>
+                <div class="fig-body">
+                    <div class="panel-label">Generated shell command</div>
+                    <div class="out" id="cmdOut">Pick a role.</div>
+                    <div class="verdict" id="cmdVerdict"></div>
+                </div>
+                <div class="fig-caption">Live. The suffix rule is reimplemented in JavaScript directly from <code>swarmforge.bb:344-350</code>: the teardown is appended when and only when the role's index is 0. Every other role gets a bare agent invocation, which is why quitting the coder costs you the coder and nothing else.</div>
+            </div>
+
+            <p>What the suffix runs is <code>swarm-cleanup.sh</code>, and its kill loop (lines 36-38) is four lines with no conditions in it:</p>
+
+            <pre><code>for session in "$@"; do
+  tmux -S "$TMUX_SOCKET" kill-session -t "$session" 2&gt;/dev/null || true
+done</code></pre>
+
+            <p>Nothing between the exit and that loop asks whether the other five roles are busy. The exit code is captured and re-raised, so even a crash of the specifier's CLI - not just a deliberate <code>/exit</code> - fires the same teardown.</p>
+
+            <h2>Twelve seconds, measured</h2>
+
+            <p>I ran it deliberately. Ubuntu 24.04, tmux 3.4, zsh 5.9, babashka 1.13.219. Six sessions up on <code>/tmp/swarmforge-jacob/2116901388.sock</code>. I gave the coder real work - implement the attach-page kill button from the spec the specifier had just written - and confirmed it was generating, because a footer that reads <code>esc to interrupt</code> is the agent telling you it is mid-turn. Then I typed <code>/exit</code> in the specifier.</p>
+
+            <p>At 23:44:56, all six alive. <code>/exit</code> sent at 23:45:05. At 23:45:17, twenty-one seconds after the first reading and twelve after the exit:</p>
+
+            <pre><code>$ tmux -S /tmp/swarmforge-jacob/2116901388.sock ls
+no server running on /tmp/swarmforge-jacob/2116901388.sock</code></pre>
+
+            <p>Zero agent processes survived. The coder's worktree was back at <code>a0a012a</code> with a clean tree, so the turn it was in the middle of produced nothing at all. Not a partial file, not a stash. The work existed only in a context window, and the context window was in a process that got a <code>kill-session</code>.</p>
+
+            <div class="fig" id="fig5">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 5 &middot; The observed teardown</span>
+                    <span class="ctl-row">
+                        <button class="btn primary" id="tlPlay" type="button">Run it</button>
+                        <button class="btn" id="tlReset" type="button">Reset</button>
+                        <span class="tl-clock" id="tlClock">t = 0s</span>
+                    </span>
+                </div>
+                <div class="fig-body">
+                    <div id="tlRows"></div>
+                    <div class="tl-legend" id="tlNote">Press <em>Run it</em>. Predict first: which of the seven bars are still green at the end?</div>
+                </div>
+                <div class="fig-caption">Live, hand-built DOM animation driven by the real timestamps from the run: 23:44:56 baseline, <code>/exit</code> at +9s (the vertical rule), socket confirmed dead at +21s. The hatched band is honest uncertainty - I know every session was gone by +21s, not the instant each one died, because I sampled the socket rather than watching each process. The bottom bar is the control, a session of mine on the default tmux socket, which keeps growing through the whole run.</div>
+            </div>
+
+            <h2>The blast radius was right. The timing was the bug.</h2>
+
+            <p>This is the part worth being precise about, because "swarm-forge killed my tmux sessions" would be a false accusation. It killed exactly the six sessions it created, on the private socket it created them on, by name. My own session on <code>/tmp/tmux-1002/default</code> was untouched across the entire run, and there is no <code>kill-server</code> anywhere in the tree - I grepped for it.</p>
+
+            <p>Two independent mechanisms produce that. The CRC-named socket means a <code>kill-session</code> issued by the swarm cannot address a session on your default server at all. The explicit name list means that even on a shared socket it would only reach the six names it was handed. The scoping is deliberate and it works.</p>
+
+            <p>What is missing is a check on <em>state</em> rather than identity. Jim Gray's 1985 tally of why computers stop put operator error and maintenance action near the top of the list, ahead of the hardware faults everyone designs for. Candea and Fox's crash-only design argues the fix is to make every component safe to kill and cheap to restart. A six-pack fails that test in one specific direction: the master is safe to kill for itself, and catastrophic for its peers. The specifier is also the role a human talks to, so it is the window most likely to be closed, quit, or lost to a dropped SSH connection. Every one of those ends five agents.</p>
+
+            <p>The fix I proposed upstream is a guard, not a prompt. A prompt cannot help a dropped connection; a guard can:</p>
+
+            <pre><code>if [[ -z "${SWARMFORGE_FORCE_CLEANUP:-}" ]]; then
+  for session in "$@"; do
+    [[ "$session" == *specifier ]] &amp;&amp; continue
+    if tmux -S "$TMUX_SOCKET" has-session -t "$session" 2&gt;/dev/null; then
+      echo "swarm-cleanup: $session still running; leaving the swarm up." &gt;&amp;2
+      exit 0
+    fi
+  done
+fi</code></pre>
+
+            <div class="fig" id="fig6">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 6 &middot; Guarded vs unguarded teardown</span>
+                    <span class="ctl-row" id="guardChks"></span>
+                </div>
+                <div class="fig-body">
+                    <div style="display:grid;gap:0.7rem;grid-template-columns:1fr;">
+                        <div>
+                            <div class="panel-label">Today (swarm-cleanup.sh lines 36-38)</div>
+                            <div class="out" id="guardNow"></div>
+                        </div>
+                        <div>
+                            <div class="panel-label">With the guard above</div>
+                            <div class="out" id="guardNew"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fig-caption">Live. Both panels run the same JavaScript reimplementation of the two shell paths against whichever workers you mark alive. Note the case that matters: with every worker idle, the guarded version behaves identically. The guard only changes outcomes when there is something to protect, which is the property that makes it safe to add.</div>
+            </div>
+
+            <h2>Where the observability actually paid</h2>
+
+            <p>A swarm you cannot watch is a swarm you cannot debug. Before muxboard, my evidence for this defect would have been "I looked back at the dashboard and all those sessions were gone" - which is roughly what happened the first time, and which is worth nothing as a bug report. Six sessions on one page turned that into a before-reading, an after-reading, a process count, and a worktree SHA.</p>
+
+            <p>The second thing it bought is the thing I did not expect. Watching an agent's TUI in a browser tab is a different activity from tailing its logs. You see the spinner, the token counter, the tool calls scrolling past, and - the part that mattered here - the footer that distinguishes "this agent is thinking" from "this agent is idle at a prompt". That distinction is the entire difference between a teardown that is rude and a teardown that destroys work. I could only make the claim "mid-turn" because I could see it.</p>
+
+            <h2>What's still open</h2>
+
+            <p>I over-claimed once already in this investigation and it is worth writing down. Mid-run I hit muxboard's own per-user attach cap - five concurrent attaches - with only four attach processes visible, and I announced I had found a slot leak. Then I tested it: I attached a headless browser to a scratch session and killed the browser process with no close frame. The child was gone and the slot released within 20 seconds. The leak does not exist as I described it. <code>bridge()</code> does notice a dropped client, because the PTY drain thread breaks when <code>ws.send</code> fails and sets the stop event.</p>
+
+            <p>What remains is narrower and I cannot yet reproduce it: detection is <em>incidental</em> rather than designed. A client that vanishes without a FIN - real network drop, closed laptop, dead Wi-Fi - is noticed only when a send fails or a receive raises. There is no server-side heartbeat requiring the client's <code>ping</code> messages to keep arriving, and <code>_MAX_ATTACH_SECONDS</code> at six hours is the only backstop against a per-user cap of five. Proving that path needs packet-level dropping, not a killed process, and I have not built that rig.</p>
+
+            <p>Open on the swarm-forge side: I have not tested whether the same teardown fires when the specifier's SSH connection drops rather than the CLI exiting cleanly, which is the case the guard exists for. And <code>swarm-cleanup.sh</code> carries a second, smaller problem I noticed but did not chase - it is <code>#!/usr/bin/env zsh</code> and uses a zsh-only number glob, <code>[[ "$daemon_pid" == &lt;-&gt; ]]</code>, at line 30. On a box without zsh, teardown does not run at all. I have not checked whether that is documented as a dependency or simply assumed.</p>
+
+            <h2>Quiz</h2>
+            <p>Litt's rule: don't merge until you can pass the quiz. Four questions.</p>
+            <div id="quiz"></div>
+
+            <h2>Sources</h2>
+            <div class="sources">
+                <h3>Ideas and authorities</h3>
+                <ul>
+                    <li><span class="cite-title">Jim Gray, "Why Do Computers Stop and What Can Be Done About It?"</span> (1985) - the tally that puts operator and maintenance action ahead of hardware faults as a cause of stops.</li>
+                    <li><span class="cite-title">George Candea and Armando Fox, "Crash-Only Software"</span> (HotOS IX, 2003) - components should be safe to kill and cheap to restart; the six-pack passes this for the master and fails it for the master's peers.</li>
+                    <li><span class="cite-title">Richard White and Richard Gunstone, <em>Probing Understanding</em></span> (1992) - predict-observe-explain, used to frame Figs. 4 and 5.</li>
+                    <li><span class="cite-title">Seymour Papert, <em>Mindstorms</em></span> (1980) - the micro-world: don't read about the rule, move into a small version of it. Figs. 4 and 6 are that.</li>
+                </ul>
+                <h3>Tools demonstrated or referenced</h3>
+                <ul>
+                    <li><span class="cite-title">swarm-forge</span> (the subject; <code>six-pack</code> config) - <a href="https://github.com/unclebob/swarm-forge" rel="noopener">github.com/unclebob/swarm-forge</a></li>
+                    <li><span class="cite-title">muxboard 0.1.5</span> (Figs. 2 and 3) - <a href="https://muxboard.dev" rel="noopener">muxboard.dev</a></li>
+                    <li><span class="cite-title">mermaid.js v11</span> (Fig. 1, live in your browser) - <a href="https://mermaid.js.org" rel="noopener">mermaid.js.org</a></li>
+                    <li><span class="cite-title">babashka 1.13.219</span> (runs <code>swarmforge.bb</code>) - <a href="https://babashka.org" rel="noopener">babashka.org</a></li>
+                </ul>
+            </div>
+
+            <div class="ai-note">
+                Drafted from a working session on 2026-08-12: the swarm-forge source read at the pinned commits, my own muxboard source, the shell history of the run, and the tmux and process readings quoted above. Fig. 1 renders with real mermaid.js v11 loaded from jsDelivr, falling back to its visible source text if the CDN is unreachable. Figs. 4, 5, and 6 are hand-built DOM and vanilla JavaScript, reimplementing the real conditional from <code>swarmforge.bb</code> and the real kill loop from <code>swarm-cleanup.sh</code>; Fig. 5 is driven by the timestamps actually recorded during the run. Figs. 2 and 3 are unretouched screenshots of my own board, captured with headless Chromium. The investigation, the reproduction, the readings, and the words are mine; Claude was the technical collaborator, including the round where it told me my attach-leak claim did not survive its own test.
+            </div>
+
+            <p><strong>For AI agents:</strong> the machine-oriented version is at <a href="/blog/the-master-window-takes-everyone-with-it/agents.md">agents.md</a>, with directives, sources, the exact source citations, verified numbers, an operational checklist, and a self-test.</p>
+        </article>
+
+        <footer class="footer">
+            &copy; <span id="current-year"></span> Jacob Stephens
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script>
+    (function () {
+        'use strict';
+        function $(s, r) { return (r || document).querySelector(s); }
+        function el(t, c, txt) { var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
+        function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+        /* ---------- shared model: the six roles, in declared order ---------- */
+        var ROLES = [
+            { role: 'specifier', agent: 'claude', worktree: 'master' },
+            { role: 'coder',     agent: 'claude', worktree: 'coder' },
+            { role: 'cleaner',   agent: 'grok',   worktree: 'cleaner' },
+            { role: 'architect', agent: 'claude', worktree: 'architect' },
+            { role: 'hardender', agent: 'grok',   worktree: 'hardender' },
+            { role: 'QA',        agent: 'grok',   worktree: 'QA' }
+        ];
+        var SOCKET = '/tmp/swarmforge-jacob/2116901388.sock';
+
+        /* ---------- Fig. 4: the (= index 0) rule from swarmforge.bb:344-350 ---------- */
+        var cmdOut = $('#cmdOut'), cmdVerdict = $('#cmdVerdict'), roleBtns = $('#roleBtns');
+
+        function launchCommand(index) {
+            var r = ROLES[index];
+            var dir = index === 0 ? '/home/jacob/swarm-muxboard' : '/home/jacob/swarm-muxboard/.worktrees/' + r.worktree;
+            var base = "export SWARMFORGE_ROLE='" + r.role + "' && cd '" + dir + "' && " + r.agent + " ...prompt...";
+            if (index !== 0) return base;
+            var names = ROLES.map(function (x) { return " 'swarmforge-" + x.role + "'"; }).join('');
+            return base + "; exit_code=$?; nohup swarm-cleanup.sh '" + SOCKET + "' '.swarmforge/window-ids'" +
+                   names + " >/dev/null 2>&1 & disown; exit $exit_code";
+        }
+
+        function selectRole(index) {
+            Array.prototype.forEach.call(roleBtns.children, function (b, i) {
+                b.setAttribute('aria-pressed', String(i === index));
+            });
+            cmdOut.textContent = launchCommand(index);
+            var carries = index === 0;
+            cmdVerdict.textContent = carries
+                ? 'index 0 - carries the teardown for all six sessions'
+                : 'index ' + index + ' - no teardown; quitting this role costs only this role';
+            cmdVerdict.className = 'verdict ' + (carries ? 'kill' : 'hold');
+        }
+
+        ROLES.forEach(function (r, i) {
+            var b = el('button', 'btn', r.role);
+            b.type = 'button';
+            b.setAttribute('aria-pressed', 'false');
+            b.addEventListener('click', function () { selectRole(i); });
+            roleBtns.appendChild(b);
+        });
+        selectRole(0);
+
+        /* ---------- Fig. 5: the observed teardown, real timestamps ---------- */
+        var T_EXIT = 9, T_DEAD = 21, T_END = 26;
+        var TRACKS = ROLES.map(function (r) { return { name: 'swarmforge-' + r.role, swarm: true }; });
+        TRACKS.push({ name: 'muxboard-swarmforge', swarm: false });
+
+        var tlRows = $('#tlRows'), tlClock = $('#tlClock'), tlNote = $('#tlNote');
+        var bars = [];
+        function pct(t) { return Math.max(0, Math.min(100, (t / T_END) * 100)) + '%'; }
+        TRACKS.forEach(function (t) {
+            var row = el('div', 'tl-row');
+            row.appendChild(el('div', 'tl-name', t.name + (t.swarm ? '' : ' [control]')));
+            var track = el('div', 'tl-track');
+            var bar = el('div', 'tl-bar');
+            track.appendChild(bar);
+            if (t.swarm) {
+                // hatched: gone somewhere in here, exact instant not sampled
+                var band = el('div', 'tl-band');
+                band.style.left = pct(T_EXIT);
+                band.style.width = ((T_DEAD - T_EXIT) / T_END) * 100 + '%';
+                track.appendChild(band);
+            }
+            var exit = el('div', 'tl-exit');
+            exit.style.left = pct(T_EXIT);
+            track.appendChild(exit);
+            row.appendChild(track);
+            tlRows.appendChild(row);
+            bars.push(bar);
+        });
+
+        var tlTimer = null;
+        function tlRender(t) {
+            tlClock.textContent = 't = ' + t + 's';
+            TRACKS.forEach(function (track, i) {
+                var bar = bars[i];
+                var dead = track.swarm && t >= T_DEAD;
+                // a swarm bar stops growing at T_EXIT, where its fate is already sealed;
+                // the hatched band behind it carries the 12s of uncertainty.
+                var drawnTo = track.swarm ? Math.min(t, T_EXIT) : t;
+                bar.classList.toggle('dead', dead);
+                bar.style.width = pct(drawnTo);
+            });
+            if (t < T_EXIT) {
+                tlNote.textContent = 'All six agents alive. The coder is mid-turn.';
+            } else if (t < T_DEAD) {
+                tlNote.textContent = '/exit typed in the specifier at t = ' + T_EXIT + 's. Teardown is running; exact per-session death times were not sampled.';
+            } else {
+                tlNote.textContent = 'At t = ' + T_DEAD + 's the socket answered "no server running". Six swarm sessions gone, 0 agent processes left. The control session on the default socket is untouched.';
+            }
+        }
+        function tlReset() { if (tlTimer) { clearInterval(tlTimer); tlTimer = null; } tlRender(0); tlNote.textContent = 'Press Run it. Predict first: which of the seven bars are still green at the end?'; }
+        $('#tlPlay').addEventListener('click', function () {
+            if (tlTimer) clearInterval(tlTimer);
+            var t = 0;
+            var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduce) { tlRender(T_END); return; }
+            tlRender(0);
+            tlTimer = setInterval(function () {
+                t += 1;
+                tlRender(t);
+                if (t >= T_END) { clearInterval(tlTimer); tlTimer = null; }
+            }, 140);
+        });
+        $('#tlReset').addEventListener('click', tlReset);
+        tlRender(0);
+
+        /* ---------- Fig. 6: guarded vs unguarded cleanup ---------- */
+        var WORKERS = ROLES.slice(1).map(function (r) { return r.role; });
+        var aliveState = {};
+        WORKERS.forEach(function (w) { aliveState[w] = (w === 'coder'); });
+
+        var guardChks = $('#guardChks'), guardNow = $('#guardNow'), guardNew = $('#guardNew');
+        WORKERS.forEach(function (w) {
+            var lab = el('label', 'chk');
+            var cb = document.createElement('input');
+            cb.type = 'checkbox'; cb.checked = aliveState[w];
+            cb.addEventListener('change', function () { aliveState[w] = cb.checked; renderGuard(); });
+            lab.appendChild(cb);
+            lab.appendChild(document.createTextNode(w));
+            guardChks.appendChild(lab);
+        });
+
+        function renderGuard() {
+            var alive = WORKERS.filter(function (w) { return aliveState[w]; });
+            var killedNow = ROLES.map(function (r) { return 'swarmforge-' + r.role; });
+            guardNow.textContent = 'kill-session x' + killedNow.length + ':\n  ' + killedNow.join('\n  ') +
+                (alive.length ? '\n\n' + alive.length + ' worker(s) were mid-task: ' + alive.join(', ') : '\n\nAll workers were idle.');
+            if (alive.length) {
+                guardNew.textContent = 'swarm-cleanup: swarmforge-' + alive[0] + ' still running; leaving the swarm up.\nexit 0\n\nNothing killed. Override with SWARMFORGE_FORCE_CLEANUP=1.';
+            } else {
+                guardNew.textContent = 'kill-session x' + killedNow.length + ':\n  ' + killedNow.join('\n  ') + '\n\nIdentical to today: no worker to protect.';
+            }
+        }
+        renderGuard();
+
+        /* ---------- Quiz ---------- */
+        var QUESTIONS = [
+            {
+                q: 'Which role’s window carries the teardown for the whole swarm?',
+                opts: [
+                    { t: 'The specifier, because it is index 0 in swarmforge.conf', ok: true },
+                    { t: 'The QA role, because it is last in the pipeline', ok: false },
+                    { t: 'Every role, each tearing down only itself', ok: false }
+                ],
+                expl: 'swarmforge.bb:344-350 appends the cleanup only when (= index 0), and the declared order in swarmforge.conf puts the specifier first. Quitting any other role costs you that role alone.'
+            },
+            {
+                q: 'Why did sessions on the default tmux socket survive the teardown?',
+                opts: [
+                    { t: 'The kill list is explicit and the swarm runs on its own CRC-named socket', ok: true },
+                    { t: 'muxboard intercepted the kill and refused it', ok: false },
+                    { t: 'They were killed too, then automatically restarted', ok: false }
+                ],
+                expl: 'Two independent mechanisms: the socket at /tmp/swarmforge-jacob/2116901388.sock is private to the project (swarmforge.bb:463-465), and swarm-cleanup.sh kills only the six session names it was handed. The scoping is correct; the timing is the defect.'
+            },
+            {
+                q: 'What happened to the coder’s in-progress turn?',
+                opts: [
+                    { t: 'Lost entirely - its worktree was clean at a0a012a', ok: true },
+                    { t: 'Written to a stash and recoverable', ok: false },
+                    { t: 'Flushed to disk as a partial file', ok: false }
+                ],
+                expl: 'The work existed only in the agent process’s context. kill-session ended the process, so nothing reached disk. This is why "is a worker mid-turn?" is the question the guard has to ask.'
+            },
+            {
+                q: 'Where does the twelve-second figure come from?',
+                opts: [
+                    { t: 'An upper bound: /exit at 23:45:05, socket confirmed dead at 23:45:17', ok: true },
+                    { t: 'A measured per-session kill latency', ok: false },
+                    { t: 'A timeout configured in swarm-cleanup.sh', ok: false }
+                ],
+                expl: 'I sampled the socket, not each process, so twelve seconds is the interval within which all six were gone - not the instant any one of them died. Fig. 5 draws that uncertainty rather than hiding it.'
+            }
+        ];
+
+        var quiz = $('#quiz'), answered = 0, correct = 0;
+        QUESTIONS.forEach(function (item) {
+            var box = el('div', 'qz');
+            box.appendChild(el('div', 'qz-q', item.q));
+            var opts = el('div', 'qz-opts');
+            var expl = el('div', 'expl', item.expl);
+            expl.hidden = true;
+            var done = false;
+            item.opts.forEach(function (o) {
+                var b = el('button', 'qz-opt', o.t);
+                b.type = 'button';
+                b.addEventListener('click', function () {
+                    if (done) return;
+                    done = true;
+                    answered += 1;
+                    if (o.ok) correct += 1;
+                    Array.prototype.forEach.call(opts.children, function (c, ci) {
+                        if (item.opts[ci].ok) c.classList.add('right');
+                        else if (c === b) c.classList.add('wrong');
+                    });
+                    expl.hidden = false;
+                    score.textContent = answered === QUESTIONS.length
+                        ? (correct === QUESTIONS.length ? 'Merge approved: ' + correct + '/' + QUESTIONS.length : 'Blocked: ' + correct + '/' + QUESTIONS.length + ' - no merge until the quiz passes.')
+                        : correct + '/' + answered + ' so far';
+                });
+                opts.appendChild(b);
+            });
+            box.appendChild(opts);
+            box.appendChild(expl);
+            quiz.appendChild(box);
+        });
+        var score = el('div', 'qz-score', '');
+        quiz.appendChild(score);
+
+        /* ---------- Fig. 1: mermaid hook + fallback ---------- */
+        var MM_SRC = [
+            'flowchart TB',
+            '  B["Browser tab"] --> M["muxboard 0.1.5"]',
+            '  M -->|"local=True, default socket"| D["tmux server<br/>/tmp/tmux-1002/default"]',
+            '  M -->|"tmux_socket_file"| S["tmux server<br/>/tmp/swarmforge-jacob/2116901388.sock"]',
+            '  D --> D1["muxboard-swarmforge<br/>(my own shell)"]',
+            '  S --> R1["swarmforge-specifier<br/>claude"]',
+            '  S --> R2["swarmforge-coder<br/>claude"]',
+            '  S --> R3["swarmforge-cleaner<br/>grok"]',
+            '  S --> R4["swarmforge-architect<br/>claude"]',
+            '  S --> R5["swarmforge-hardender<br/>grok"]',
+            '  S --> R6["swarmforge-QA<br/>grok"]'
+        ].join('\n');
+
+        var MM = null;
+        function renderMermaid() {
+            if (!MM) return;
+            try {
+                MM.initialize({
+                    startOnLoad: false, securityLevel: 'strict', theme: 'base',
+                    themeVariables: {
+                        background: cssVar('--surface'), primaryColor: cssVar('--soft'),
+                        primaryTextColor: cssVar('--ink'),
+                        primaryBorderColor: cssVar('--brand'), lineColor: cssVar('--muted'),
+                        secondaryColor: cssVar('--bar-bg'), tertiaryColor: cssVar('--surface'),
+                        fontFamily: "'Source Sans 3', Arial, sans-serif"
+                    }
+                });
+                MM.render('mm1svg-' + Date.now(), MM_SRC).then(function (out) {
+                    $('#mm1').innerHTML = out.svg;
+                }).catch(function () { mermaidFallback(); });
+            } catch (e) { mermaidFallback(); }
+        }
+        function mermaidFallback() {
+            var box = $('#mm1');
+            if (box.dataset.fell) return;
+            box.dataset.fell = '1';
+            box.innerHTML = '<p style="color:var(--muted);font-size:0.88rem;margin:0">' +
+                'The mermaid.js CDN did not load, so the diagram source is shown below instead. ' +
+                'Both tmux servers, and which sessions live on each, are listed there.</p>';
+            var src = document.getElementById('mm1src');
+            if (src && src.parentElement && src.parentElement.tagName === 'DETAILS') src.parentElement.open = true;
+        }
+        window.__onMermaid = function (m) { MM = m; renderMermaid(); };
+        window.__mermaidFailed = mermaidFallback;
+
+        new MutationObserver(renderMermaid).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderMermaid);
+    })();
+    </script>
+    <script type="module">
+        import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs')
+            .then(function (m) { window.__onMermaid(m.default); })
+            .catch(function () { window.__mermaidFailed(); });
+    </script>
+    <script src="/blog/newsletter-widget.js" defer></script>
+</body>
+</html>

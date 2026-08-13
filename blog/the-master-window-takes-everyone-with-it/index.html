@@ -12,7 +12,6 @@
     <!-- AI agents: the machine-oriented version of this post is at
          /blog/the-master-window-takes-everyone-with-it/agents.md (text/markdown). -->
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/png" href="/bee-favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Master Window Takes Everyone With It | Jacob Stephens</title>
@@ -129,7 +128,7 @@
         <article class="note">
             <div class="eyebrow">Notes &middot; Agent Swarms</div>
             <h1 class="title">The Master Window Takes Everyone With It</h1>
-            <p class="meta"><strong>August 12, 2026</strong> &middot; ~2,250 words &middot; 4 live figures, 2 screenshots, and a quiz &middot; reading this as an AI agent? <a href="/blog/the-master-window-takes-everyone-with-it/agents.md">agents.md</a> is for you</p>
+            <p class="meta"><strong>August 12, 2026</strong> &middot; ~2,750 words &middot; 4 live figures, 2 screenshots, and a quiz &middot; reading this as an AI agent? <a href="/blog/the-master-window-takes-everyone-with-it/agents.md">agents.md</a> is for you</p>
 
             <p>Typing <code>/exit</code> in one agent's window killed the other five, mid-turn, in under twelve seconds. That is the defect. The reason I can put a number on it instead of a shrug is that all six agents were on one browser page at the time, so "they all disappeared" became a pair of timestamps and a process count.</p>
 
@@ -196,7 +195,7 @@
 
             <h2>The teardown is bolted to one window and only one</h2>
 
-            <p>swarm-forge cleans up after itself when you are done. The way it knows you are done is that the specifier's CLI process exited. Here is the actual rule, from <code>swarmforge/scripts/swarmforge.bb:344-350</code> - the launcher appends a teardown suffix to a role's shell command only when that role's index is zero:</p>
+            <p>swarm-forge cleans up after itself when you are done. The way it knows you are done is that the specifier's CLI process exited. Here is the actual rule, from <code>swarmforge/scripts/swarmforge.bb:344-350</code> in the copy I ran - the launcher appends a teardown suffix to a role's shell command only when that role's index is zero:</p>
 
             <pre><code>(cond-&gt; (str base (case agent ...))
   (= index 0)
@@ -207,7 +206,9 @@
        (apply str (map #(str " " (sq (:session %))) (:roles ctx)))
        " &gt;/dev/null 2&gt;&amp;1 &amp; disown; exit $exit_code"))</code></pre>
 
-            <p>Index 0 is the specifier, because that is the order the roles are declared in <code>swarmforge.conf</code>. Before you read further, call your shot - White and Gunstone's predict-observe-explain, and the cheapest teaching trick there is. Pick a role in the figure below and decide whether its shell command carries the teardown, then check.</p>
+            <p>Index 0 is the specifier, because that is the order the roles are declared in <code>swarmforge.conf</code>. Two version notes, because this is a moving target: my <code>swarm-cleanup.sh</code> is byte-identical to current upstream (<code>sha256 6db2b3f0&hellip;</code>), but <code>swarmforge.bb</code> has since moved on - the block now sits at lines 323-349 and ends <code>&amp;!</code> rather than <code>&amp; disown</code>, and <code>main</code> has gained a top-level <code>close-swarm</code> command. The rule below is what I ran; the shape of it is unchanged upstream.</p>
+
+            <p>Before you read further, call your shot - White and Gunstone's predict-observe-explain, and the cheapest teaching trick there is. Pick a role in the figure below and decide whether its shell command carries the teardown, then check.</p>
 
             <div class="fig" id="fig4">
                 <div class="fig-head">
@@ -263,9 +264,19 @@ no server running on /tmp/swarmforge-jacob/2116901388.sock</code></pre>
 
             <p>Two independent mechanisms produce that. The CRC-named socket means a <code>kill-session</code> issued by the swarm cannot address a session on your default server at all. The explicit name list means that even on a shared socket it would only reach the six names it was handed. The scoping is deliberate and it works.</p>
 
-            <p>What is missing is a check on <em>state</em> rather than identity. Jim Gray's 1985 tally of why computers stop put operator error and maintenance action near the top of the list, ahead of the hardware faults everyone designs for. Candea and Fox's crash-only design argues the fix is to make every component safe to kill and cheap to restart. A six-pack fails that test in one specific direction: the master is safe to kill for itself, and catastrophic for its peers. The specifier is also the role a human talks to, so it is the window most likely to be closed, quit, or lost to a dropped SSH connection. Every one of those ends five agents.</p>
+            <p>What is missing is a check on <em>state</em> rather than identity. Jim Gray's 1985 tally of why computers stop put operator error and maintenance action near the top of the list, ahead of the hardware faults everyone designs for. Candea and Fox's crash-only design argues the fix is to make every component safe to kill and cheap to restart. A six-pack fails that test in one specific direction: the master is safe to kill for itself, and catastrophic for its peers.</p>
 
-            <p>The fix I proposed upstream is a guard, not a prompt. A prompt cannot help a dropped connection; a guard can:</p>
+            <p>A typed <code>/exit</code> is arguably the operator saying "I am done", and swarm-forge documents closing that window as exactly that. The case with no such defense is the crash. The suffix is welded to the shell list, not to a clean quit, so an agent CLI that dies by signal still lands on it:</p>
+
+            <pre><code>$ bash -c 'timeout -s KILL 1 sleep 5; exit_code=$?; echo "CLEANUP RAN, exit_code=$exit_code"; exit $exit_code'
+bash: line 1: 292249 Killed    timeout -s KILL 1 sleep 5
+CLEANUP RAN, exit_code=137</code></pre>
+
+            <p>Exit 137 reaches the teardown exactly as exit 0 does. Nobody chose that. The one condition is that the parent shell has to outlive the agent, which is why an OOM kill only counts when the killer picks the CLI and leaves the shell standing.</p>
+
+            <p>I got the neighbouring case wrong, and it is worth showing the correction rather than quietly fixing it. I had assumed a dropped SSH connection would fire the teardown too, and it does not: the specifier runs inside tmux, so a lost client detaches rather than killing the shell, and the swarm survives. Under tmux's default <code>destroy-unattached off</code>, the connection you lose is the one thing that cannot hurt you.</p>
+
+            <p>So I wrote a guard, and the guard was wrong:</p>
 
             <pre><code>if [[ -z "${SWARMFORGE_FORCE_CLEANUP:-}" ]]; then
   for session in "$@"; do
@@ -277,9 +288,11 @@ no server running on /tmp/swarmforge-jacob/2116901388.sock</code></pre>
   done
 fi</code></pre>
 
+            <p>Read it again with the question "what does <code>has-session</code> actually answer?" It answers <em>does this session exist</em>, and all five worker sessions exist from launch until something kills them, busy or idle. So that guard aborts every teardown, forever, and the swarm never cleans up. It is the same bug pointed the other way. Toggle the workers in Fig. 6 and watch its verdict refuse to move.</p>
+
             <div class="fig" id="fig6">
                 <div class="fig-head">
-                    <span class="fig-title">Fig. 6 &middot; Guarded vs unguarded teardown</span>
+                    <span class="fig-title">Fig. 6 &middot; Why the obvious guard fails</span>
                     <span class="ctl-row" id="guardChks"></span>
                 </div>
                 <div class="fig-body">
@@ -289,12 +302,12 @@ fi</code></pre>
                             <div class="out" id="guardNow"></div>
                         </div>
                         <div>
-                            <div class="panel-label">With the guard above</div>
+                            <div class="panel-label">With the has-session guard</div>
                             <div class="out" id="guardNew"></div>
                         </div>
                     </div>
                 </div>
-                <div class="fig-caption">Live. Both panels run the same JavaScript reimplementation of the two shell paths against whichever workers you mark alive. Note the case that matters: with every worker idle, the guarded version behaves identically. The guard only changes outcomes when there is something to protect, which is the property that makes it safe to add.</div>
+                <div class="fig-caption">Live. Mark any combination of workers as mid-turn. The top panel kills all six regardless, which is the bug. The bottom panel refuses to kill anything regardless, which is my proposed fix being equally wrong - <code>has-session</code> reports existence, and the sessions exist either way, so your toggles cannot reach its verdict. The quantity the guard needs is not a tmux property at all.</div>
             </div>
 
             <h2>Where the observability actually paid</h2>
@@ -309,7 +322,20 @@ fi</code></pre>
 
             <p>What remains is narrower and I cannot yet reproduce it: detection is <em>incidental</em> rather than designed. A client that vanishes without a FIN - real network drop, closed laptop, dead Wi-Fi - is noticed only when a send fails or a receive raises. There is no server-side heartbeat requiring the client's <code>ping</code> messages to keep arriving, and <code>_MAX_ATTACH_SECONDS</code> at six hours is the only backstop against a per-user cap of five. Proving that path needs packet-level dropping, not a killed process, and I have not built that rig.</p>
 
-            <p>Open on the swarm-forge side: I have not tested whether the same teardown fires when the specifier's SSH connection drops rather than the CLI exiting cleanly, which is the case the guard exists for. And <code>swarm-cleanup.sh</code> carries a second, smaller problem I noticed but did not chase - it is <code>#!/usr/bin/env zsh</code> and uses a zsh-only number glob, <code>[[ "$daemon_pid" == &lt;-&gt; ]]</code>, at line 30. On a box without zsh, teardown does not run at all. I have not checked whether that is documented as a dependency or simply assumed.</p>
+            <p>The crash case is proven at the shell level, with <code>timeout -s KILL</code> standing in for a dying agent. It is not the same as sending <code>SIGKILL</code> to a real <code>claude</code> process and confirming its shell outlives it, and I have not done that. Everything else here is a live run; that one line is a model of a live run.</p>
+
+            <p><code>swarm-cleanup.sh</code> carries a second problem, unrelated except by file. It is <code>#!/usr/bin/env zsh</code> and uses a zsh-only number glob at line 30, <code>[[ "$daemon_pid" == &lt;-&gt; ]]</code>. <code>bash -n</code> refuses it with <code>syntax error near '&lt;-'</code> while <code>zsh -n</code> accepts it, and because that is a parse error rather than a runtime one, <em>nothing</em> in the script runs on a box without zsh: no daemon stop, no kill loop, no window close. The launcher fires it as <code>nohup &hellip; &gt;/dev/null 2&gt;&amp;1</code>, so the error goes nowhere anyone will see.</p>
+
+            <p>The tempting fix - move the shebang to bash - does not work either, and finding out why was the most useful thing I did all evening. <code>swarm-cleanup.sh</code> sources <code>swarm-terminal-adapter.sh</code>, which lowercases the backend name with <code>${1:l}</code>. bash parses that without complaint and returns the string unchanged:</p>
+
+            <pre><code>$ bash -c 'x=ITerm; echo "${x:l}"'
+ITerm
+$ zsh -c 'x=ITerm; echo "${x:l}"'
+iterm</code></pre>
+
+            <p>So under bash the name never lowercases, the <code>case</code> falls to its default branch, and you get <code>Unknown terminal backend 'ITerm'</code>. A syntax check passes on that file. The bug is invisible to <code>bash -n</code> and only shows up as wrong behaviour, which is the worse failure of the two and the reason I am not sending a one-line pull request.</p>
+
+            <p>Open on the other side of it: whether zsh is meant to be a declared dependency alongside babashka and tmux, or whether that shebang is incidental. That is a question for the maintainer, not something I can settle by reading.</p>
 
             <h2>Quiz</h2>
             <p>Litt's rule: don't merge until you can pass the quiz. Four questions.</p>
@@ -482,15 +508,21 @@ fi</code></pre>
         });
 
         function renderGuard() {
-            var alive = WORKERS.filter(function (w) { return aliveState[w]; });
+            var busy = WORKERS.filter(function (w) { return aliveState[w]; });
             var killedNow = ROLES.map(function (r) { return 'swarmforge-' + r.role; });
             guardNow.textContent = 'kill-session x' + killedNow.length + ':\n  ' + killedNow.join('\n  ') +
-                (alive.length ? '\n\n' + alive.length + ' worker(s) were mid-task: ' + alive.join(', ') : '\n\nAll workers were idle.');
-            if (alive.length) {
-                guardNew.textContent = 'swarm-cleanup: swarmforge-' + alive[0] + ' still running; leaving the swarm up.\nexit 0\n\nNothing killed. Override with SWARMFORGE_FORCE_CLEANUP=1.';
-            } else {
-                guardNew.textContent = 'kill-session x' + killedNow.length + ':\n  ' + killedNow.join('\n  ') + '\n\nIdentical to today: no worker to protect.';
-            }
+                (busy.length
+                    ? '\n\n' + busy.length + ' worker(s) mid-turn, killed anyway: ' + busy.join(', ')
+                    : '\n\nAll workers idle. Correct outcome, reached without checking.');
+            // has-session answers "does it exist", and every worker session exists until
+            // something kills it. The busy flags above are invisible to it by construction.
+            guardNew.textContent =
+                'has-session swarmforge-coder -> 0 (exists)\n' +
+                'swarm-cleanup: swarmforge-coder still running; leaving the swarm up.\n' +
+                'exit 0\n\nNothing killed - and nothing ever will be, whatever you toggle.\n' +
+                (busy.length
+                    ? 'Right answer here (' + busy.length + ' mid-turn), by luck rather than by measurement.'
+                    : 'Wrong answer here: every worker is idle and the swarm still will not tear down.');
         }
         renderGuard();
 

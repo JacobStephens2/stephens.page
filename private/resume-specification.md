@@ -21,3 +21,14 @@ Hide the download as PDF button from the view of printing this page.
 
 # Link to Portfolio Site, https://stephens.page
 There should be a link somewhere on the resume to Jacob's portfolio site, https://stephens.page
+
+# Canonical public copy (match GitHub profile README)
+
+The GitHub profile README at `JacobStephens2/JacobStephens2` is authoritative. Resume (and portfolio) must use:
+
+- Ownership framing: "I lead a two-engineer team owning"
+- Cascade: 2 shipped shells (Web PWA, Android); 4 architected (macOS, Windows, iOS, watchOS)
+- `vaulted-agent-launcher` naming (full form, not `vaulted-agent`)
+- Agents supported by `va`: Claude Code, Codex, Grok, Kimi
+- Chart35 traction: 83 iOS + 17 Android installs, 52 web accounts (40 verified, 47 synced), App Store / Play / TestFlight, organic search
+- Contact CTA: `https://stephens.page/contact.html` (not `mailto:`)

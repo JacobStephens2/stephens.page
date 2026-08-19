@@ -497,7 +497,7 @@
             <a href="https://stephens.page/" class="back-link">Back to home</a>
             <span class="topbar-right">
                 <a href="/jacob-stephens-portfolio.md" download="jacob-stephens-portfolio.md" class="contact-link">&#8595; Download Markdown</a>
-                <a href="mailto:jacob@stephens.page" class="contact-link">jacob@stephens.page</a>
+                <a href="https://stephens.page/contact.html" class="contact-link">jacob@stephens.page</a>
             </span>
         </div>
 
@@ -506,7 +506,7 @@
                 <div class="hero-card">
                     <div class="eyebrow">Portfolio</div>
                     <h1>Real systems, real results.</h1>
-                    <p class="hero-copy">Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. The reservations platform, payment and ACH rails, Linux fleet, manager agent sandboxes, and human-gated software factory a multi-million-dollar travel business runs on - and the architecture decisions behind them.</p>
+                    <p class="hero-copy">Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. I lead a two-engineer team owning a multi-million-dollar specialty-travel stack - the reservations platform, payment and ACH rails, Linux fleet, manager agent sandboxes, and human-gated software factory it runs on - and the architecture decisions behind them.</p>
                 </div>
                 <aside class="hero-notes">
                     <ul>
@@ -1062,11 +1062,11 @@
                 </div>
                 <div class="portfolio-grid">
                     <article class="portfolio-item" id="vaulted-agent">
-                        <button class="image-button" type="button" data-image="screenshots/vaulted-agent.jpg" data-title="vaulted-agent product illustration">
-                            <img src="screenshots/vaulted-agent.jpg" alt="vaulted-agent: terminal launching va claude with vault-resolved secrets" class="portfolio-image">
+                        <button class="image-button" type="button" data-image="screenshots/vaulted-agent.jpg" data-title="vaulted-agent-launcher product illustration">
+                            <img src="screenshots/vaulted-agent.jpg" alt="vaulted-agent-launcher: terminal launching va claude with vault-resolved secrets" class="portfolio-image">
                         </button>
                         <div class="portfolio-content">
-                            <h3 class="portfolio-title">vaulted-agent</h3>
+                            <h3 class="portfolio-title">vaulted-agent-launcher</h3>
                             <p class="portfolio-summary">A Rust launcher (<code>va</code>) that gives Claude Code, Codex, Grok, and Kimi real vault credentials in-process - Bitwarden Secrets Manager, 1Password, pass, or sops - with per-agent manifests and optional prompt auth so the vault master token never has to live on disk.</p>
                             <div class="portfolio-block">
                                 <strong>Why it matters</strong>
@@ -1293,7 +1293,7 @@
                             <p class="portfolio-summary">A privacy-first fertility-cycle charting app for the Creighton Model - local-first and offline, with auto-computed CrMS stamps, end-to-end encrypted sync, and provider sharing.</p>
                             <div class="portfolio-block">
                                 <strong>Why it matters</strong>
-                                <span>Product thinking around a sensitive, real-world workflow where accuracy, offline access, and long-term usability are non-negotiable. Found organically through search and used by real people beyond me.</span>
+                                <span>Product thinking around a sensitive, real-world workflow where accuracy, offline access, and long-term usability are non-negotiable. 83 iOS + 17 Android installs, 52 web accounts (40 verified, 47 synced) - App Store / Play / TestFlight, growth via organic search alone.</span>
                             </div>
                             <div class="portfolio-block">
                                 <strong>What stands out</strong>
@@ -1317,19 +1317,19 @@
                     </article>
 
                     <article class="portfolio-item" id="cascade">
-                        <button class="image-button" type="button" data-image="screenshots/cascade-windows-player.png" data-images="screenshots/cascade-windows-player.png,screenshots/Cascade-macOS-screenshot.png,screenshots/cascade-windows-sync.png,screenshots/cascade-web-player.png,screenshots/Cascade-Android-screenshot.jpg,screenshots/cascade-signin.png,screenshots/cascade-core-architecture.png" data-captions="Windows app,macOS app,Account &amp; sync,Web app,Android app,Magic-link sign-in,Architecture" data-title="Cascade screenshot">
-                            <img src="screenshots/cascade-windows-player.png" alt="Cascade waterfall white-noise player" class="portfolio-image portfolio-image--portrait">
+                        <button class="image-button" type="button" data-image="screenshots/cascade-web-player.png" data-images="screenshots/cascade-web-player.png,screenshots/Cascade-Android-screenshot.jpg,screenshots/cascade-windows-player.png,screenshots/Cascade-macOS-screenshot.png,screenshots/cascade-windows-sync.png,screenshots/cascade-signin.png,screenshots/cascade-core-architecture.png" data-captions="Web PWA,Android app,Windows (architected),macOS (architected),Account &amp; sync,Magic-link sign-in,Architecture" data-title="Cascade screenshot">
+                            <img src="screenshots/cascade-web-player.png" alt="Cascade waterfall white-noise player" class="portfolio-image portfolio-image--portrait">
                         </button>
                         <div class="portfolio-content">
                             <h3 class="portfolio-title">Cascade</h3>
-                            <p class="portfolio-summary">A waterfall white-noise player for focus and sleep - one headless Rust core driving native shells on web (PWA), Android, macOS, and Windows, with iOS and watchOS in progress on the same core.</p>
+                            <p class="portfolio-summary">A waterfall white-noise player for focus and sleep - one headless Rust core driving 2 shipped shells (Web PWA, Android), with 4 architected to extend (macOS, Windows, iOS, watchOS).</p>
                             <div class="portfolio-block">
                                 <strong>Why it matters</strong>
                                 <span>A daily-use focus/sleep sound app, and an architecture kata: prove a single Rust core can power genuinely native UIs across platforms without a web wrapper. The core owns all behavior - state, pomodoro/sleep timers, custom durations, volume, persisted settings, and time via explicit tick events - and never touches an audio API.</span>
                             </div>
                             <div class="portfolio-block">
                                 <strong>What stands out</strong>
-                                <span>A coarse <code>dispatch(command) &rarr; {snapshot, effects}</code> boundary serialized as one JSON wire shape, so every shell is a thin native UI over shared Rust logic. Running today across web (PWA), Android, macOS, and Windows - the core bound via wasm-bindgen (web), UniFFI/Kotlin (Android, Media3), UniFFI/Swift (macOS), and a hand-rolled C ABI + P/Invoke (Windows), each a thin native UI with the web shell installable and offline. The iOS and watchOS shells reuse the same boundary and are in progress.</span>
+                                <span>A coarse <code>dispatch(command) &rarr; {snapshot, effects}</code> boundary serialized as one JSON wire shape, so every shell is a thin native UI over shared Rust logic. 2 shipped shells (Web PWA via wasm-bindgen, Android via UniFFI/Kotlin) share the same core; macOS, Windows, iOS, and watchOS are architected to extend over that boundary.</span>
                             </div>
                             <div class="portfolio-tags">
                                 <span class="portfolio-tag">Rust</span>

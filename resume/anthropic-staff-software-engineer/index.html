@@ -50,7 +50,7 @@
         <p class="target-role">Prepared for Anthropic - Staff Software Engineer, Infrastructure Asset Systems</p>
 
         <p class="contact-info">
-            <a href="mailto:jacob@stephens.page"><span class="contact-icon" aria-hidden="true">✉</span>jacob@stephens.page</a> |
+            <a href="https://stephens.page/contact.html"><span class="contact-icon" aria-hidden="true">✉</span>jacob@stephens.page</a> |
             <a href="https://maps.app.goo.gl/3j1Vi1GNcB6NWFdq7"
               target="_blank" rel="noopener"
               >
@@ -64,7 +64,7 @@
 
         <p class="summary">
           Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems - which in practice means systems built around auditability, access control, and named-human approval gates.
-          For 4+ years the lead engineering owner of a multi-million-dollar specialty-travel operator's system of record: record lifecycles, approval workflows, financial integrations (PCI payment processors, ACH/NACHA bank files over SFTP), and internal tools that accounting, sales, and operations staff run without engineering support.
+          I lead a two-engineer team owning a multi-million-dollar specialty-travel operator's system of record: record lifecycles, approval workflows, financial integrations (PCI payment processors, ACH/NACHA bank files over SFTP), and internal tools that accounting, sales, and operations staff run without engineering support.
           Recent work: a role-scoped AI-agent platform where no agent approves, merges, deploys, or moves money without a named human gate and an audit trail.
         </p>
 
@@ -171,7 +171,7 @@
           </p>
           <ul>
             <li>
-              Serve as lead engineer and continuity owner for the company's production stack - the reservations platform
+              I lead a two-engineer team owning the company's production stack - the reservations platform
               that is the system of record for bookings, travelers, payments, and receivables, plus payment processing,
               Linux server fleet, and deployment pipeline - with end-to-end responsibility for architecture, operations,
               and on-call response across a multi-million-dollar travel business
@@ -281,8 +281,12 @@
               Sanitized architecture decision records and the seven-boundary agent-safety checklist drawn from production systems I operate - per-role isolation, scoped least-privilege credentials, default-deny command surfaces, human merge gates, audit trails, and rollback - including the decision to self-host the legally-binding e-signature instrument and its audit trail (<a target="_blank" rel="noopener" href="https://github.com/JacobStephens2/infrastructure-patterns/blob/main/adr/0017-self-hosted-signing-instrument-over-saas.md">ADR 0017</a>) rather than hand both to a SaaS
             </li>
             <li>
+              <a href="https://github.com/JacobStephens2/vaulted-agent-launcher">vaulted-agent-launcher</a> (<code>va</code>):
+              Per-agent blast radius: launches Claude Code, Codex, Grok, and Kimi with vault-resolved secrets in-process - no <code>.env</code> files or vault tokens on disk (1Password, Bitwarden SM, <code>pass</code>, sops)
+            </li>
+            <li>
               <a href="https://github.com/JacobStephens2/cascade">Cascade</a>:
-              Focus/sleep sound player built on one headless Rust core that drives native shells over a <a target="_blank" rel="noopener" href="https://github.com/JacobStephens2/cascade/blob/main/docs/architecture-brief-web-and-android.md">single JSON boundary</a>. Shipped the web (PWA) and Android shells through agent-assisted development - the Rust core bound via wasm-bindgen and UniFFI - with the same core architected to extend to macOS, Windows, iOS, and watchOS (<a href="https://cascade.stephens.page">cascade.stephens.page</a>)
+              Focus/sleep sound player built on one headless Rust core that drives native shells over a <a target="_blank" rel="noopener" href="https://github.com/JacobStephens2/cascade/blob/main/docs/architecture-brief-web-and-android.md">single JSON boundary</a>. 2 shipped shells (Web PWA, Android) bound via wasm-bindgen and UniFFI; 4 architected to extend (macOS, Windows, iOS, watchOS) (<a href="https://cascade.stephens.page">cascade.stephens.page</a>)
             </li>
             <li>
               <a href="https://github.com/JacobStephens2/terraform-cloudflare-dns">terraform-cloudflare-dns</a>:
@@ -294,7 +298,7 @@
             </li>
             <li>
               <a href="https://chart35.com">Chart35</a>:
-              Privacy-first fertility tracker with client-side AES-256-GCM encryption, offline-first IndexedDB storage, and expiring provider-share links - shipped as a PWA and adopted by real users via organic search, with an Android build (Capacitor) in Play Store review and a native SwiftUI app for iPhone and Apple Watch in TestFlight beta (<a href="https://stephens.page/chart35.html">case study</a>, <a href="https://github.com/JacobStephens2/Chart35Client">source</a>)
+              Privacy-first fertility tracker with client-side AES-256-GCM encryption, offline-first IndexedDB storage, and expiring provider-share links. 83 iOS + 17 Android installs, 52 web accounts (40 verified, 47 synced) - App Store / Play / TestFlight, growth via organic search alone (<a href="https://stephens.page/chart35.html">case study</a>, <a href="https://github.com/JacobStephens2/chart35-showcase">architecture</a>)
             </li>
           </ul>
         </section>

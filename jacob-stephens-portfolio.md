@@ -2,7 +2,7 @@ Portfolio
 
 # Real systems, real results.
 
-Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. The reservations platform, payment and ACH rails, Linux fleet, manager agent sandboxes, and human-gated software factory a multi-million-dollar travel business runs on - and the architecture decisions behind them.
+Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. I lead a two-engineer team owning a multi-million-dollar specialty-travel stack - the reservations platform, payment and ACH rails, Linux fleet, manager agent sandboxes, and human-gated software factory it runs on - and the architecture decisions behind them.
 
 * **Professional**
   Production systems built over years at Educational Travel Adventures.
@@ -381,7 +381,7 @@ Brand Presence
 
 A curated set of personal builds, selected for relevance to platform and AI-infrastructure work. The full shelf of published apps lives at [stephens.page/apps](/apps.html).
 
-### vaulted-agent
+### vaulted-agent-launcher
 
 A Rust launcher (`va`) that gives Claude Code, Codex, Grok, and Kimi real vault credentials in-process - Bitwarden Secrets Manager, 1Password, pass, or sops - with per-agent manifests and optional prompt auth so the vault master token never has to live on disk.
 
@@ -535,7 +535,7 @@ Capability URLs
 A privacy-first fertility-cycle charting app for the Creighton Model - local-first and offline, with auto-computed CrMS stamps, end-to-end encrypted sync, and provider sharing.
 
 **Why it matters**
-Product thinking around a sensitive, real-world workflow where accuracy, offline access, and long-term usability are non-negotiable. Found organically through search and used by real people beyond me.
+Product thinking around a sensitive, real-world workflow where accuracy, offline access, and long-term usability are non-negotiable. 83 iOS + 17 Android installs, 52 web accounts (40 verified, 47 synced) - App Store / Play / TestFlight, growth via organic search alone.
 
 **What stands out**
 Local-first IndexedDB source of truth, end-to-end encrypted sync (the server stores ciphertext only), and faithful CrMS domain logic - not generic CRUD.
@@ -555,13 +555,13 @@ Capacitor
 
 ### Cascade
 
-A waterfall white-noise player for focus and sleep - one headless Rust core driving native shells on web (PWA), Android, macOS, and Windows, with iOS and watchOS in progress on the same core.
+A waterfall white-noise player for focus and sleep - one headless Rust core driving 2 shipped shells (Web PWA, Android), with 4 architected to extend (macOS, Windows, iOS, watchOS).
 
 **Why it matters**
 A daily-use focus/sleep sound app, and an architecture kata: prove a single Rust core can power genuinely native UIs across platforms without a web wrapper. The core owns all behavior - state, pomodoro/sleep timers, custom durations, volume, persisted settings, and time via explicit tick events - and never touches an audio API.
 
 **What stands out**
-A coarse `dispatch(command) → {snapshot, effects}` boundary serialized as one JSON wire shape, so every shell is a thin native UI over shared Rust logic. Running today across web (PWA), Android, macOS, and Windows - the core bound via wasm-bindgen (web), UniFFI/Kotlin (Android, Media3), UniFFI/Swift (macOS), and a hand-rolled C ABI + P/Invoke (Windows), each a thin native UI with the web shell installable and offline. The iOS and watchOS shells reuse the same boundary and are in progress.
+A coarse `dispatch(command) → {snapshot, effects}` boundary serialized as one JSON wire shape, so every shell is a thin native UI over shared Rust logic. 2 shipped shells (Web PWA via wasm-bindgen, Android via UniFFI/Kotlin) share the same core; macOS, Windows, iOS, and watchOS are architected to extend over that boundary.
 
 Rust
 WebAssembly
@@ -592,3 +592,7 @@ AI Tooling
 
 [Visit Site](https://magisterium.stephens.page/)
 [GitHub](https://github.com/JacobStephens2/magisterium_mcp_server)
+
+---
+
+[Contact](https://stephens.page/contact.html)

@@ -1,6 +1,6 @@
 # Jacob Stephens
 
-[jacob@stephens.page](mailto:jacob@stephens.page) |
+[jacob@stephens.page](https://stephens.page/contact.html) |
 [Philadelphia, PA](https://maps.app.goo.gl/3j1Vi1GNcB6NWFdq7)
 
 [Portfolio](https://stephens.page/portfolio.html) |
@@ -8,7 +8,7 @@
 [LinkedIn](https://www.linkedin.com/in/jacob-c-stephens) |
 [Stack](https://stephens.page/stack/)
 
-Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. For 4+ years the lead engineering owner of a multi-million-dollar specialty-travel operator's production stack - reservations platform, payment systems, Linux server fleet, and AI-agent infrastructure.
+Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. I lead a two-engineer team owning a multi-million-dollar specialty-travel stack - reservations platform, payment systems, Linux server fleet, and AI-agent infrastructure.
 Recent work: a multi-tenant AI-assistant platform where every agent runs in a per-role sandbox behind a human merge gate (Docker/Traefik), fleet-wide Prometheus/Grafana observability, and a measurement-driven production-database pass that removed ~80% of query load.
 
 ## Core Technologies
@@ -95,7 +95,7 @@ Recent work: a multi-tenant AI-assistant platform where every agent runs in a pe
 Feb 2022 - Present |
 United States, Remote
 
-* Serve as lead engineer and continuity owner for the company's production stack - reservations platform, payment processing,
+* I lead a two-engineer team owning the company's production stack - reservations platform, payment processing,
   Linux server fleet, and deployment pipeline - with end-to-end responsibility for architecture, operations,
   and on-call response across a multi-million-dollar travel business
 * Developed [guides.etadventures.com](https://guides.etadventures.com/) - a mobile-first PWA for field contractors
@@ -160,14 +160,16 @@ United States, Remote
 
 * [infrastructure-patterns](https://github.com/JacobStephens2/infrastructure-patterns):
   Sanitized architecture decision records and the seven-boundary agent-safety checklist drawn from production systems I operate - per-role isolation, scoped least-privilege credentials, default-deny command surfaces, human merge gates, audit trails, and rollback - published so other small-business engineers can safeguard their own systems
+* [vaulted-agent-launcher](https://github.com/JacobStephens2/vaulted-agent-launcher) (`va`):
+  Per-agent blast radius: launches Claude Code, Codex, Grok, and Kimi with vault-resolved secrets in-process - no `.env` files or vault tokens on disk (1Password, Bitwarden SM, `pass`, sops)
 * [terraform-cloudflare-dns](https://github.com/JacobStephens2/terraform-cloudflare-dns):
   Infrastructure-as-code for a personal web fleet of ~70 hostnames across 10 domains. Consolidated DNS from four registrars onto Cloudflare and brought ~220 records across 9 zones under Terraform by importing the live records (not recreating them) for a zero-downtime, no-op baseline plan. Remote state on AWS S3 kept off the compute provider for disaster-recovery independence, Ansible roles for one-command subdomain provisioning, a plan-only DigitalOcean rebuild blueprint, and GitHub Actions plan-on-PR. Sanitized public mirror of the production repo
 * [k3s-demo](https://github.com/JacobStephens2/k3s-demo):
   A live, HTTPS two-tier Kubernetes app - a stateless Deployment in front of a Redis StatefulSet - on a single k3s node, provisioned end to end by Terraform and cloud-init. Production-grade manifests (rolling updates, liveness/readiness probes, resource limits, a hardened securityContext, a HorizontalPodAutoscaler, and RBAC), with an interactive page that triggers a load test and charts CPU crossing the 70% target as the pods scale 2 to 6 ([k3s-demo.stephens.page](https://k3s-demo.stephens.page)). Guarded by a five-rule OPA Gatekeeper admission layer, one rule re-expressed as a ValidatingAdmissionPolicy in CEL. A deliberate Kubernetes exercise, kept separate from my systemd-based production fleet
 * [Cascade](https://github.com/JacobStephens2/cascade):
-  Focus/sleep sound player built on one headless Rust core that drives native shells over a [single JSON boundary](https://github.com/JacobStephens2/cascade/blob/main/docs/architecture-brief-web-and-android.md). Shipped the web (PWA) and Android shells through agent-assisted development - the Rust core bound via wasm-bindgen and UniFFI - with the same core architected to extend to macOS, Windows, iOS, and watchOS ([cascade.stephens.page](https://cascade.stephens.page))
+  Focus/sleep sound player built on one headless Rust core that drives native shells over a [single JSON boundary](https://github.com/JacobStephens2/cascade/blob/main/docs/architecture-brief-web-and-android.md). 2 shipped shells (Web PWA, Android) bound via wasm-bindgen and UniFFI; 4 architected to extend (macOS, Windows, iOS, watchOS) ([cascade.stephens.page](https://cascade.stephens.page))
 * [Chart35](https://chart35.com):
-  Privacy-first fertility tracker with client-side AES-256-GCM encryption, offline-first IndexedDB storage, and expiring provider-share links - shipped as a PWA and adopted by real users via organic search, with an Android build (Capacitor) in Play Store review and a native SwiftUI app for iPhone and Apple Watch in TestFlight beta ([case study](https://stephens.page/chart35.html), [source](https://github.com/JacobStephens2/Chart35Client))
+  Privacy-first fertility tracker with client-side AES-256-GCM encryption, offline-first IndexedDB storage, and expiring provider-share links. 83 iOS + 17 Android installs, 52 web accounts (40 verified, 47 synced) - App Store / Play / TestFlight, growth via organic search alone ([case study](https://stephens.page/chart35.html), [architecture](https://github.com/JacobStephens2/chart35-showcase))
 
 ## Education & Certifications
 

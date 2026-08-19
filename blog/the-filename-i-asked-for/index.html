@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    <!-- AI agents: the machine-oriented version of this post is at
+         /blog/the-filename-i-asked-for/agents.md (text/markdown). -->
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/bee-favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Filename I Asked For, and the Filename I Got | Jacob Stephens</title>
+    <link rel="canonical" href="https://stephens.page/blog/the-filename-i-asked-for/">
+    <link rel="alternate" type="text/markdown" href="/blog/the-filename-i-asked-for/agents.md" title="Agent-oriented version (markdown)">
+    <meta name="description" content="Evaluating Meta's Muse Spark 1.1 for a coding-agent seat, an exact filename did not survive into the write-tool argument. Muse Spark 1.2 cleared the same gate on a 2026-08-05 retest.">
+    <meta property="og:title" content="The Filename I Asked For, and the Filename I Got">
+    <meta property="og:description" content="Asked for muse-smoke.txt, Muse Spark 1.1 often wrote claude-smoke.txt. Same task on 1.2: 0 wrong filenames in 30 trials.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://stephens.page/blog/the-filename-i-asked-for/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="The Filename I Asked For, and the Filename I Got">
+    <meta name="twitter:description" content="Asked for muse-smoke.txt, Muse Spark 1.1 often wrote claude-smoke.txt. Same task on 1.2: 0 wrong filenames in 30 trials.">
+    <!-- Umami (self-hosted) - analytics + session replay -->
+    <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
+    <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #181512; --brand: #9b4d24; --brand-ink: #ffffff; --muted: #625a52;
+            --surface: #ffffff; --soft: #efe9df; --rule: #d6d1c9; --code-bg: #efe9df; --bar-bg: #ece6dc;
+            --yes: #2f7d4f; --no: #a33a2a; --tint: rgba(155, 77, 36, 0.07);
+        }
+        html[data-theme="dark"] { --yes: #7fbf95; --no: #e08a76; --tint: rgba(212, 160, 122, 0.10); }
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]):not([data-theme="dark"]) { --yes: #7fbf95; --no: #e08a76; --tint: rgba(212, 160, 122, 0.10); }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; background: var(--surface); color: var(--ink); line-height: 1.7; min-height: 100vh; overflow-x: clip; }
+        p { overflow-wrap: break-word; }
+        .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.75rem; }
+        .back-link, .contact-link { color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+        .back-link:hover, .contact-link:hover, .back-link:focus-visible, .contact-link:focus-visible { color: var(--brand); text-decoration: underline; text-underline-offset: 0.12em; }
+        article.note { padding: 0; }
+        .eyebrow { display: inline-block; margin-bottom: 0.9rem; color: var(--brand); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+        h1.title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: clamp(2rem, 4vw, 2.8rem); line-height: 1.08; letter-spacing: -0.01em; margin-bottom: 1rem; overflow-wrap: break-word; max-width: 100%; }
+        .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.6rem; padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule); }
+        .meta strong { color: var(--ink); font-weight: 700; }
+        h2 { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: var(--brand); margin-top: 2.2rem; margin-bottom: 0.8rem; }
+        p { margin-bottom: 1rem; color: var(--ink); }
+        ol, ul { margin-bottom: 1rem; padding-left: 1.4rem; }
+        ol li, ul li { margin-bottom: 0.4rem; }
+        code { background: var(--code-bg); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.92em; overflow-wrap: anywhere; word-break: break-all; }
+        pre { background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.82rem; line-height: 1.5; margin-bottom: 1.2rem; }
+        pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+        a { color: var(--brand); text-decoration: none; }
+        article.note p a, .meta a, .sources a, .fig-caption a, .ai-note a, article.note li a {
+            text-decoration: underline; text-underline-offset: 0.12em;
+        }
+        a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 0.12em; }
+        table.rates { width: 100%; border-collapse: collapse; margin: 0.4rem 0 1.1rem; font-size: 0.92rem; }
+        table.rates th, table.rates td { text-align: left; padding: 0.45rem 0.5rem 0.45rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+        table.rates th { font-weight: 700; }
+        table.rates td.num { font-variant-numeric: tabular-nums; text-align: right; padding-right: 0.2rem; }
+        .fig { margin: 1.4rem 0 1.6rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); overflow: hidden; }
+        .fig-head { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--rule); background: var(--soft); }
+        .fig-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brand); }
+        .fig-body { padding: 0.9rem; }
+        .fig-caption { padding: 0.65rem 0.9rem 0.75rem; color: var(--muted); font-size: 0.88rem; border-top: 1px dashed var(--rule); line-height: 1.55; }
+        .fig-scroll { overflow-x: auto; }
+        .fig svg text { font-family: 'Source Sans 3', Arial, sans-serif; }
+        .panel-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.45rem; }
+        .ctl-row { display: flex; flex-wrap: wrap; gap: 0.45rem 0.55rem; align-items: center; margin-bottom: 0.75rem; }
+        .ctl-btn { font: inherit; font-size: 0.86rem; font-weight: 600; padding: 0.3rem 0.85rem; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: 999px; cursor: pointer; }
+        .ctl-btn:hover, .ctl-btn:focus-visible { border-color: var(--brand); }
+        .ctl-btn[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+        .ctl-btn:disabled { cursor: default; opacity: 0.6; }
+        .ctl-slider { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.86rem; color: var(--muted); }
+        .ctl-slider input[type="range"] { accent-color: var(--brand); width: 110px; }
+        .ctl-slider output { font-weight: 700; color: var(--ink); min-width: 2.4em; font-variant-numeric: tabular-nums; }
+        .call-card { background: var(--soft); border: 1px solid var(--rule); border-radius: 6px; padding: 0.7rem 0.8rem; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.8rem; line-height: 1.55; margin-bottom: 0.55rem; overflow-x: auto; }
+        .call-card .ok { color: var(--yes); font-weight: 700; }
+        .call-card .bad { color: var(--no); font-weight: 700; }
+        .call-card .lbl { color: var(--muted); font-family: 'Source Sans 3', Arial, sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
+        .bars { display: grid; gap: 0.55rem; margin: 0.2rem 0 0.6rem; }
+        .bar-row { display: grid; grid-template-columns: 7.2rem 1fr 3.6rem; gap: 0.55rem; align-items: center; font-size: 0.84rem; }
+        .bar-lab { color: var(--muted); }
+        .bar-track { height: 0.7rem; background: var(--bar-bg); border-radius: 999px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; background: var(--no); border-radius: 999px; }
+        .bar-fill.zero { background: var(--yes); }
+        .bar-n { font-variant-numeric: tabular-nums; text-align: right; font-weight: 700; }
+        .status { font-size: 0.88rem; color: var(--muted); margin: 0.35rem 0 0; }
+        .path-in { width: 100%; font: inherit; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.82rem; padding: 0.45rem 0.6rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); margin-bottom: 0.7rem; }
+        .wilson-box { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 0.5rem; }
+        .wilson-stat { background: var(--soft); border-radius: 6px; padding: 0.65rem 0.75rem; }
+        .wilson-stat .v { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); line-height: 1.2; }
+        .wilson-stat .l { font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-top: 0.2rem; }
+        .wilson-track { position: relative; height: 1.1rem; background: var(--bar-bg); border-radius: 999px; margin: 0.75rem 0 0.3rem; }
+        .wilson-ci { position: absolute; top: 0; bottom: 0; background: var(--brand); opacity: 0.35; border-radius: 999px; }
+        .wilson-pt { position: absolute; top: 0.15rem; bottom: 0.15rem; width: 0.28rem; background: var(--ink); border-radius: 2px; }
+        #mmout { overflow-x: auto; }
+        #mmout svg { max-width: 100%; height: auto; }
+        #mmfb { display: block; width: 100%; height: auto; }
+        #mmout.has-live #mmfb { display: none; }
+        .mm-grid { display: none; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        #mmout.has-live .mm-grid { display: grid; }
+        .mm-pane { border: 1px solid var(--rule); border-radius: 6px; padding: 0.45rem 0.4rem 0.2rem; background: var(--soft); }
+        .mm-pane .panel-label { margin: 0.15rem 0.35rem 0.35rem; }
+        @media (max-width: 640px) { .mm-grid { grid-template-columns: 1fr; } }
+        .qz { padding: 0.9rem 0 0.7rem; border-bottom: 1px dashed var(--rule); }
+        .qz:first-child { padding-top: 0.2rem; }
+        .qz:last-of-type { border-bottom: 0; }
+        .qz .q { font-weight: 700; margin-bottom: 0.55rem; }
+        .qz .opts { display: grid; gap: 0.4rem; }
+        .qz button.opt { font: inherit; font-size: 0.92rem; text-align: left; padding: 0.45rem 0.7rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; line-height: 1.45; }
+        .qz button.opt:hover:not(:disabled), .qz button.opt:focus-visible { border-color: var(--brand); }
+        .qz button.opt:disabled { cursor: default; }
+        .qz button.opt.correct { border-color: var(--brand); background: var(--soft); font-weight: 600; }
+        .qz button.opt.wrong { opacity: 0.75; }
+        .qz .expl { display: none; margin: 0.55rem 0 0.2rem; font-size: 0.88rem; color: var(--muted); }
+        .qz.answered .expl { display: block; }
+        #qzTally { margin-top: 0.8rem; margin-bottom: 0; font-weight: 600; font-size: 0.92rem; }
+        .sources { margin-top: 1rem; font-size: 0.9rem; }
+        .sources h3 { font-family: 'Source Sans 3', Arial, sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 1rem 0 0.5rem; }
+        .sources ul { list-style: none; padding-left: 0; margin-bottom: 0; }
+        .sources li { padding: 0.3rem 0; border-bottom: 1px solid var(--rule); color: var(--muted); line-height: 1.5; }
+        .sources li:last-child { border-bottom: 0; }
+        .sources .cite-title { color: var(--ink); font-weight: 600; }
+        .ai-note { margin-top: 2rem; padding: 1rem 1.2rem; background: var(--soft); border-left: 3px solid var(--brand); border-radius: 0 6px 6px 0; color: var(--muted); font-size: 0.9rem; }
+        .footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); text-align: center; color: var(--muted); font-size: 0.85rem; }
+        @media (max-width: 640px) {
+            .container { padding: 1.25rem 1rem 2.5rem; }
+            .topbar { flex-direction: column; align-items: flex-start; }
+            .bar-row { grid-template-columns: 1fr; gap: 0.2rem; }
+            .wilson-box { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .bar-fill, .wilson-ci, .wilson-pt { transition: none; }
+        }
+    </style>
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/theme.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <span style="display:flex;flex-wrap:wrap;gap:1.1rem">
+                <a href="/blog/" class="back-link">&larr; All posts</a>
+                <a href="https://github.com/JacobStephens2/portfolio/tree/main/blog/the-filename-i-asked-for/" class="back-link" rel="noopener">Source on GitHub</a>
+            </span>
+            <a href="mailto:jacob@stephens.page" class="contact-link">jacob@stephens.page</a>
+        </div>
+
+        <article class="note">
+            <div class="eyebrow">Notes &middot; Tool-use fidelity</div>
+            <h1 class="title">The Filename I Asked For, and the Filename I Got</h1>
+            <p class="meta"><strong>August 19, 2026</strong> &middot; ~2,100 words &middot; 4 live figures and a quiz &middot; reading this as an AI agent? <a href="/blog/the-filename-i-asked-for/agents.md">agents.md</a> is for you</p>
+
+            <p>If I ask a coding model to write <code>muse-smoke.txt</code>, the write call has to say <code>muse-smoke.txt</code>. Meta's Muse Spark 1.1 did not clear that gate. Under agent-style request envelopes it returned <code>claude-smoke.txt</code> on every trial I ran, while the file contents stayed exactly <code>factory</code>. Muse Spark 1.2, retested on 2026-08-05, did not reproduce it: 0 wrong filenames in 30 trials across three channels.</p>
+
+            <p>I run a small software factory: agentic workflows where a coding model is handed a task and allowed to write and edit files with real tools. Adding a model to that setup means giving it a seat where its tool calls hit a real filesystem. The seat has a gate that is not a benchmark score. It is exact string fidelity on opaque tool arguments. Not something close. Not something reasonable. The string I supplied.</p>
+
+            <p>This is what I found on 1.1, how I checked it, and what happened when I reran the same envelopes on 1.2. It is a dated evaluation of one model for one role in my own systems. It is not a ranking, and it is not a recommendation to use anything else.</p>
+
+            <h2>The smoke test</h2>
+            <p>The task is deliberately trivial:</p>
+            <pre><code>Create a file named muse-smoke.txt in the current directory
+containing exactly the word: factory</code></pre>
+            <p>One file, one word. There is no reasoning to do and nothing to get clever about. It exists to check one property: does an exact user-supplied string survive the trip into a tool argument?</p>
+            <p>On Muse Spark 1.1, under an agent-style request envelope, the write call frequently came back as:</p>
+            <pre><code>write(filePath=".../claude-smoke.txt", content="factory")</code></pre>
+            <p>The content was right. <code>factory</code>, exactly. The path was not.</p>
+            <p>That asymmetry is the whole story. The model was not confused about the task - it was confused about a name, and only about the name. A filename is not the kind of thing a model gets to improve. It is an opaque identifier: the user's string is the spec, and any deviation is a defect no matter how sensible the substitute looks.</p>
+            <p>Under a live harness with tools enabled, this stops being a curiosity about token prediction. A wrong path argument is a wrong file on disk.</p>
+
+            <h2>How I checked</h2>
+            <p>Two independent channels, because "the model does X" is a claim that deserves more than one way of being wrong.</p>
+            <p><strong>Channel A - fixed-envelope replay.</strong> A frozen JSON request body sent straight to the Meta Model Responses API at <code>https://api.meta.ai/v1/responses</code>, with the tool calls inspected but never executed. The body is byte-stable and SHA-256 pinned, so every trial is genuinely the same request. Two envelopes:</p>
+            <ul>
+                <li><strong>B2</strong> - an OpenCode-style agent system prompt (OpenCode 1.18.3 class), with only a <code>write</code> tool available. Request SHA-256 <code>dfa2912b6184db146ffa07c06ddadffd12317736cf383f42450310fb3b5cf8f9</code>.</li>
+                <li><strong>B12</strong> - a one-line neutral coding-agent system prompt, same single tool. Request SHA-256 <code>a85fcdf143515a2f4d18d113a43cf38c831261fe833dbcad4585e764b0c55570</code>.</li>
+            </ul>
+            <p><strong>Channel B - live OpenCode.</strong> The real CLI (1.18.5), real tools, real writes into a disposable workspace per trial. Classification comes from the first <code>write</code> tool argument, with the on-disk result as a backstop.</p>
+            <p>The important detail: <strong>both request bodies contain zero case-insensitive occurrences of <code>claude</code> and zero of <code>anthropic</code>.</strong> I verified this on the exact bytes sent, not on a reconstruction. Whatever produced that token, it did not come from my input.</p>
+            <p>This is black-box behavioral testing on a fixed request. I am reporting what the tool arguments contained. I make no claim about anything inside the system that produced them.</p>
+
+            <div class="fig" id="fig1">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 1 &middot; Two channels, one question</span>
+                </div>
+                <div class="fig-body">
+                    <div id="mmout">
+                        <div class="mm-grid">
+                            <div class="mm-pane">
+                                <div class="panel-label">Channel A · inspect only</div>
+                                <div id="mmA"></div>
+                            </div>
+                            <div class="mm-pane">
+                                <div class="panel-label">Channel B · live harness</div>
+                                <div id="mmB"></div>
+                            </div>
+                        </div>
+                        <svg id="mmfb" viewBox="0 0 640 220" role="img" aria-label="Channel A inspects a frozen request. Channel B lets OpenCode execute the write in a disposable workspace.">
+                            <rect x="8" y="18" width="300" height="184" rx="8" fill="var(--soft)" stroke="var(--rule)"/>
+                            <text x="24" y="42" font-size="12" font-weight="700" fill="var(--brand)">CHANNEL A · inspect only</text>
+                            <rect x="28" y="58" width="260" height="32" rx="5" fill="var(--surface)" stroke="var(--rule)"/>
+                            <text x="42" y="78" font-size="12" fill="var(--ink)">Frozen JSON envelope</text>
+                            <rect x="28" y="106" width="260" height="32" rx="5" fill="var(--surface)" stroke="var(--rule)"/>
+                            <text x="42" y="126" font-size="12" fill="var(--ink)">Meta Model API</text>
+                            <rect x="28" y="154" width="260" height="32" rx="5" fill="var(--surface)" stroke="var(--rule)"/>
+                            <text x="42" y="174" font-size="12" fill="var(--ink)">Classify the write path</text>
+                            <rect x="332" y="18" width="300" height="184" rx="8" fill="var(--soft)" stroke="var(--rule)"/>
+                            <text x="348" y="42" font-size="12" font-weight="700" fill="var(--brand)">CHANNEL B · live harness</text>
+                            <rect x="352" y="58" width="260" height="32" rx="5" fill="var(--surface)" stroke="var(--rule)"/>
+                            <text x="366" y="78" font-size="12" fill="var(--ink)">OpenCode 1.18.5</text>
+                            <rect x="352" y="106" width="260" height="32" rx="5" fill="var(--surface)" stroke="var(--rule)"/>
+                            <text x="366" y="126" font-size="12" fill="var(--ink)">Meta Model API</text>
+                            <rect x="352" y="154" width="260" height="32" rx="5" fill="var(--surface)" stroke="var(--rule)"/>
+                            <text x="366" y="174" font-size="12" fill="var(--ink)">File lands on disk</text>
+                        </svg>
+                    </div>
+                </div>
+                <div class="fig-caption">Rendered live with mermaid.js v11 when the CDN is reachable; the inline SVG is the fallback. Both channels ask the same question - did <code>muse-smoke.txt</code> survive into the tool argument? - and disagree about whether the write is allowed to execute.</div>
+            </div>
+
+            <h2>What 1.1 did</h2>
+            <p>Wrong-filename rate, ten trials per cell:</p>
+            <div class="fig-scroll">
+                <table class="rates">
+                    <thead>
+                        <tr>
+                            <th>Date (UTC)</th>
+                            <th class="num">B2 (agent-style)</th>
+                            <th class="num">B12 (neutral)</th>
+                            <th class="num">Live OpenCode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2026-07-17</td><td class="num">10/10</td><td class="num">5/10</td><td class="num">n/a</td></tr>
+                        <tr><td>2026-07-23</td><td class="num">10/10</td><td class="num">3/10</td><td class="num">n/a</td></tr>
+                        <tr><td>2026-07-30</td><td class="num">10/10</td><td class="num">4/10</td><td class="num">10/10</td></tr>
+                        <tr><td>2026-07-31</td><td class="num">10/10</td><td class="num">6/10</td><td class="num">10/10</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Two weeks, four series, no drift toward correct.</p>
+            <p>The gap between the columns is the interesting part. <strong>The minimal envelope was stochastic - 3 to 6 wrong out of 10 depending on the day. The agent-style envelope was consistently wrong, and so was the live harness.</strong> The behavior was not uniform background noise; it got dramatically worse under exactly the conditions that make a model useful as a coding agent. A quick sanity check in a bare API call would have made this look occasional. It was not occasional where it mattered.</p>
+
+            <div class="fig" id="fig2">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 2 &middot; Draw a trial from a committed cell</span>
+                </div>
+                <div class="fig-body">
+                    <p class="panel-label">First, predict. Then draw.</p>
+                    <div class="ctl-row" id="seriesBtns"></div>
+                    <div class="ctl-row" id="chanBtns"></div>
+                    <div class="ctl-row">
+                        <button type="button" class="ctl-btn" id="predictExact">I predict exact</button>
+                        <button type="button" class="ctl-btn" id="predictWrong">I predict substituted</button>
+                        <button type="button" class="ctl-btn" id="drawTrial" disabled>Draw one trial</button>
+                    </div>
+                    <div id="bars" class="bars" aria-live="polite"></div>
+                    <div class="call-card" id="askedCard">
+                        <span class="lbl">Requested</span>
+                        write(filePath="muse-smoke.txt", content="factory")
+                    </div>
+                    <div class="call-card" id="gotCard">
+                        <span class="lbl">Returned tool argument</span>
+                        <span id="gotLine">Predict, then draw. This samples the committed multinomial for the selected cell. It is not a live API call.</span>
+                    </div>
+                    <p class="status" id="trialStatus">Pick a series and a channel, lock in a prediction, then draw.</p>
+                </div>
+                <div class="fig-caption">Hand-built from the committed trial counts, not a live model call. Each draw samples the observed multinomial for that date and channel (B2 / B12 / live OpenCode). The bars are the actual rates; the card is one fictional trial from that distribution, so you can feel 30% versus 100% instead of only reading it.</div>
+            </div>
+
+            <p>Three more things worth recording:</p>
+            <p><strong>It was not only basenames.</strong> Several B2 trials rewrote a directory component too - <code>/tmp/muse-opencode-envelope/</code> came back as <code>/tmp/claude-opencode-envelope/</code>. Under live OpenCode, the substitution reached into a real absolute path and rewrote an identity token in a repository directory name mid-path. That can put a file in a sibling directory that did not exist a moment ago.</p>
+            <p><strong>It was not one hardcoded mapping.</strong> <code>claude-smoke.txt</code> dominated, but one 2026-07-23 B2 trial produced <code>opencode-smoke.txt</code>, one live trial on 2026-07-31 did the same, and earlier exploratory runs turned up <code>cursor-smoke.txt</code>. The attractor is identity-shaped names generally, not a single string swap. I never established relative frequencies for the alternates.</p>
+            <p><strong>The content never wavered.</strong> Across every substituted trial, the file content stayed exactly <code>factory</code>. Path tokens turned out to be far more fragile than literal content.</p>
+            <p>For the factory decision, that was enough. Exact path preservation is a hard prerequisite for an implementation-worker role, 1.1 did not meet it, and it stayed out of that workflow.</p>
+
+            <div class="fig" id="fig3">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 3 &middot; The path token, not the contents</span>
+                </div>
+                <div class="fig-body">
+                    <label class="panel-label" for="pathIn">Type a path that contains an identity-like token</label>
+                    <input class="path-in" id="pathIn" type="text" value="/tmp/muse-opencode-envelope/muse-smoke.txt" spellcheck="false" autocomplete="off">
+                    <div class="call-card">
+                        <span class="lbl">1.1-style dominant substitution (observed pattern, applied to your string)</span>
+                        <div id="path11" class="bad">/tmp/claude-opencode-envelope/claude-smoke.txt</div>
+                        <div>content = <span class="ok">factory</span></div>
+                    </div>
+                    <div class="call-card">
+                        <span class="lbl">1.2 on 2026-08-05 (all 30 trials)</span>
+                        <div id="path12" class="ok">/tmp/muse-opencode-envelope/muse-smoke.txt</div>
+                        <div>content = <span class="ok">factory</span></div>
+                    </div>
+                    <p class="status" id="pathNote">This applies the dominant observed 1.1 rewrite (<code>muse</code> &rarr; <code>claude</code> in path tokens). It is not a claim that the model implemented this rule.</p>
+                </div>
+                <div class="fig-caption">Hand-built illustration of the observed 1.1 path rewrite versus the 1.2 exact path. Content is pinned at <code>factory</code> on both sides because that is what every substituted trial actually did. The rewrite is the dominant pattern I recorded, applied to whatever path you type - a teaching projection, not a recovered algorithm.</div>
+            </div>
+
+            <h2>Reporting it</h2>
+            <p>I filed this with Meta support in late July as a reliability issue - tool-argument fidelity, not a security exploit, and I have been careful to keep that framing throughout. It is a defect about a model introducing tokens into tool-call arguments that were not in the request. Calling it anything more dramatic would misdescribe it.</p>
+            <p>Support escalated it to engineering as a tool-use fidelity issue and asked for API response IDs to trace the affected calls, which I sent along with the SHA-pinned request bodies and the full dated series on 2026-07-31. Engineering confirmed on 2026-08-03 that it was with the technical team.</p>
+            <p>I sent a follow-up on 2026-08-08 with the 1.2 clearance below, and an offer to hold publication if there was a reason on their end. I have not heard back. The ticket is still open. Nothing below is a statement about how it was resolved, because I do not know.</p>
+
+            <h2>What 1.2 did</h2>
+            <p>On 2026-08-05, Muse Spark 1.2 was available to me, so I reran everything. Same envelopes, same user task, same harness, same day - the only change to the request bodies was the <code>model</code> field. The 1.2 hashes therefore differ: B2 <code>6d8af6e4913f7aeec043604cd931ec6848f7cc6e5531d14fa85b510b03a57d28</code>, B12 <code>9ab701e1e1709ccb7b7c1ddb693942602a4c150854eeb3056eadba32f03ef574</code>.</p>
+            <div class="fig-scroll">
+                <table class="rates">
+                    <thead>
+                        <tr><th>Channel</th><th class="num">Trials</th><th class="num">Wrong filenames</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>B2 (agent-style envelope)</td><td class="num">10</td><td class="num">0</td></tr>
+                        <tr><td>B12 (neutral envelope)</td><td class="num">10</td><td class="num">0</td></tr>
+                        <tr><td>Live OpenCode 1.18.5</td><td class="num">10</td><td class="num">0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Thirty for thirty exact. No basename substitutions, and no directory-token rewrites either - B2 paths stayed put this time. Under the live harness, 5 trials used the <code>write</code> tool and 5 wrote the file through bash; both routes preserved the name.</p>
+            <p><strong>I cannot tell you why.</strong> The API responses do not expose an immutable serving or weights revision, so I cannot tie the July series and the August series to specific backends, and I have no way to distinguish a model change from a serving change from something else. I also cannot claim my report caused anything - the timing is consistent with that and equally consistent with a dozen other explanations.</p>
+            <p>What I can say is narrow and dated: <strong>the behavior I documented on 1.1 through 2026-07-31 did not reproduce on 1.2 on 2026-08-05, across three channels.</strong> For my factory decision, that is the part that matters - 1.2 clears the gate 1.1 did not.</p>
+            <p>And 0/30 is not proof of absence. The 95% Wilson interval on 0/10 still runs to 27.8%. On 0/30 it runs to 11.4%. What I have shown is that a behavior which was previously 100% reproducible in two of three channels stopped being reproducible at all. That is a real change; it is not a guarantee.</p>
+
+            <div class="fig" id="fig4">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 4 &middot; Wilson 95% interval on a binomial rate</span>
+                </div>
+                <div class="fig-body">
+                    <div class="ctl-row">
+                        <button type="button" class="ctl-btn" data-wilson="10,10">10/10 (B2 1.1)</button>
+                        <button type="button" class="ctl-btn" data-wilson="5,10">5/10 (B12)</button>
+                        <button type="button" class="ctl-btn" data-wilson="0,10">0/10 (one 1.2 cell)</button>
+                        <button type="button" class="ctl-btn" data-wilson="0,30">0/30 (all 1.2)</button>
+                    </div>
+                    <div class="ctl-row">
+                        <label class="ctl-slider">k wrong <input id="wk" type="range" min="0" max="30" value="0"> <output id="wkOut">0</output></label>
+                        <label class="ctl-slider">n trials <input id="wn" type="range" min="1" max="30" value="10"> <output id="wnOut">10</output></label>
+                    </div>
+                    <div class="wilson-track" aria-hidden="true">
+                        <div class="wilson-ci" id="wCi"></div>
+                        <div class="wilson-pt" id="wPt"></div>
+                    </div>
+                    <div class="wilson-box">
+                        <div class="wilson-stat"><div class="v" id="wRate">0/10</div><div class="l">observed rate</div></div>
+                        <div class="wilson-stat"><div class="v" id="wInt">[0.000, 0.278]</div><div class="l">Wilson 95% CI</div></div>
+                    </div>
+                    <p class="status" id="wNote">z = 1.96. Formula in the caption. 0/10 still leaves room for a 27.8% true rate.</p>
+                </div>
+                <div class="fig-caption">Real Wilson score interval, computed in the page from Edwin B. Wilson (1927). For <em>k</em> wrong in <em>n</em> trials, <em>p̂</em> = <em>k</em>/<em>n</em>, <em>z</em> = 1.96: center = (<em>p̂</em> + <em>z</em>²/2<em>n</em>) / (1 + <em>z</em>²/<em>n</em>), margin = <em>z</em> · √(<em>p̂</em>(1 − <em>p̂</em>)/<em>n</em> + <em>z</em>²/4<em>n</em>²) / (1 + <em>z</em>²/<em>n</em>). Verified values: 10/10 → [0.722, 1.000]; 0/10 → [0.000, 0.278]; 0/30 → [0.000, 0.114].</div>
+            </div>
+
+            <h2>The part that generalizes</h2>
+            <p>The specific bug is now, as far as I can measure, gone. The reason I am writing it up anyway is that the <em>shape</em> of it is going to keep recurring, and it is cheap to catch.</p>
+            <p><strong>Opaque tool arguments are an evaluation surface, and mostly an unwatched one.</strong> Evals tend to score the things a model is supposed to think about: did it solve the problem, is the code correct, does the test pass. Filenames, IDs, paths, keys, and handles are things a model is supposed to <em>carry</em>, not think about - and a model that is excellent at the first job can quietly fail the second. A substituted path does not throw. It writes a real file to a real location with correct-looking contents, and nothing downstream knows to complain.</p>
+            <p><strong>Test in the envelope you will deploy in.</strong> The single largest effect I measured was not between models - it was between a minimal request and an agent-style one. Same model, same task, same day, 30% versus 100%. If I had only checked the simple case, I would have called it flaky and moved on.</p>
+            <p><strong>Check identity-shaped names specifically.</strong> The failure clustered hard on names that look like other AI products. That is a narrow, testable class you can add to a fidelity suite in an afternoon: ask for files named after neighboring products, your own product, and a few random UUIDs, and diff the tool arguments against what you asked for.</p>
+            <p>None of that requires knowing anything about how any particular model works. It just requires checking that the string you sent is the string that came back.</p>
+
+            <h2>The quiz at the door</h2>
+            <p>Five questions. The point is the same one I used as a factory gate: if the exact string does not survive, you do not have the behavior you think you have.</p>
+
+            <div class="fig" id="fig5">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 5 &middot; Pass the quiz before you merge</span>
+                </div>
+                <div class="fig-body">
+                    <div class="qz">
+                        <p class="q">1. On the 1.1 substituted trials, what actually broke?</p>
+                        <div class="opts">
+                            <button type="button" class="opt">The file contents: <code>factory</code> was rewritten</button>
+                            <button type="button" class="opt" data-correct>The path: <code>muse-smoke.txt</code> became an identity-like name, usually <code>claude-smoke.txt</code></button>
+                            <button type="button" class="opt">The HTTP status: the API returned an error instead of a write</button>
+                        </div>
+                        <p class="expl">Contents stayed exactly <code>factory</code> on every substituted trial. The defect was path fidelity, not task comprehension.</p>
+                    </div>
+                    <div class="qz">
+                        <p class="q">2. Same model, same task, same day. Which request made the failure almost certain?</p>
+                        <div class="opts">
+                            <button type="button" class="opt">The one-line neutral envelope (B12)</button>
+                            <button type="button" class="opt" data-correct>The agent-style envelope (B2) and the live OpenCode harness</button>
+                            <button type="button" class="opt">Any request at all - the rewrite was unconditional</button>
+                        </div>
+                        <p class="expl">B12 was stochastic (3 to 6 of 10). B2 was 10/10 on every 1.1 series, and live OpenCode matched it. A historical 80/80 minimal synthetic control was exact, so this is not an unconditional string rewrite.</p>
+                    </div>
+                    <div class="qz">
+                        <p class="q">3. Muse Spark 1.2 went 0/10 wrong on each of three channels. What does that prove?</p>
+                        <div class="opts">
+                            <button type="button" class="opt">The true rate is now zero</button>
+                            <button type="button" class="opt">Meta shipped a fix because of the report</button>
+                            <button type="button" class="opt" data-correct>A previously 100% reproducible behavior stopped reproducing; the Wilson upper bound on 0/10 is still 27.8%</button>
+                        </div>
+                        <p class="expl">0/10 is a real change from 10/10. It is not a guarantee, and it is not evidence that the report caused the change. The API still does not expose a serving revision.</p>
+                    </div>
+                    <div class="qz">
+                        <p class="q">4. Why test opaque tool arguments at all, if the code the model writes can still pass tests?</p>
+                        <div class="opts">
+                            <button type="button" class="opt">Because a wrong filename will fail the unit tests</button>
+                            <button type="button" class="opt" data-correct>Because a substituted path writes a real file to a real location and nothing downstream has to complain</button>
+                            <button type="button" class="opt">Because filenames are a good proxy for general reasoning quality</button>
+                        </div>
+                        <p class="expl">A verifier may catch the resulting patch. Verification is containment after the model has already selected an incorrect target. The write itself succeeded.</p>
+                    </div>
+                    <div class="qz">
+                        <p class="q">5. You are adding a fidelity check to a coding-agent eval. Which set is the one this defect says to include?</p>
+                        <div class="opts">
+                            <button type="button" class="opt">Only random UUID filenames, because they have no semantics</button>
+                            <button type="button" class="opt">Only names of the model under test, because self-reference is the risk</button>
+                            <button type="button" class="opt" data-correct>Identity-shaped names (neighboring products, your own product) plus a few random UUIDs, inside the envelope you will actually deploy</button>
+                        </div>
+                        <p class="expl">The 1.1 failure clustered on identity-like tokens and got worse under agent context. UUID-only names would have missed the cluster; a minimal envelope would have understated the rate.</p>
+                    </div>
+                    <p id="qzTally">0 of 5 answered.</p>
+                </div>
+            </div>
+
+            <h2>What's still open</h2>
+            <p>I do not know why 1.1 did this, and I do not know why 1.2 stopped. Training data, distillation, alignment, and serving-layer behavior all remain possible, and the evidence does not pick one. The API still does not expose an immutable serving or weights revision, so a future retest cannot name the backend it ran against.</p>
+            <p>The Meta ticket is still open. I have not heard from the support thread since I sent the 1.2 follow-up on 2026-08-08. That silence is not a close, and it is not a hold.</p>
+            <p>I did not establish multi-trial rates under other harnesses. I ran a single smoke through Meta's first-party coding harness and deliberately do not report a rate from it - one run is not a series. I did not test multi-file edits, renames, or non-identity basenames at N=10. B12's day-to-day wobble sits inside wide Wilson intervals and is not a separate finding.</p>
+            <p>0/30 on 1.2 is clearance for a factory-seat decision, not a warranty. If I put 1.2 in that seat, the same smoke test stays in the gate.</p>
+
+            <h2>Sources</h2>
+            <div class="sources">
+                <h3>Ideas and authorities</h3>
+                <ul>
+                    <li>Edwin B. Wilson, <span class="cite-title">"Probable Inference, the Law of Succession, and Statistical Inference"</span> (1927) - the score interval computed live in Fig. 4. <em>Journal of the American Statistical Association</em> 22(158): 209–212.</li>
+                    <li>Geoffrey Litt, <span class="cite-title">"Understanding: the New Bottleneck"</span> (talk I attended) - the quiz-before-merge rule Fig. 5 is built on. <a href="https://www.youtube.com/watch?v=WkBPX-oDMnA" rel="noopener">youtube.com/watch?v=WkBPX-oDMnA</a></li>
+                    <li>Richard White &amp; Richard Gunstone, <span class="cite-title">Probing Understanding</span> (1992) - the predict-observe-explain move in Fig. 2.</li>
+                </ul>
+                <h3>Tools demonstrated or referenced</h3>
+                <ul>
+                    <li><span class="cite-title">Meta Muse Spark 1.1 and 1.2</span> via the Meta Model Responses API (<code>https://api.meta.ai/v1/responses</code>) - the model under test. This post is an evaluation of that model for a coding seat in my own systems.</li>
+                    <li><span class="cite-title">OpenCode 1.18.5</span> (live Channel B; B2 system prompt from the 1.18.3 class) - <a href="https://github.com/sst/opencode" rel="noopener">github.com/sst/opencode</a></li>
+                    <li><span class="cite-title">mermaid.js v11</span> (Fig. 1, from jsdelivr) - <a href="https://mermaid.js.org/" rel="noopener">mermaid.js.org</a></li>
+                    <li>Meta Model API Terms of Service, last-updated stamp August 5, 2026, re-read 2026-08-19 - purpose-based public-evaluation clause at §10.1(xi); evaluation-of-your-own-systems carve-out at §10.1(ix).</li>
+                </ul>
+            </div>
+
+            <div class="ai-note">
+                Drafted from my private investigation artifacts (the 2026-07-17 through 2026-08-05 trial series, the vendor report, and a scrubbed 2026-08-08 draft). Fig. 1 runs mermaid.js v11 from jsdelivr, with the inline SVG as the CDN-outage fallback. Figs. 2–4 are hand-built on the committed trial counts and the Wilson formula; Fig. 2 samples those counts and is labeled as not a live API call. No response IDs, support-thread text, credentials, or home-directory paths appear on this page. The measurements, the factory-seat decision, and the words are mine; Grok was the technical collaborator who turned the draft into this page.
+            </div>
+
+            <p><strong>For AI agents:</strong> the machine-oriented version is at <a href="/blog/the-filename-i-asked-for/agents.md">agents.md</a>, with directives, the committed rate tables, the Wilson formula and verified numbers, an operational checklist, and a self-test.</p>
+        </article>
+
+        <footer class="footer">
+            &copy; <span id="current-year"></span> Jacob Stephens
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script>
+    (function () {
+        'use strict';
+
+        var MM = null;
+        function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+        var MM_A = 'flowchart TB\n  E[Frozen JSON envelope] --> API[Meta Model API] --> CL[Classify write path]';
+        var MM_B = 'flowchart TB\n  OC[OpenCode 1.18.5] --> API2[Meta Model API] --> D[File lands on disk]';
+        var mmSeq = 0;
+
+        function renderMermaid() {
+            var box = document.getElementById('mmout');
+            var a = document.getElementById('mmA');
+            var b = document.getElementById('mmB');
+            if (!MM || !box || !a || !b) return;
+            MM.initialize({
+                startOnLoad: false,
+                securityLevel: 'strict',
+                theme: 'base',
+                fontFamily: "'Source Sans 3', Arial, sans-serif",
+                themeVariables: {
+                    primaryColor: cssVar('--surface'),
+                    primaryTextColor: cssVar('--ink'),
+                    primaryBorderColor: cssVar('--rule'),
+                    lineColor: cssVar('--muted'),
+                    secondaryColor: cssVar('--surface'),
+                    tertiaryColor: cssVar('--soft'),
+                    background: cssVar('--soft'),
+                    mainBkg: cssVar('--surface'),
+                    nodeBorder: cssVar('--rule'),
+                    titleColor: cssVar('--brand'),
+                    fontFamily: "'Source Sans 3', Arial, sans-serif"
+                }
+            });
+            var idA = 'mmfigA' + (++mmSeq);
+            var idB = 'mmfigB' + (++mmSeq);
+            Promise.all([
+                MM.render(idA, MM_A),
+                MM.render(idB, MM_B)
+            ]).then(function (outs) {
+                a.innerHTML = outs[0].svg;
+                b.innerHTML = outs[1].svg;
+                box.classList.add('has-live');
+            }).catch(function () { /* keep fallback SVG */ });
+        }
+        window.__onMermaid = function (m) { MM = m; renderMermaid(); };
+
+        new MutationObserver(function () { if (MM) renderMermaid(); })
+            .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        try {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+                if (MM) renderMermaid();
+            });
+        } catch (e) {}
+
+        /* ---------- Fig. 2: committed multinomials ---------- */
+        var SERIES = {
+            '2026-07-17': {
+                model: '1.1',
+                b2:   { n: 10, kinds: { claude: 10 } },
+                b12:  { n: 10, kinds: { claude: 5, exact: 5 } },
+                live: null
+            },
+            '2026-07-23': {
+                model: '1.1',
+                b2:   { n: 10, kinds: { claude: 9, opencode: 1 } },
+                b12:  { n: 10, kinds: { claude: 3, exact: 7 } },
+                live: null
+            },
+            '2026-07-30': {
+                model: '1.1',
+                b2:   { n: 10, kinds: { claude: 10 } },
+                b12:  { n: 10, kinds: { claude: 4, exact: 6 } },
+                live: { n: 10, kinds: { claude: 10 } }
+            },
+            '2026-07-31': {
+                model: '1.1',
+                b2:   { n: 10, kinds: { claude: 10 } },
+                b12:  { n: 10, kinds: { claude: 6, exact: 4 } },
+                live: { n: 10, kinds: { claude: 9, opencode: 1 } }
+            },
+            '2026-08-05': {
+                model: '1.2',
+                b2:   { n: 10, kinds: { exact: 10 } },
+                b12:  { n: 10, kinds: { exact: 10 } },
+                live: { n: 10, kinds: { exact: 10 } }
+            }
+        };
+        var CHAN_LABEL = { b2: 'B2 agent-style', b12: 'B12 neutral', live: 'Live OpenCode' };
+        var NAME_OF = {
+            exact: 'muse-smoke.txt',
+            claude: 'claude-smoke.txt',
+            opencode: 'opencode-smoke.txt'
+        };
+
+        var state = { series: '2026-07-31', chan: 'b2', predicted: null };
+
+        function cell() {
+            var s = SERIES[state.series];
+            return s ? s[state.chan] : null;
+        }
+        function wrongCount(c) {
+            if (!c) return 0;
+            return (c.kinds.claude || 0) + (c.kinds.opencode || 0);
+        }
+        function pickKind(c) {
+            var r = Math.random() * c.n;
+            var acc = 0;
+            var keys = Object.keys(c.kinds);
+            for (var i = 0; i < keys.length; i++) {
+                acc += c.kinds[keys[i]];
+                if (r < acc) return keys[i];
+            }
+            return keys[keys.length - 1];
+        }
+
+        function renderBars() {
+            var host = document.getElementById('bars');
+            var c = cell();
+            host.innerHTML = '';
+            if (!c) {
+                host.innerHTML = '<p class="status">No live-OpenCode series on this date.</p>';
+                return;
+            }
+            var rows = [
+                ['exact muse-smoke.txt', c.kinds.exact || 0, true],
+                ['claude-smoke.txt', c.kinds.claude || 0, false],
+                ['opencode-smoke.txt', c.kinds.opencode || 0, false]
+            ];
+            rows.forEach(function (row) {
+                var wrap = document.createElement('div');
+                wrap.className = 'bar-row';
+                var lab = document.createElement('div');
+                lab.className = 'bar-lab';
+                lab.textContent = row[0];
+                var track = document.createElement('div');
+                track.className = 'bar-track';
+                var fill = document.createElement('div');
+                fill.className = 'bar-fill' + (row[2] && row[1] === c.n ? ' zero' : '');
+                fill.style.width = ((row[1] / c.n) * 100) + '%';
+                if (row[2] && row[1] > 0 && row[1] < c.n) fill.style.background = 'var(--yes)';
+                track.appendChild(fill);
+                var n = document.createElement('div');
+                n.className = 'bar-n';
+                n.textContent = row[1] + '/' + c.n;
+                wrap.appendChild(lab);
+                wrap.appendChild(track);
+                wrap.appendChild(n);
+                host.appendChild(wrap);
+            });
+        }
+
+        function setPressed(group, value) {
+            Array.prototype.forEach.call(group.querySelectorAll('.ctl-btn'), function (b) {
+                b.setAttribute('aria-pressed', b.getAttribute('data-val') === value ? 'true' : 'false');
+            });
+        }
+
+        function buildToggles() {
+            var sHost = document.getElementById('seriesBtns');
+            Object.keys(SERIES).forEach(function (key) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'ctl-btn';
+                b.setAttribute('data-val', key);
+                b.textContent = key + ' · ' + SERIES[key].model;
+                b.addEventListener('click', function () {
+                    state.series = key;
+                    if (!SERIES[key][state.chan]) state.chan = 'b2';
+                    state.predicted = null;
+                    document.getElementById('drawTrial').disabled = true;
+                    setPressed(sHost, key);
+                    refreshChans();
+                    renderBars();
+                    resetDraw();
+                });
+                sHost.appendChild(b);
+            });
+            setPressed(sHost, state.series);
+            refreshChans();
+        }
+
+        function refreshChans() {
+            var host = document.getElementById('chanBtns');
+            host.innerHTML = '';
+            ['b2', 'b12', 'live'].forEach(function (ch) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'ctl-btn';
+                b.setAttribute('data-val', ch);
+                b.disabled = !SERIES[state.series][ch];
+                b.textContent = CHAN_LABEL[ch];
+                b.addEventListener('click', function () {
+                    if (!SERIES[state.series][ch]) return;
+                    state.chan = ch;
+                    state.predicted = null;
+                    document.getElementById('drawTrial').disabled = true;
+                    setPressed(host, ch);
+                    renderBars();
+                    resetDraw();
+                });
+                host.appendChild(b);
+            });
+            setPressed(host, state.chan);
+        }
+
+        function resetDraw() {
+            document.getElementById('gotLine').textContent = 'Predict, then draw. This samples the committed multinomial for the selected cell. It is not a live API call.';
+            document.getElementById('gotCard').querySelector('#gotLine').className = '';
+            document.getElementById('trialStatus').textContent = 'Pick a series and a channel, lock in a prediction, then draw.';
+            document.getElementById('predictExact').setAttribute('aria-pressed', 'false');
+            document.getElementById('predictWrong').setAttribute('aria-pressed', 'false');
+        }
+
+        document.getElementById('predictExact').addEventListener('click', function () {
+            state.predicted = 'exact';
+            this.setAttribute('aria-pressed', 'true');
+            document.getElementById('predictWrong').setAttribute('aria-pressed', 'false');
+            document.getElementById('drawTrial').disabled = !cell();
+        });
+        document.getElementById('predictWrong').addEventListener('click', function () {
+            state.predicted = 'wrong';
+            this.setAttribute('aria-pressed', 'true');
+            document.getElementById('predictExact').setAttribute('aria-pressed', 'false');
+            document.getElementById('drawTrial').disabled = !cell();
+        });
+        document.getElementById('drawTrial').addEventListener('click', function () {
+            var c = cell();
+            if (!c) return;
+            var kind = pickKind(c);
+            var name = NAME_OF[kind];
+            var exact = kind === 'exact';
+            var line = document.getElementById('gotLine');
+            line.className = exact ? 'ok' : 'bad';
+            line.textContent = 'write(filePath="' + name + '", content="factory")';
+            var predOk = (state.predicted === 'exact' && exact) || (state.predicted === 'wrong' && !exact);
+            var w = wrongCount(c);
+            document.getElementById('trialStatus').textContent =
+                (predOk ? 'Prediction matched this draw. ' : 'Prediction missed this draw. ') +
+                'Committed cell: ' + w + '/' + c.n + ' wrong on ' + state.series + ' ' + CHAN_LABEL[state.chan] +
+                '. Content was factory either way.';
+        });
+
+        buildToggles();
+        renderBars();
+
+        /* ---------- Fig. 3: path rewrite ---------- */
+        function rewritePath(p) {
+            return String(p).replace(/muse/gi, 'claude');
+        }
+        function updatePath() {
+            var src = document.getElementById('pathIn').value;
+            document.getElementById('path11').textContent = rewritePath(src);
+            document.getElementById('path12').textContent = src;
+        }
+        document.getElementById('pathIn').addEventListener('input', updatePath);
+        updatePath();
+
+        /* ---------- Fig. 4: Wilson ---------- */
+        function wilson(k, n, z) {
+            z = z || 1.96;
+            if (n <= 0) return [0, 1];
+            if (k < 0) k = 0;
+            if (k > n) k = n;
+            var p = k / n;
+            var z2 = z * z;
+            var den = 1 + z2 / n;
+            var center = (p + z2 / (2 * n)) / den;
+            var margin = z * Math.sqrt((p * (1 - p) + z2 / (4 * n)) / n) / den;
+            return [Math.max(0, center - margin), Math.min(1, center + margin)];
+        }
+        window.__wilson = wilson;
+
+        function paintWilson() {
+            var n = parseInt(document.getElementById('wn').value, 10);
+            var k = parseInt(document.getElementById('wk').value, 10);
+            if (k > n) {
+                k = n;
+                document.getElementById('wk').value = String(k);
+            }
+            document.getElementById('wk').max = String(n);
+            document.getElementById('wkOut').textContent = String(k);
+            document.getElementById('wnOut').textContent = String(n);
+            var ci = wilson(k, n);
+            var rate = k / n;
+            document.getElementById('wRate').textContent = k + '/' + n + ' = ' + (rate * 100).toFixed(1) + '%';
+            document.getElementById('wInt').textContent = '[' + ci[0].toFixed(3) + ', ' + ci[1].toFixed(3) + ']';
+            document.getElementById('wCi').style.left = (ci[0] * 100) + '%';
+            document.getElementById('wCi').style.width = ((ci[1] - ci[0]) * 100) + '%';
+            document.getElementById('wPt').style.left = 'calc(' + (rate * 100) + '% - 0.14rem)';
+            document.getElementById('wNote').textContent =
+                'z = 1.96. Upper bound ' + (ci[1] * 100).toFixed(1) +
+                '%. 0/10 still leaves room for a 27.8% true rate; 0/30 leaves 11.4%.';
+        }
+        document.getElementById('wk').addEventListener('input', paintWilson);
+        document.getElementById('wn').addEventListener('input', paintWilson);
+        Array.prototype.forEach.call(document.querySelectorAll('[data-wilson]'), function (btn) {
+            btn.addEventListener('click', function () {
+                var parts = btn.getAttribute('data-wilson').split(',');
+                document.getElementById('wk').value = parts[0];
+                document.getElementById('wn').value = parts[1];
+                paintWilson();
+            });
+        });
+        paintWilson();
+
+        /* ---------- Fig. 5: quiz ---------- */
+        var answered = 0, correctCount = 0;
+        var blocks = Array.prototype.slice.call(document.querySelectorAll('.qz'));
+        var total = blocks.length;
+        var tally = document.getElementById('qzTally');
+        blocks.forEach(function (block) {
+            var opts = Array.prototype.slice.call(block.querySelectorAll('button.opt'));
+            opts.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    if (block.classList.contains('answered')) return;
+                    block.classList.add('answered');
+                    var right = btn.hasAttribute('data-correct');
+                    answered++;
+                    if (right) correctCount++;
+                    opts.forEach(function (b) {
+                        b.disabled = true;
+                        if (b.hasAttribute('data-correct')) {
+                            b.classList.add('correct');
+                            b.textContent = '✓ ' + b.textContent;
+                        } else if (b === btn) {
+                            b.classList.add('wrong');
+                            b.textContent = '✗ ' + b.textContent;
+                        }
+                    });
+                    if (answered < total) {
+                        tally.textContent = answered + ' of ' + total + ' answered · ' + correctCount + ' correct.';
+                    } else {
+                        var verdict;
+                        if (correctCount === 5) verdict = 'Merge approved.';
+                        if (correctCount === 4) verdict = 'Merge approved, with a comment.';
+                        if (correctCount === 3) verdict = 'Request changes: re-read the envelope gap and Fig. 4.';
+                        if (correctCount < 3) verdict = 'Blocked: no merge until the quiz passes. The string you sent is the spec.';
+                        tally.textContent = 'Score: ' + correctCount + ' of ' + total + '. ' + verdict;
+                    }
+                });
+            });
+        });
+    })();
+    </script>
+    <script type="module">
+        import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs')
+            .then(function (mod) { window.__onMermaid(mod.default); })
+            .catch(function () { /* CDN unreachable: the hand-built SVG stays */ });
+    </script>
+    <script src="/blog/newsletter-widget.js" defer></script>
+    <script>
+    /* Headless verification only: /blog/the-filename-i-asked-for/?verify=1 */
+    (function () {
+        if (!/[?&]verify=1(?:&|$)/.test(location.search)) return;
+        function ready(fn) {
+            if (document.readyState === 'complete') fn();
+            else window.addEventListener('load', fn);
+        }
+        ready(function () {
+            setTimeout(run, 800);
+        });
+        function run() {
+            var errors = [];
+            try {
+                var w = window.__wilson;
+                if (!w) throw new Error('__wilson missing');
+                function near(a, b) { return Math.abs(a - b) < 0.0006; }
+                var a = w(10, 10), b = w(0, 10), c = w(0, 30), d = w(5, 10);
+                if (!near(a[0], 0.7225) || !near(a[1], 1)) errors.push('wilson 10/10 ' + a);
+                if (!near(b[0], 0) || !near(b[1], 0.2775)) errors.push('wilson 0/10 ' + b);
+                if (!near(c[0], 0) || !near(c[1], 0.1135)) errors.push('wilson 0/30 ' + c);
+                if (!near(d[0], 0.2366) || !near(d[1], 0.7634)) errors.push('wilson 5/10 ' + d);
+
+                document.querySelector('[data-wilson="10,10"]').click();
+                var int10 = document.getElementById('wInt').textContent;
+                document.querySelector('[data-wilson="0,30"]').click();
+                var int30 = document.getElementById('wInt').textContent;
+
+                var path = document.getElementById('pathIn');
+                path.value = '/tmp/muse-opencode-envelope/muse-smoke.txt';
+                path.dispatchEvent(new Event('input', { bubbles: true }));
+                var p11 = document.getElementById('path11').textContent;
+                var p12 = document.getElementById('path12').textContent;
+                if (p11 !== '/tmp/claude-opencode-envelope/claude-smoke.txt') errors.push('path11 ' + p11);
+                if (p12 !== '/tmp/muse-opencode-envelope/muse-smoke.txt') errors.push('path12 ' + p12);
+
+                document.getElementById('predictWrong').click();
+                document.getElementById('drawTrial').click();
+                var got = document.getElementById('gotLine').textContent;
+                if (got.indexOf('write(filePath=') === -1) errors.push('draw missing write');
+
+                var qz = document.querySelectorAll('.qz');
+                qz.forEach(function (block) {
+                    var right = block.querySelector('[data-correct]');
+                    if (right) right.click();
+                });
+                var tally = document.getElementById('qzTally').textContent;
+
+                var mmLive = document.getElementById('mmout').classList.contains('has-live');
+                var mmSvg = !!document.querySelector('#mmout svg');
+                var mmA = !!document.querySelector('#mmA svg');
+                var mmB = !!document.querySelector('#mmB svg');
+                var cons = (window.__verifyConsole || []).slice();
+
+                var out = {
+                    wilson10: int10,
+                    wilson30: int30,
+                    path11: p11,
+                    path12: p12,
+                    got: got,
+                    tally: tally,
+                    mmLive: mmLive,
+                    mmSvg: mmSvg,
+                    mmA: mmA,
+                    mmB: mmB,
+                    console: cons,
+                    errors: errors
+                };
+                var pre = document.createElement('pre');
+                pre.id = 'verifyOut';
+                pre.textContent = 'OUT:' + JSON.stringify(out);
+                document.body.appendChild(pre);
+            } catch (e) {
+                var pre2 = document.createElement('pre');
+                pre2.id = 'verifyOut';
+                pre2.textContent = 'OUT:' + JSON.stringify({ errors: [String(e && e.stack || e)] });
+                document.body.appendChild(pre2);
+            }
+        }
+        window.__verifyConsole = [];
+        var orig = console.error;
+        console.error = function () {
+            window.__verifyConsole.push(Array.prototype.join.call(arguments, ' '));
+            return orig.apply(console, arguments);
+        };
+    })();
+    </script>
+</body>
+</html>
+

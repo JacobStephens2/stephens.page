@@ -255,11 +255,13 @@
 
             <p>Giving a non-technical manager an AI assistant that can query the real business database and even change the product is genuinely useful - and genuinely dangerous. The danger isn't the model being "evil"; it's that an autonomous agent treats every boundary you enforce by convention as a suggestion. So the boundaries have to be structural.</p>
 
-            <p>Here's the design I run in production: each manager gets their own sandboxed instance of our internal app with its own AI assistant, and the safety properties come from the <em>shape</em> of the system rather than from asking the agent nicely.</p>
+            <p>Here's the design I run in production: each <strong>Manager Sandbox</strong> is a role-specific Tourbot instance running in a Docker container with its own AI assistant, and the safety properties come from the <em>shape</em> of the system rather than from asking the agent nicely.</p>
 
-            <h2>One container per manager</h2>
+            <p>This note covers Manager Sandboxes only. ETA Factory's Factory Workers are agent attempts running in short-lived Firecracker microVMs, and the separate Kubernetes Demo is a single-node k3s learning and portfolio environment, not ETA production.</p>
 
-            <p>Every manager's instance is its own container behind a single reverse proxy that routes by hostname, giving each tenant an isolated filesystem and process space for free. A manager's agent literally cannot open another manager's files, because they aren't in its container. This is the cheapest strong isolation you can buy: you're not writing access-control code, you're relying on a boundary the kernel already enforces.</p>
+            <h2>One Docker container per Manager Sandbox</h2>
+
+            <p>Every Manager Sandbox is its own Docker container behind a single reverse proxy that routes by hostname, giving each role an isolated filesystem and process space for free. A manager's agent literally cannot open another role's files, because they aren't in its container. This is the cheapest strong isolation you can buy: you're not writing access-control code, you're relying on a boundary the kernel already enforces.</p>
 
             <p>Each container also gets its own database user scoped to its own database, and its own CPU/memory limits, so one runaway agent can't starve its neighbors or reach another tenant's data.</p>
 

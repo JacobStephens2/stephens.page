@@ -72,7 +72,7 @@
 
         <p class="summary">
           Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. I lead a two-engineer team owning a multi-million-dollar specialty-travel stack - reservations platform, payment systems, Linux server fleet, and AI-agent infrastructure.
-          Recent work: a multi-tenant AI-assistant platform where every agent runs in a per-role sandbox behind a human merge gate (Docker/Traefik), fleet-wide Prometheus/Grafana observability, and a measurement-driven production-database pass that removed ~80% of query load.
+          Recent work: three Manager Sandboxes - role-specific Tourbot instances running in Docker containers behind a human merge gate - fleet-wide Prometheus/Grafana observability, and a measurement-driven production-database pass that removed ~80% of query load.
         </p>
 
         <section class="skills">
@@ -234,10 +234,10 @@
               email and SMS paging consolidated into a single alert pipeline
             </li>
             <li>
-              Designed and built a multi-tenant AI-assistant platform (Docker, Traefik) giving each business manager a
-              sandboxed Tourbot instance with its own isolated database, few-hour production refresh, per-container
-              resource limits, and default-deny agent command execution; AI work isolated on per-role branches behind a
-              human merge gate through which 14 manager-prototyped features shipped to production across all four roles (sales, marketing, GM, IT). No agent approves, merges, deploys, or moves money without a named human gate - the <a target="_blank" rel="noopener" href="https://github.com/JacobStephens2/infrastructure-patterns">seven-boundary safety checklist</a> governing this is published as sanitized ADRs and a <a target="_blank" rel="noopener" href="https://stephens.page/notes/human-in-the-loop-ai-agents/">pattern write-up</a>
+              Designed and built three Manager Sandboxes - role-specific Tourbot instances in Docker containers behind
+              Traefik for Sales, General Management, and Marketing - each with an isolated database, few-hour production
+              refresh, per-container resource limits, and default-deny agent command execution; AI work is isolated on
+              per-role branches behind a human merge gate through which 14 manager-prototyped features shipped to production. No agent approves, merges, deploys, or moves money without a named human gate - the <a target="_blank" rel="noopener" href="https://github.com/JacobStephens2/infrastructure-patterns">seven-boundary safety checklist</a> governing this is published as sanitized ADRs and a <a target="_blank" rel="noopener" href="https://stephens.page/notes/human-in-the-loop-ai-agents/">pattern write-up</a>
             </li>
             <li>
               Replaced database triggers with binlog-tailing daemons for derived reporting data - reconciliation
@@ -303,7 +303,7 @@
             </li>
             <li>
               <a href="https://github.com/JacobStephens2/k3s-demo">k3s-demo</a>:
-              A live, HTTPS two-tier Kubernetes app - a stateless Deployment in front of a Redis StatefulSet - on a single k3s node, provisioned end to end by Terraform and cloud-init. Production-grade manifests (rolling updates, liveness/readiness probes, resource limits, a hardened securityContext, a HorizontalPodAutoscaler, and RBAC), with an interactive page that triggers a load test and charts CPU crossing the 70% target as the pods scale 2 to 6 (<a href="https://k3s-demo.stephens.page">k3s-demo.stephens.page</a>). Guarded by a five-rule OPA Gatekeeper admission layer, one rule re-expressed as a ValidatingAdmissionPolicy in CEL. A deliberate Kubernetes exercise, kept separate from my systemd-based production fleet
+              The Kubernetes Demo: a separate single-node k3s learning and portfolio environment, not ETA production. It runs a live, HTTPS two-tier app - a stateless Deployment in front of a Redis StatefulSet - provisioned end to end by Terraform and cloud-init. Production-grade manifests (rolling updates, liveness/readiness probes, resource limits, a hardened securityContext, a HorizontalPodAutoscaler, and RBAC), with an interactive page that triggers a load test and charts CPU crossing the 70% target as the pods scale 2 to 6 (<a href="https://k3s-demo.stephens.page">k3s-demo.stephens.page</a>). Guarded by a five-rule OPA Gatekeeper admission layer, one rule re-expressed as a ValidatingAdmissionPolicy in CEL
             </li>
             <li>
               <a href="https://github.com/JacobStephens2/cascade">Cascade</a>:

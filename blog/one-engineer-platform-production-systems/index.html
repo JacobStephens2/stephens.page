@@ -285,7 +285,7 @@
   <rect class="box" x="690" y="248" width="250" height="50" rx="10"></rect>
   <text x="706" y="272" class="tb">MySQL 8 - primary</text><text x="706" y="289" class="tm">reservations, payments, manifests</text>
   <rect class="box" x="690" y="308" width="250" height="50" rx="10"></rect>
-  <text x="706" y="332" class="tb">Periodic mirror</text><text x="706" y="349" class="tm">feeds sandboxes &amp; analytics</text>
+  <text x="706" y="332" class="tb">Periodic mirror</text><text x="706" y="349" class="tm">feeds Manager Sandboxes &amp; analytics</text>
 
   <!-- ops / AI tier -->
   <text x="20" y="416" class="lbl">OPS &amp; AI INFRASTRUCTURE</text>
@@ -293,7 +293,7 @@
   <rect class="box" x="40" y="450" width="190" height="74" rx="10"></rect>
   <text x="56" y="474" class="tb">Orchestration VM</text><text x="56" y="491" class="tm">fleet status dashboard;</text><text x="56" y="507" class="tm">scoped autonomous agent</text>
   <rect class="box" x="245" y="450" width="190" height="74" rx="10"></rect>
-  <text x="261" y="474" class="tb">Manager Tourbots</text><text x="261" y="491" class="tm">per-manager sandboxed</text><text x="261" y="507" class="tm">AI assistants (Docker)</text>
+  <text x="261" y="474" class="tb">Manager Sandboxes</text><text x="261" y="491" class="tm">role-specific Tourbots</text><text x="261" y="507" class="tm">Docker containers</text>
   <rect class="box" x="450" y="450" width="170" height="74" rx="10"></rect>
   <text x="466" y="474" class="tb">ProspectForge</text><text x="466" y="491" class="tm">FastAPI / Next.js</text><text x="466" y="507" class="tm">contact sourcing</text>
 
@@ -317,11 +317,19 @@
 
             <section class="section cs-narrative">
                 <div class="section-heading">
+                    <h2>The evidence boundary</h2>
+                    <p>Three environments do three different jobs.</p>
+                </div>
+                <p>A <strong>Manager Sandbox</strong> is a role-specific Tourbot instance running in a Docker container. A <strong>Factory Worker</strong> is one ETA Factory agent attempt running inside a short-lived Firecracker microVM. The separate <strong>Kubernetes Demo</strong> is a single-node k3s learning and portfolio environment, not part of ETA production. Manager Sandboxes do not run on k3s, and Factory Workers are not Manager Sandboxes.</p>
+            </section>
+
+            <section class="section cs-narrative">
+                <div class="section-heading">
                     <h2>The arc</h2>
                     <p>Inherited legacy, modernized in production, then extended.</p>
                 </div>
                 <p>The business runs on Tourbot - a full-lifecycle group-travel ERP handling the sales pipeline, itinerary building, reservations, passenger logistics, payments, communications, and 70-plus reports, plus three customer- and contractor-facing portals on the same core. When I took ownership it was a PHP&nbsp;5.6 / CentOS&nbsp;7 / MySQL&nbsp;5.7 system whose support runway was running out, and every other part of the business depended on it staying up.</p>
-                <p>Over four years I led the modernization in production, without a freeze: an enterprise-wide migration to PHP&nbsp;8, MySQL&nbsp;8.4, and Rocky&nbsp;Linux&nbsp;9 across the codebase and server fleet, while still shipping features. That baseline unblocked a second wave that wasn't possible on the old stack - containerized per-manager AI sandboxes, a Python agent-orchestration VM, a fleet-wide Prometheus/Grafana/Alertmanager metrics stack, and ProspectForge (a built, review-ready in-house replacement for the CivicIQ prospecting SaaS, pending management approval) - alongside the unglamorous habits that keep a single-engineer platform safe: a guarded server-side deploy pipeline, a PHPUnit/CI suite across four PHP versions, and a file-based cron registry with a drift monitor watching 100-plus scheduled jobs.</p>
+                <p>Over four years I led the modernization in production, without a freeze: an enterprise-wide migration to PHP&nbsp;8, MySQL&nbsp;8.4, and Rocky&nbsp;Linux&nbsp;9 across the codebase and server fleet, while still shipping features. That baseline unblocked a second wave that wasn't possible on the old stack - Docker-based Manager Sandboxes, a Python agent-orchestration VM, a fleet-wide Prometheus/Grafana/Alertmanager metrics stack, and ProspectForge (a built, review-ready in-house replacement for the CivicIQ prospecting SaaS, pending management approval) - alongside the unglamorous habits that keep a single-engineer platform safe: a guarded server-side deploy pipeline, a PHPUnit/CI suite across four PHP versions, and a file-based cron registry with a drift monitor watching 100-plus scheduled jobs.</p>
                 <p>The throughline is an engineer who inherited a legacy system and systematically turned it into a platform - more common and more credible than a string of greenfield builds.</p>
             </section>
 
@@ -367,7 +375,7 @@
                 <div class="cs-highlight">
                     <h3>Multi-tenant AI assistants for managers</h3>
                     <span class="cs-line"><strong>Problem.</strong> Non-technical managers wanted to query business data and prototype changes safely, without waiting on developer time.</span>
-                    <span class="cs-line"><strong>Approach.</strong> Per-manager sandboxed Tourbot instances (Docker, Traefik) with isolated databases refreshed every few hours from a production mirror, per-container resource limits, allowlist-constrained (default-deny) agent command execution, and AI work isolated on per-role branches with a manual promotion step.</span>
+                    <span class="cs-line"><strong>Approach.</strong> Manager Sandboxes - role-specific Tourbot instances in Docker containers, fronted by Traefik - with isolated databases refreshed every few hours from a production mirror, per-container resource limits, allowlist-constrained (default-deny) agent command execution, and AI work isolated on per-role branches with a manual promotion step.</span>
                     <span class="cs-line"><strong>Outcome.</strong> Managers explore data and draft workflow changes through conversation; isolation and a human gate keep production safe.</span>
                 </div>
 
@@ -393,7 +401,7 @@
                 </div>
                 <div class="cs-stack">
                     <div class="cs-row"><b>PHP 8 / MySQL 8</b> - the platform's core; modernized in place rather than rewritten, because a rewrite would have frozen a business that can't stop.</div>
-                    <div class="cs-row"><b>Docker + Traefik</b> - per-manager AI sandboxes need hard filesystem and database isolation; containers give each tenant its own world cheaply.</div>
+                    <div class="cs-row"><b>Docker + Traefik</b> - Manager Sandboxes need hard filesystem and database isolation; containers give each role its own world cheaply.</div>
                     <div class="cs-row"><b>Python / Flask + a scoped system user</b> - the agent-orchestration VM runs an autonomous coding agent with least-privilege, auditable credentials it never handles directly.</div>
                     <div class="cs-row"><b>FastAPI / Next.js / PostgreSQL</b> - ProspectForge is greenfield, so it uses a typed, modern stack independent of the legacy MySQL core.</div>
                     <div class="cs-row"><b>Server-side deploy script + PHPUnit/CI</b> - for a single-server PHP app, a guarded shell pipeline (dirty-tree, flock, ancestor-only, healthcheck, one-command rollback) beats a hosted runner; CI runs the suite across PHP 8.1-8.4.</div>

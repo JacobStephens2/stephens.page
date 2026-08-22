@@ -255,6 +255,8 @@
 
             <p>Over the past year I gave non-technical managers at a 40-person travel operator direct AI-agent access to a 25-year-old PHP/MySQL ERP that processes reservations, payments, and expense flows - and 14 manager-prototyped features have shipped to production with zero agent-caused incidents. The interesting part is not the AI. It is the set of boundaries that made it safe to say yes.</p>
 
+            <p>Those managers work inside <strong>Manager Sandboxes</strong>: role-specific Tourbot instances running in Docker containers. This post describes that system only. ETA Factory's Factory Workers are agent attempts running in short-lived Firecracker microVMs, while the separate Kubernetes Demo is a single-node k3s learning and portfolio environment, not ETA production.</p>
+
             <p>We are a two-engineer company, and the infrastructure - servers, deploy pipeline, database, and all the agent access described here - is mine. The stakes are personal: if an agent corrupts the reservations table, I restore backups at 2 a.m., and the people whose paychecks route through these systems are my coworkers. No platform team, real money, one owner's attention: that is the constraint most small businesses face when they let AI touch their systems of record. This post is the pattern I built under it, written so you can copy it.</p>
 
             <h2>The dangerous combination</h2>
@@ -267,7 +269,7 @@
 
             <h2>Six boundaries, one diagram</h2>
 
-            <p>Every agent in this system operates inside six concentric boundaries. A seventh, which is about people rather than processes, gets its own section below.</p>
+            <p>Every Manager Sandbox agent operates inside six concentric boundaries. A seventh, which is about people rather than processes, gets its own section below.</p>
 
             <pre><code>┌─────────────────────────────────────────────┐
 │ 6 ROLLBACK    deploy gate + healthcheck +    │
@@ -294,7 +296,7 @@
 │  └─────────────────────────────────────────┘ │
 └─────────────────────────────────────────────┘</code></pre>
 
-            <p><strong>1 - Isolation.</strong> Each manager gets their own container running their own agent session against their own copy of the application: one agent, one container, one human role. CPU and memory limits mean a runaway loop degrades one sandbox, not the host. This is the cheapest boundary to build and the one that makes every other boundary enforceable, because "the agent" is now a specific OS-level identity you can constrain, meter, and kill.</p>
+            <p><strong>1 - Isolation.</strong> Each Manager Sandbox runs a role-specific Tourbot instance and agent session inside its own Docker container: one agent, one container, one human role. CPU and memory limits mean a runaway loop degrades one sandbox, not the host. This is the cheapest boundary to build and the one that makes every other boundary enforceable, because "the agent" is now a specific OS-level identity you can constrain, meter, and kill.</p>
 
             <p><strong>2 - Data.</strong> Agents never see the production database. Each sandbox points at a snapshot copy, refreshed every few hours, through a least-privilege database user whose grants are pinned to the sandbox host. A leaked credential buys read access to hours-old copy data on one machine: a contained, survivable failure.</p>
 

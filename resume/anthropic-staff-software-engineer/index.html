@@ -195,10 +195,10 @@
               the Tourbot UI, added Twilio SMS, wired to automated cancellation - cutting manual work by 80%+
             </li>
             <li>
-              Designed and built a multi-tenant AI-assistant platform (Docker, Traefik) giving each business manager a
-              role-scoped sandboxed Tourbot instance with its own isolated database, few-hour production refresh, per-container
-              resource limits, and default-deny agent command execution; AI work isolated on per-role branches behind a
-              human merge gate through which 14 manager-prototyped features shipped to production across all four roles (sales, marketing, GM, IT) - translating non-engineering managers' prototypes into production systems. No agent approves, merges, deploys, or moves money without a named human gate - the <a target="_blank" rel="noopener" href="https://github.com/JacobStephens2/infrastructure-patterns">seven-boundary safety checklist</a> governing this is published as sanitized ADRs and a <a target="_blank" rel="noopener" href="https://stephens.page/notes/human-in-the-loop-ai-agents/">pattern write-up</a>
+              Designed and built three Manager Sandboxes - role-specific Tourbot instances in Docker containers behind
+              Traefik for Sales, General Management, and Marketing - each with an isolated database, few-hour production
+              refresh, per-container resource limits, and default-deny agent command execution; AI work is isolated on
+              per-role branches behind a human merge gate through which 14 manager-prototyped features shipped to production - translating non-engineering managers' prototypes into production systems. No agent approves, merges, deploys, or moves money without a named human gate - the <a target="_blank" rel="noopener" href="https://github.com/JacobStephens2/infrastructure-patterns">seven-boundary safety checklist</a> governing this is published as sanitized ADRs and a <a target="_blank" rel="noopener" href="https://stephens.page/notes/human-in-the-loop-ai-agents/">pattern write-up</a>
             </li>
             <li>
               Replaced database triggers with binlog-tailing daemons for derived reporting data - reconciliation
@@ -294,7 +294,7 @@
             </li>
             <li>
               <a href="https://github.com/JacobStephens2/k3s-demo">k3s-demo</a>:
-              A live, HTTPS two-tier Kubernetes app - a stateless Deployment in front of a Redis StatefulSet - on a single k3s node, provisioned end to end by Terraform and cloud-init. Production-grade manifests (rolling updates, probes, resource limits, a hardened securityContext, an HPA, and RBAC), with an interactive page that triggers a load test and charts CPU crossing the 70% target as the pods scale 2 to 6 (<a href="https://k3s-demo.stephens.page">k3s-demo.stephens.page</a>). Guarded by a five-rule OPA Gatekeeper admission layer, one rule re-expressed as a ValidatingAdmissionPolicy in CEL
+              The Kubernetes Demo: a separate single-node k3s learning and portfolio environment, not ETA production. It runs a live, HTTPS two-tier app - a stateless Deployment in front of a Redis StatefulSet - provisioned end to end by Terraform and cloud-init. Production-grade manifests (rolling updates, probes, resource limits, a hardened securityContext, an HPA, and RBAC), with an interactive page that triggers a load test and charts CPU crossing the 70% target as the pods scale 2 to 6 (<a href="https://k3s-demo.stephens.page">k3s-demo.stephens.page</a>). Guarded by a five-rule OPA Gatekeeper admission layer, one rule re-expressed as a ValidatingAdmissionPolicy in CEL
             </li>
             <li>
               <a href="https://chart35.com">Chart35</a>:

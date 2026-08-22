@@ -23,7 +23,7 @@
   <rect width="1200" height="760" fill="#181512"/>
 
   <text x="600" y="48" font-size="22" font-weight="700" fill="#f6f1e8" text-anchor="middle">ETA Software Factory · staff request in, evidenced draft PR out</text>
-  <text x="600" y="74" font-size="13" fill="#a3958a" text-anchor="middle">Rust control plane · Firecracker worker · PostgreSQL ledger · human merge gate only</text>
+  <text x="600" y="74" font-size="13" fill="#a3958a" text-anchor="middle">Rust control plane · Factory Worker · PostgreSQL ledger · human merge gate only</text>
 
   <!-- flow row -->
   <g filter="url(#sh)">
@@ -46,7 +46,7 @@
 
   <g filter="url(#sh)">
     <rect x="500" y="110" width="220" height="150" rx="12" fill="url(#worker)" stroke="#4a5f8a"/>
-    <text x="520" y="142" font-size="12" font-weight="700" fill="#b8c8e8" letter-spacing="1.5">3 · ISOLATED WORK</text>
+    <text x="520" y="142" font-size="12" font-weight="700" fill="#b8c8e8" letter-spacing="1.5">3 · FACTORY WORKER</text>
     <text x="520" y="172" font-size="14" fill="#f6f1e8">Firecracker microVM</text>
     <text x="520" y="192" font-size="14" fill="#f6f1e8">secret-free worker host</text>
     <text x="520" y="222" font-size="12" fill="#a8b8d4">no vault · no fleet · no DB</text>

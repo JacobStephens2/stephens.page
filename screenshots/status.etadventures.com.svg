@@ -131,7 +131,7 @@
       <rect width="3" height="172" fill="#2d8059"/>
       <circle cx="22" cy="22" r="5" fill="#2d8059"/>
       <text x="36" y="27" font-size="14" font-weight="700" fill="#0a3a66">manager.etadventures.com</text>
-      <text x="16" y="52" font-size="13" fill="#0a3a66">Manager Tourbot sandboxes (Docker)</text>
+      <text x="16" y="52" font-size="13" fill="#0a3a66">Manager Sandboxes (Docker)</text>
       <text x="16" y="70" font-size="11" fill="#7c8492">Rocky Linux 9.7 · 159.65.37.164</text>
       <line x1="16" y1="84" x2="352" y2="84" stroke="#eef0f4"/>
       <g font-size="11">

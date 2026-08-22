@@ -91,7 +91,7 @@
 
       <rect x="700" y="580" width="400" height="48" rx="6" fill="#163d2a" stroke="#1f5237"/>
       <text x="716" y="600" font-weight="700" fill="#f1f6f3">Unblocks new work</text>
-      <text x="716" y="618" fill="#bcd4c5">Manager sandboxes · agent orchestrator</text>
+      <text x="716" y="618" fill="#bcd4c5">Manager Sandboxes · agent orchestrator</text>
     </g>
   </g>
 

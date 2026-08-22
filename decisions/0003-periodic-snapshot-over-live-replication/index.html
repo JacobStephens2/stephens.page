@@ -12,9 +12,9 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="/bee-favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADR 0003 - Periodic snapshot over live replication for sandboxes | Jacob Stephens</title>
+    <title>ADR 0003 - Periodic snapshot over live replication for Manager Sandboxes | Jacob Stephens</title>
     <meta name="description" content="Accept some staleness to gain isolation, reset-ability, and no prod write-path risk">
-    <meta property="og:title" content="ADR 0003 - Periodic snapshot over live replication for sandboxes">
+    <meta property="og:title" content="ADR 0003 - Periodic snapshot over live replication for Manager Sandboxes">
     <meta property="og:description" content="Accept some staleness to gain isolation, reset-ability, and no prod write-path risk">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://stephens.page/decisions/0003-periodic-snapshot-over-live-replication/">
@@ -127,13 +127,13 @@
 
         <article class="note">
             <div class="eyebrow">Decision Record</div>
-            <h1 class="title">Periodic snapshot over live replication for sandboxes</h1>
+            <h1 class="title">Periodic snapshot over live replication for Manager Sandboxes</h1>
             <p class="meta"><strong>ADR 0003</strong> &middot; June 2, 2026 &middot; Accepted · in production &middot; ~254 words</p>
         <h2>Context</h2>
-        <p>The per-tenant sandboxes (<a href="/decisions/0001-docker-over-bare-metal-for-tenant-isolation/">ADR 0001</a>) need realistic data to be useful - managers want to ask questions against something that looks like production. Two ways to get it: attach each sandbox to a live replica of production, or periodically copy production into each sandbox&#x27;s own database.</p>
+        <p>The Manager Sandboxes (<a href="/decisions/0001-docker-over-bare-metal-for-tenant-isolation/">ADR 0001</a>) need realistic data to be useful - managers want to ask questions against something that looks like production. Two ways to get it: attach each sandbox to a live replica of production, or periodically copy production into each sandbox&#x27;s own database.</p>
         <p>Live replication gives freshness but couples the sandboxes to production: a sandbox (and the agent inside it) is now reading the same rows the business depends on, replication lag and schema changes become shared concerns, and an accidental write path is a much scarier thing.</p>
         <h2>Decision</h2>
-        <p>Refresh each sandbox every few hours from a production <em>mirror</em> via dump-and-restore into the tenant&#x27;s own database - swapping the refreshed data in with a rename so a sandbox never sees a half-loaded copy, and preserving tenant-local tables (e.g. per-tenant chat history). Each sandbox owns an independent, writable copy.</p>
+        <p>Refresh each Manager Sandbox every few hours from a production <em>mirror</em> via dump-and-restore into the tenant&#x27;s own database - swapping the refreshed data in with a rename so a sandbox never sees a half-loaded copy, and preserving tenant-local tables (e.g. per-tenant chat history). Each sandbox owns an independent, writable copy.</p>
         <h2>Consequences</h2>
         <ul><li><strong>Isolation and safety.</strong> A sandbox can be written to, mangled, or reset freely; nothing it does reaches production. The refresh is also a free &quot;reset to known-good&quot; every few hours.</li><li><strong>Predictable blast radius.</strong> No replication topology to reason about, no lag, no risk that sandbox activity backpressures the primary.</li><li><strong>Costs:</strong> data is a few hours stale at most, and the dump/restore window has to fit between refreshes and scale with data size.</li></ul>
         <h2>When I&#x27;d revisit</h2>

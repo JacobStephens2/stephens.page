@@ -2,7 +2,7 @@ Portfolio
 
 # Real systems, real results.
 
-Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. I lead a two-engineer team owning a multi-million-dollar specialty-travel stack - the reservations platform, payment and ACH rails, Linux fleet, manager agent sandboxes, and human-gated software factory it runs on - and the architecture decisions behind them.
+Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. I lead a two-engineer team owning a multi-million-dollar specialty-travel stack - the reservations platform, payment and ACH rails, Linux fleet, Manager Sandboxes, and human-gated software factory it runs on - and the architecture decisions behind them.
 
 * **Professional**
   Production systems built over years at Educational Travel Adventures.
@@ -59,18 +59,18 @@ Operations
 
 [Organization](https://github.com/Educational-Travel-Adventures)
 
-### Tourbot Chat
+### Tourbot Chat: Manager Sandboxes
 
-An AI-powered chat system built with OpenClaw and Claude, giving managers at Educational Travel Adventures natural-language access to business intelligence and the ability to safely prototype platform changes themselves - each in an isolated, sandboxed copy of Tourbot.
+Tourbot Chat runs inside three Manager Sandboxes - role-specific Tourbot instances in Docker containers for Sales, General Management, and Marketing - giving managers natural-language access to business intelligence and a safe place to prototype platform changes.
 
 **Problem**
 Managers needed to answer complex business questions - revenue breakdowns, booking trends, vendor performance - without waiting on developer time. They also wanted to experiment with reports and workflows on their own terms, without risking the production system.
 
 **What I Built**
-A multi-tenant infrastructure where each manager gets an isolated Tourbot instance - its own Docker container fronted by Traefik - with a dedicated Claude-powered OpenClaw agent. Agents query a replica of the production database refreshed once daily, run analysis, generate reports, and even modify PHP code, all sandboxed per-manager: allowlist-controlled command execution, dedicated least-privilege database users, and a git-based review gate so nothing reaches production unreviewed. Each container is provisioned from a shared compose definition, so standing up a new manager sandbox is a one-command operation.
+Each Manager Sandbox runs a role-specific Tourbot instance in its own Docker container, fronted by Traefik, with a dedicated Claude-powered OpenClaw agent. Agents query a replica of the production database refreshed once daily, run analysis, generate reports, and even modify PHP code, all isolated by role: allowlist-controlled command execution, dedicated least-privilege database users, and a git-based review gate so nothing reaches production unreviewed. Each container is provisioned from a shared compose definition, so standing up a new Manager Sandbox is a one-command operation.
 
 **Result**
-Non-technical managers independently explore business data, generate custom reports, and prototype workflow changes through plain conversation - 14 manager-prototyped features have shipped to production through the human merge gate, across all four roles (sales, marketing, GM, IT), with zero agent-caused incidents - while the system enforces per-manager isolation, read-only data access, and code-review boundaries that keep the production platform safe from accidental or unreviewed change.
+Non-technical managers independently explore business data, generate custom reports, and prototype workflow changes through plain conversation - 14 manager-prototyped features have shipped to production through the human merge gate across Sales, General Management, and Marketing, with zero agent-caused incidents - while the system enforces per-role isolation, read-only data access, and code-review boundaries that keep the production platform safe from accidental or unreviewed change.
 
 OpenClaw
 Claude
@@ -85,16 +85,16 @@ AI Agents
 
 ### Tourbot Terminal: Coding Agents as a Platform Service
 
-Persistent Claude Code and Codex CLI sessions running inside each manager's own sandbox - hosted by the platform, reachable two ways: a browser terminal built into the ERP itself, and Claude's remote-control UI for driving the same sessions conversationally. Where Tourbot Chat gives managers an assistant, this hands them the same coding agents an engineer uses - with the platform supplying the guardrails.
+Persistent Claude Code and Codex CLI sessions running inside each role's Manager Sandbox - hosted by the platform, reachable two ways: a browser terminal built into the ERP itself, and Claude's remote-control UI for driving the same sessions conversationally. Where Tourbot Chat gives managers an assistant, this hands them the same coding agents an engineer uses - with the platform supplying the guardrails.
 
 **Problem**
 The strongest building tools are terminal agents - Claude Code, Codex CLI - but they assume a shell, SSH, and tmux, none of which a business manager has. The chat assistant covers questions and prototypes, but its API-metered usage costs more per unit of work than subscription-based agent CLIs, and the CLIs are simply better at sustained building. The gap was access, not capability.
 
 **What I Built**
-An xterm.js terminal embedded in Tourbot behind a dedicated permission, connected over a token-authenticated WebSocket bridge (Node, node-pty) into the manager's sandbox container - plus a route onto Claude Code remote, so the same server-side sessions can be driven from Claude's remote-control UI instead of the raw CLI. Every session is a persistent tmux session - close the laptop, the agent keeps working; pick it back up from any device, including a phone. A session manager spans both agent families (Claude Code and Codex sessions side by side), with file upload into the agent's workspace, full-scrollback copy, lightweight pane polling for idle detection, and one-click session reset. Under the hood, privilege separation: Claude Code runs under a dedicated non-root account via a sudo wrapper - it refuses to run as root - while other session types stay isolated on a separate tmux server.
+An xterm.js terminal embedded in Tourbot behind a dedicated permission, connected over a token-authenticated WebSocket bridge (Node, node-pty) into the Manager Sandbox container - plus a route onto Claude Code remote, so the same server-side sessions can be driven from Claude's remote-control UI instead of the raw CLI. Every session is a persistent tmux session - close the laptop, the agent keeps working; pick it back up from any device, including a phone. A session manager spans both agent families (Claude Code and Codex sessions side by side), with file upload into the agent's workspace, full-scrollback copy, lightweight pane polling for idle detection, and one-click session reset. Under the hood, privilege separation: Claude Code runs under a dedicated non-root account via a sudo wrapper - it refuses to run as root - while other session types stay isolated on a separate tmux server.
 
 **Result**
-The general manager and marketing managers run real coding agents against their own sandboxed Tourbot - doing their own building, at subscription cost instead of API metering. In practice most drive Claude through the remote-control UI, with the embedded terminal as the direct view and the Codex path - and every Tourbot Chat boundary still holds either way: container isolation, a replica database, and the human merge gate before anything reaches production. The platform hosts the sessions; the UI is whichever door fits the user. Platform engineering in the literal sense - taking a capability that required an engineer's toolchain and shipping it as a permissioned, self-service feature of the business system.
+The general manager and marketing managers run real coding agents against their Manager Sandboxes - doing their own building, at subscription cost instead of API metering. In practice most drive Claude through the remote-control UI, with the embedded terminal as the direct view and the Codex path - and every Tourbot Chat boundary still holds either way: Docker container isolation, a replica database, and the human merge gate before anything reaches production. The platform hosts the sessions; the UI is whichever door fits the user. Platform engineering in the literal sense - taking a capability that required an engineer's toolchain and shipping it as a permissioned, self-service feature of the business system.
 
 xterm.js
 WebSockets
@@ -108,16 +108,16 @@ AI Agents
 
 ### ETA Software Factory
 
-An agentic engineering platform for Educational Travel Adventures: small, self-describing staff requests in; evidenced draft pull requests out. One human gate - the PR - held by engineering and the company owner. The production deploy path is never touched.
+An agentic engineering platform for Educational Travel Adventures: small, self-describing staff requests in; Factory Workers are agent attempts running in short-lived Firecracker microVMs; evidenced draft pull requests out. One human gate - the PR - held by engineering and the company owner. The production deploy path is never touched.
 
 **Problem**
 Useful Tourbot changes die in inboxes because every request needs engineer time end to end. Managers already prototype inside sandboxed agents, but the company needed a purpose-built pipeline that turns a staff request into a reviewable PR - with isolation strong enough that untrusted screenshots and agent-written code never sit next to crown-jewel credentials.
 
 **What I Built**
-A Rust control plane (Axum supervisor, dashboard, `factoryctl`) on a dedicated host with socket-only PostgreSQL, an append-only ledger, and a draft-only publisher under a GitHub App machine identity. A separate secret-free worker droplet - OpenTofu + Ansible desired state, clean-room replaceable - runs implement and verify work inside Firecracker microVMs with no vault, fleet SSH, or Tourbot database access and only spend-capped model egress. Evidence capture, adversarial cross-family review, and a constitution (`AGENTS.md`) SHA-pinned in CI keep every run attributable. Phase 1 sessions covering isolation, verifier, publisher, dashboard, and the evidence lifecycle are merged on live infrastructure at `factory.etadventures.com`.
+A Rust control plane (Axum supervisor, dashboard, `factoryctl`) on a dedicated host with socket-only PostgreSQL, an append-only ledger, and a draft-only publisher under a GitHub App machine identity. Each agent attempt becomes a Factory Worker executing implement and verify work inside a short-lived Firecracker microVM, separate from the Docker-based Manager Sandboxes. Evidence capture, adversarial cross-family review, and a constitution (`AGENTS.md`) SHA-pinned in CI keep every run attributable. Phase 1 sessions covering isolation, verifier, publisher, dashboard, and the evidence lifecycle are merged on live infrastructure.
 
 **Result**
-Phase 1 runs on live hosts: control plane, secret-free Firecracker worker, draft-only publisher, and evidence path are real infrastructure - not a design deck - with the constitution and merge gate enforced in code. The intended loop is staff request → evidenced draft PR; review is the only human cost, and nothing auto-merges or deploys. End-to-end staff adoption is still the build's target, not a claimed steady-state metric. The trust model is written up interactively in public posts on the factory as a canonical model and as multi-engine discrete-event animation.
+Phase 1 runs on live hosts: control plane, Factory Worker path, draft-only publisher, and evidence path are real infrastructure - not a design deck - with the constitution and merge gate enforced in code. The intended loop is staff request → evidenced draft PR; review is the only human cost, and nothing auto-merges or deploys. End-to-end staff adoption is still the build's target, not a claimed steady-state metric. The trust model is written up interactively in public posts on the factory as a canonical model and as multi-engine discrete-event animation.
 
 Rust
 Axum
@@ -161,7 +161,7 @@ PWA
 A Python and Flask service that probes Educational Travel Adventures' fleet of web, database, and cron servers and renders a single-page health view - paired with a hardened Linux host that lets a Claude Code agent operate safely across that infrastructure.
 
 **Problem**
-A dozen production and supporting servers - MySQL 8 and 5.7, Apache, ACH cron processing, Docker-hosted manager sandboxes, an asset host - with no single place to see what was reachable, green, or degrading, and no clean way to give an AI agent multi-server access without leaking credentials or muddying audit logs.
+A dozen production and supporting servers - MySQL 8 and 5.7, Apache, ACH cron processing, Docker-hosted Manager Sandboxes, an asset host - with no single place to see what was reachable, green, or degrading, and no clean way to give an AI agent multi-server access without leaking credentials or muddying audit logs.
 
 **What I Built**
 A Flask app behind Caddy and gunicorn that sweeps TCP, HTTP, and MySQL probes every 60 seconds across the fleet, with deploy controls, fleet-wide tmux management, and a web terminal - all gated by single-use magic-link tokens. The same VM runs a hardened service-account pipeline: secrets injected at launch from a managed vault, database grants scoped to least privilege, and a wrapper that lets engineers trigger the agent without ever handling its credentials. Auditing reads as "the orchestrator did X," not "Engineer Y did X via it."
@@ -300,7 +300,7 @@ A 40-person travel business was running on a stack whose support runway was visi
 Executed an enterprise-wide PHP 5 → 8 migration across the codebase: removed magic quotes and deprecated `mysql_*` calls, declared properties on long-lived models, tightened type signatures. Shipped the MySQL 5.7 → 8.4 migration plan and the CentOS 7 → Rocky Linux 9 cutover, with deployment notes, schema-compatibility audits, and per-server runbooks. Coordinated cross-database export/import for customer accounts, dual-running old and new database servers during transition. Mentored the developer working alongside me on the same codebase.
 
 **Result**
-No one's workday was interrupted by the upgrade: a current, supported stack - PHP 8, MySQL 8.4 LTS, Rocky Linux 9 - now runs across the production fleet, completed without an outage customers or staff would have noticed. The same migration also unblocked downstream work: containerized manager sandboxes, an AI-agent orchestrator, and the modernized customer portal all assume the new baseline.
+No one's workday was interrupted by the upgrade: a current, supported stack - PHP 8, MySQL 8.4 LTS, Rocky Linux 9 - now runs across the production fleet, completed without an outage customers or staff would have noticed. The same migration also unblocked downstream work: Docker-based Manager Sandboxes, an AI-agent orchestrator, and the modernized customer portal all assume the new baseline.
 
 PHP 8
 MySQL 8.4
@@ -482,12 +482,12 @@ IaC
 [Public repo](https://github.com/JacobStephens2/terraform-cloudflare-dns)
 [Decision records](https://github.com/JacobStephens2/infrastructure-patterns/blob/main/adr/0014-import-live-dns-over-recreating-it.md)
 
-### Kubernetes on k3s (live demo)
+### Kubernetes Demo: single-node k3s
 
-A live, HTTPS-secured two-tier Kubernetes app on a single k3s node - a stateless web Deployment in front of a Redis StatefulSet - provisioned end to end by Terraform and cloud-init. A deliberate Kubernetes exercise, kept separate from my systemd-based production fleet.
+The Kubernetes Demo is a separate single-node k3s learning and portfolio environment, not ETA production. It runs a live, HTTPS-secured two-tier app - a stateless web Deployment in front of a Redis StatefulSet - provisioned end to end by Terraform and cloud-init.
 
 **Problem**
-I run production as systemd services on one VPS, which is the right tool for a single box - an orchestrator there would add control-plane and networking complexity for no benefit. But I wanted a genuine, running Kubernetes artifact that demonstrates real cluster operations, without putting an orchestrator under live services.
+I wanted genuine, running Kubernetes evidence without implying that ETA's production platform uses Kubernetes. Keeping the Kubernetes Demo separate makes the boundary explicit: Manager Sandboxes run in Docker containers, Factory Workers run in Firecracker microVMs, and neither runs on this k3s node.
 
 **What I Built**
 A small stateless Go service (static binary in a multi-stage, non-root `FROM scratch` image) fronting a Redis StatefulSet with a PersistentVolumeClaim, with production-grade manifests: a rolling-update Deployment with liveness/readiness probes, CPU/memory limits, a hardened securityContext (non-root, read-only root filesystem, dropped capabilities), ConfigMap and Secret injected via envFrom, a HorizontalPodAutoscaler, a Traefik ingress, and kustomize. Terraform plus cloud-init provision an AWS EC2 node and bootstrap k3s and the app; cert-manager and Let's Encrypt issue TLS. The manifests are schema-validated with kubeconform in CI, and a five-rule OPA Gatekeeper admission layer (non-root, resource limits, no `:latest`, the hardening triad, required probes) enforces the same posture at the API server - rejected-if-violated, not trusted-by-convention - with one rule re-expressed as a built-in ValidatingAdmissionPolicy in CEL to make the engine choice legible.

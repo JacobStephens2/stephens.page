@@ -13,9 +13,9 @@
     <link rel="icon" type="image/png" href="/bee-favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decisions | Jacob Stephens</title>
-    <meta name="description" content="21 architecture decision records by Jacob Stephens - the trade-offs behind a PHP/MySQL reservations platform, per-tenant AI agent sandboxes, and a self-hosted infra stack.">
+    <meta name="description" content="21 architecture decision records by Jacob Stephens - the trade-offs behind a PHP/MySQL reservations platform, Docker-based Manager Sandboxes, and a self-hosted infra stack.">
     <meta property="og:title" content="Decisions">
-    <meta property="og:description" content="21 architecture decision records by Jacob Stephens - the trade-offs behind a PHP/MySQL reservations platform, per-tenant AI agent sandboxes, and a self-hosted infra stack.">
+    <meta property="og:description" content="21 architecture decision records by Jacob Stephens - the trade-offs behind a PHP/MySQL reservations platform, Docker-based Manager Sandboxes, and a self-hosted infra stack.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://stephens.page/decisions/">
     <meta name="twitter:card" content="summary">
@@ -129,7 +129,7 @@
             <div class="eyebrow">Decisions</div>
             <h1>Architecture decisions, with the trade-offs kept.</h1>
             <p class="hero-copy">21 decision records from running a multi-portal PHP/MySQL reservations
-            platform and the tooling around it - per-tenant AI sandboxes, a server-side deploy pipeline, a
+            platform and the tooling around it - Docker-based Manager Sandboxes, a server-side deploy pipeline, a
             self-hosted observability and IaC stack. The useful unit is not "what I used" but "what I chose, what
             I gave up, and when I'd choose differently." Most cluster on one seam: safely running autonomous AI
             agents against revenue-critical legacy systems.</p>
@@ -270,7 +270,7 @@
                     <li>
                         <a href="/decisions/0003-periodic-snapshot-over-live-replication/">
                             <div class="note-meta">ADR 0003 &middot; June 2, 2026</div>
-                            <div class="note-title">Periodic snapshot over live replication for sandboxes</div>
+                            <div class="note-title">Periodic snapshot over live replication for Manager Sandboxes</div>
                             <p class="note-summary">Accept some staleness to gain isolation, reset-ability, and no prod write-path risk</p>
                         </a>
                     </li>

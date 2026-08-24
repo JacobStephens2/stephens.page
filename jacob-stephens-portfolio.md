@@ -17,7 +17,7 @@ Production systems with operational and revenue impact.
 
 A connected case study tying these systems together - architecture, the legacy→modern arc, and engineering highlights - plus the sanitized architecture decisions behind them.
 
-[Read the ETA Platform case study →](/eta-platform.html)
+[Read the ETA Platform case study →](/blog/one-engineer-platform-production-systems/)
 [Architecture decisions (ADRs) →](https://github.com/JacobStephens2/infrastructure-patterns)
 
 **The seven-boundary agent-safety checklist**

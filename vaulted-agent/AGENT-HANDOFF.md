@@ -1,8 +1,8 @@
-# vaulted-agent — short handoff
+# vaulted-agent - short handoff
 
 **Full agent contract:** [AGENTS.md](./AGENTS.md) (also https://vaultedagent.com/AGENTS.md)
 
-Current pin: **v0.4.17**
+Current pin: **v0.4.20**
 
 ```bash
 curl -fsSL https://vaultedagent.com/install.sh | bash
@@ -11,6 +11,6 @@ va doctor
 va secrets validate
 ```
 
-Product: https://vaultedagent.com/ · Repo README: https://github.com/JacobStephens2/vaulted-agent-launcher#readme
+Product: https://vaultedagent.com/ · Repo README: https://github.com/JacobStephens2/vaulted-agent#readme
 
-v0.4.17 (#71): kimi is not env-blind (retracts v0.4.16). Vault inject restored; harness `env=` for non-secret child vars; shipped `env = KIMI_CODE_LEGACY_FLAG = 1` on kimi.conf until kimi-code#2746 (track #72).
+v0.4.20: `va agy` is a shipped harness for the Antigravity CLI (`workdir = caller`; conversation args pass through). Install auto-detects `agy`. AGY owns its OAuth login; an injected `GEMINI_API_KEY` is used only when AGY settings select `modelProvider = gemini` (issue #95).

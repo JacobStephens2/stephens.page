@@ -1,8 +1,9 @@
 # vaulted-agent for agents
 
 You are an autonomous coding agent on a host that may use **vaulted-agent**
-(`va`) to launch Claude Code, Codex, Grok, or Kimi with vault-resolved secrets
-**in the child process environment** - not via `.env` files on disk.
+(`va`) to launch Claude Code, Codex, Grok, Kimi, or Antigravity - or a
+secrets-injected `bash` - with vault-resolved secrets **in the child process
+environment** - not via `.env` files on disk.
 
 Read this file for the operator contract. Prefer it over skimming the full README
 when you need commands, paths, and failure modes. Full reference:
@@ -11,13 +12,13 @@ Also hosted: https://vaultedagent.com/AGENTS.md
 
 Glossary for domain terms (harness, manifest, backend, …): [CONTEXT.md](CONTEXT.md).
 
-Current release pin (product install): **v0.4.17**
+Current release pin (product install): **v0.4.20**
 
 ```bash
 curl -fsSL https://vaultedagent.com/install.sh | bash
 # pin:
-VAULTED_AGENT_VERSION=v0.4.17 curl -fsSL https://vaultedagent.com/install.sh | bash
-vaulted-agent version   # expect 0.4.17 (git stamp may appear in parentheses)
+VAULTED_AGENT_VERSION=v0.4.20 curl -fsSL https://vaultedagent.com/install.sh | bash
+vaulted-agent version   # expect 0.4.20 (git stamp may appear in parentheses)
 ```
 
 ## What you must not do
@@ -39,9 +40,11 @@ vaulted-agent version   # expect 0.4.17 (git stamp may appear in parentheses)
 | Term | Meaning |
 |------|---------|
 | **Harness** | Named profile in `harnesses.d/<name>.conf` (command, manifest, backend, workdir, optional `alias` / `keep`, …) |
+| **Bash harness** | `va bash` - named harness whose `command` is `bash`; extra argv is appended (`va bash ./script.sh`). Not `va run`. |
 | **Alias** | `alias = TARGET = SOURCE` in a harness conf: copy resolved SOURCE onto TARGET in that harness's child env only |
 | **Manifest / refs file** | Mapping file under `manifests/` - references only for vault backends |
 | **Manager token** | Vault SA token (`op.env` / `bws.env` or prompt) - used only to resolve, then dropped |
+| **Token capture** | `setup`-only: obtain a manager token (TTY paste, or piped stdin under `--set-token`), verify it live, then write the token file. Never on the launch path |
 | **Service user** | Optional OS account; launcher re-execs via `sudo -u` so the agent runs as that user |
 | **Conductor link** | `*-conductor` → fixed harness; no `-H` / `-m` override |
 
@@ -64,22 +67,28 @@ elevated launches always read the machine config dir).
 |------|---------|
 | List harnesses | `va` |
 | Health (as launch account) | `va doctor` (syntax / config; offline by design) |
-| Pre-flight: refs resolve in vault | `va secrets validate` (live; needs manager token) |
+| Pre-flight: refs resolve in vault | `va secrets validate` (live; needs manager token; covers every harness manifest **and** every `extra_manifest`) |
 | Pre-flight: shape only | `va secrets validate --offline` |
-| Launch harness | `va claude` / `va codex` / `va grok` / `va kimi` |
+| Launch harness | `va claude` / `va codex` / `va grok` / `va kimi` / `va agy` / `va bash` |
 | **This launch only: other manifest** | `va -m readonly.env.tpl claude` |
 | Interactive pick + optional -m | `va -m narrow.env.tpl pick` |
 | One-shot command | `va run -m REFS --backend bitwarden -- cmd…` |
 | Map new vault secrets into refs | `va refresh` / `va refresh --backend onepassword` |
 | Skip fields by name pattern (1P) | `va refresh --exclude '*_USERNAME'` |
+| Remove dangling refs / repair renamed refs | `va refresh --prune` (repair is bitwarden only) |
 | Edit a refs file (with checks) | `va edit-manifest` / `va edit-manifest name.env.tpl` |
 | Auth mode | `va auth-mode` / `va auth-mode prompt` / `va auth-mode file` |
 | Interactive install-time config | `va setup` |
+| Store / rotate the manager token | `printf %s "$TOKEN" \| sudo va setup bitwarden --set-token` |
 | Uninstall | `sudo va uninstall` |
 
 Launcher flags **before** the harness name: `-p` / `--prompt-auth`,
 `-m` / `--manifest`, `-H` / `--harness`. After the harness name, flags go to the
 agent (`va claude -p "…"` is agent `-p`, not launcher prompt-auth).
+
+`va bash` is a harness whose command is always bash; extra argv is appended
+(`va bash ./script.sh`). It is not `va run` (any program) and not a retired
+`*-orchestrator` wrapper.
 
 ### Prompt auth
 
@@ -87,6 +96,20 @@ agent (`va claude -p "…"` is agent `-p`, not launcher prompt-auth).
 |------|----------------------------------|
 | `va …` | `va -p grok` or `va --prompt-auth claude` |
 | `*-conductor` | `VAULTED_AGENT_PROMPT_AUTH=1 claude-conductor …` (`-p` is the agent’s) |
+
+### Antigravity
+
+The shipped / auto Harness runs bare `agy` with `workdir = caller`, preserving
+AGY's permission settings and cwd-scoped conversations. Arguments pass through
+unchanged: `va agy --continue` (or `-c`) continues the latest conversation for
+the cwd, and `va agy --conversation <uuid>` selects one explicitly.
+
+AGY owns its OAuth login and settings under the launch account's home. When a
+Harness uses `service_user`, it does not inherit the invoking user's AGY login.
+Vaulted-agent injects the selected Manifest but does not configure AGY's
+authentication. AGY reads an injected `GEMINI_API_KEY` only when its settings
+select `modelProvider = gemini`. Authentication details:
+https://antigravity.google/docs/cli/install/
 
 ### Kimi
 
@@ -102,11 +125,13 @@ If a shared manifest maps `OPENAI_API_KEY` to a different vault item than this
 harness needs (e.g. real OpenAI vs Fireworks), rename for this harness only
 (#66). Provider **type** still drives the env var name kimi reads:
 
-```ini
-# harnesses.d/kimi.conf
-manifest = orchestrator-all.env.tpl
-alias    = OPENAI_API_KEY = FIREWORKS_AI_API_KEY
-command  = kimi --auto
+For a custom openai-compatible provider (Fireworks, Together, local vLLM), the
+key goes in `~/.kimi-code/config.toml`, literally:
+
+```toml
+[providers.fireworks]
+type    = "openai"
+api_key = "fw_…"          # read from here, never from the environment
 ```
 
 **Upstream gate bug (not env-blind).** Kimi Code 0.33+ default print mode has an
@@ -149,6 +174,22 @@ flag that.
 
 **Rotate value in vault** → no command; next launch fetches live.  
 **Add a new mapping** → `va refresh` or `va edit-manifest`.  
+**Renamed a secret in the vault** → `va refresh --prune`. If the mapping carries a
+`# uuid:…` source recording, `refresh` reports `renamed` and repairs that one line,
+keeping the variable name — so an `alias =` reading it keeps working. Without a
+recording (any line written before this existed) the old mapping is a dangling ref:
+reported every run, removed under `--prune` or an interactive yes. Either way the
+change happens only when asked, changed lines print verbatim — there is no backup
+file — and lines that still resolve, comments, and ordering are untouched.  
+**Renamed or deleted a 1Password item / field** → `va refresh --backend onepassword
+--all --prune`. There is no source recording on an `op://` line, so a renamed item
+is indistinguishable from a deleted one: both are dangling refs and both are
+removed, never repaired. `refresh` judges only what the run fetched — items come
+from one `op item list`, fields only for the items it expanded — so use `--all` for
+full coverage; mappings into items it did not open are listed as unchecked and left
+alone. A mapping that still resolves but matches a recorded `# exclude:` is listed
+and **kept**: exclusion governs what refresh *adds* (ADR-0005). Delete it yourself
+with `va edit-manifest` if you meant it to go.  
 **1Password name cleanup / exclude** → see MIGRATION.md; `va refresh --exclude '…'`.
 
 ### Launch with a particular manifest (one session)
@@ -184,9 +225,19 @@ Interpret carefully:
 | `cannot enter /home/…` | `workdir=caller` + service account cannot traverse (often `setfacl -m u:<svc>:x /home/<op>`) |
 | `op cannot parse N reference(s)` | Only **malformed `op://`** lines - plain literals (region, URL) are fine |
 | `could not resolve` / item named on validate or launch | Well-formed ref, vault item missing or renamed - fix the refs file or vault. Launch lists the variables implicated and suggests `secrets validate` |
+| `Dangling refs in <file>` on refresh | Mappings matching nothing the token can see - on 1Password, a missing item or field. Reported every run; exit stays 0. `--prune` removes them |
+| `Refs this run did not check` on refresh | 1Password mappings into items this run never expanded (not selected, or a read that failed). Never pruned; `refresh --all --prune` checks every item |
+| `Mapped but excluded in <file>` | 1Password mappings that resolve but match a recorded `# exclude:`. Kept on purpose (ADR-0005) - exclusion governs what refresh *adds*. Delete the line with `va edit-manifest` if you meant it to go |
+| `Renamed secrets in <file>` on refresh | Mappings whose `# uuid:…` recording names a secret now under a different key. `--prune` rewrites the reference and keeps the variable name |
+| `Refs refresh cannot judge (…)` | Shapes prune will not touch — an unreadable ref, a placeholder, a multi-line value. `secrets validate` owns those |
+| `no secret matched name:X (VAR in <file>)` | A dangling ref hit at launch. `va refresh --prune` removes the mapping — or repairs it, if the line records a `# uuid:…` and the secret was only renamed |
 | `secrets validate` needs token / fails without | Live gate by design; use `--offline` only for shape |
+| A manifest on a validate line you did not expect | An `extra_manifest` from `defaults.conf`: a file the machine reads that no harness launches from (ADR-0006). Fix it where it lives, not in `harnesses.d` |
+| Validate FAILs on a manifest that is not on disk | An `extra_manifest` path that no longer exists. Fail-closed on purpose: correct the path or drop the line |
 | Legacy `*_ADD_MORE_*` names | Old 1Password refresh naming; still works; next refresh renames - see MIGRATION.md |
 | `run is disabled while service_user=…` | Expected; set `allow_run = yes` only if you intend that grant |
+| `no manager token yet and no terminal to paste one` | `setup` with `auth_mode=file` and nothing to capture; pipe it with `--set-token`, export the token, or `va auth-mode prompt` |
+| `--set-token: … rejected by the vault` | Token verified live before write; nothing was stored. Check you pasted a Machine Account access token / service-account token |
 
 ## Launch path (invariants)
 
@@ -224,7 +275,7 @@ can still read its own env (and so can anything as that user). Manifests are
 
 - Domain vocabulary: [CONTEXT.md](CONTEXT.md)
 - How to use domain docs: [docs/agents/domain.md](docs/agents/domain.md)
-- Issues: `gh` against `JacobStephens2/vaulted-agent-launcher` - [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md)
+- Issues: `gh` against `JacobStephens2/vaulted-agent` - [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md)
 - Bash→Rust and later behavior breaks: [MIGRATION.md](MIGRATION.md)
 - Installer hosting: [docs/hosting-the-installer.md](docs/hosting-the-installer.md)
 - ADRs: [docs/adr/](docs/adr/)
@@ -241,3 +292,17 @@ cargo clippy --all-targets -- -D warnings
 - `va doctor` is clean or only expected warnings (and summary counts match)
 - Target harness launches; secrets present in the child (not in manager-token form)
 - If you used `-m`, stderr shows the override and the agent did not inherit the wider default manifest
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `JacobStephens2/vaulted-agent`, via the `gh` CLI. See [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md).
+
+### Triage labels
+
+The five canonical roles, each label string equal to its name. See [docs/agents/triage-labels.md](docs/agents/triage-labels.md).
+
+### Domain docs
+
+Single-context - `CONTEXT.md` + `docs/adr/` at the repo root. See [docs/agents/domain.md](docs/agents/domain.md).

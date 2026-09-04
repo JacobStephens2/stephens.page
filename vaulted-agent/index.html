@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#9b4d24">
     <title>vaulted-agent | vaultedagent.com</title>
-    <meta name="description" content="vaulted-agent is a launcher. It resolves secret values from a vault backend into the child environment, then execs Claude Code, Codex, Grok, or Kimi. v0.4.17.">
+    <meta name="description" content="vaulted-agent is a launcher. It resolves secret values from a vault backend into the child environment, then execs Claude Code, Codex, Grok, Kimi, or Antigravity. v0.4.20.">
     <meta property="og:title" content="vaulted-agent - launcher for agents with vault-backed secrets">
     <meta property="og:description" content="Harness, manifest, backend. Manager token stays out of the child environment. Bitwarden SM, 1Password, pass, sops. macOS and Linux.">
     <meta property="og:type" content="website">
@@ -23,7 +23,7 @@
     <meta property="og:site_name" content="vaulted-agent">
     <link rel="canonical" href="https://vaultedagent.com/">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="vaulted-agent v0.4.17">
+    <meta name="twitter:title" content="vaulted-agent v0.4.20">
     <meta name="twitter:description" content="Install the launcher. Run va setup. Start an agent with va claude or va grok.">
     <meta name="twitter:image" content="https://vaultedagent.com/tool.png">
     <!-- Umami (self-hosted) - analytics + session replay -->
@@ -651,8 +651,8 @@
             </span>
         </div>
 
-        <span class="eyebrow">Open source · macOS · Linux · v0.4.17</span>
-        <h1>vaulted-agent <span class="version-pill">v0.4.17</span></h1>
+        <span class="eyebrow">Open source · macOS · Linux · v0.4.20</span>
+        <h1>vaulted-agent <span class="version-pill">v0.4.20</span></h1>
         <p class="lede">
             AI coding agents need secret values (API keys and related credentials).
             Many setups put those values in local <code>.env</code> files.
@@ -726,7 +726,7 @@
                 </div>
                 <p class="note" style="margin-top:0.4rem">
                     Supported systems: macOS and Linux.
-                    The install script pins release <code>v0.4.17</code>.
+                    The install script pins release <code>v0.4.20</code>.
                     Linux assets are static musl binaries.
                     The installer can create harnesses for agents found on <code>PATH</code>.
                 </p>
@@ -777,7 +777,9 @@ va doctor</code></pre>
                     <pre id="cmd-usage"><code>va claude
 va codex
 va grok
-va kimi</code></pre>
+va kimi
+va agy
+va bash</code></pre>
                 </div>
                 <p class="note" style="margin-top:0.4rem">
                     With auth mode <code>prompt</code>, paste the manager token when asked.
@@ -906,8 +908,10 @@ va -m readonly.env.tpl pick</code></pre>
                 </svg>
             </button>
             <pre id="cmd-ops"><code>va                        # list harnesses
+va agy                    # Antigravity CLI (workdir = caller)
+va bash                   # secrets-injected shell (or va bash ./script.sh)
 va doctor                 # config / syntax as the launch user (offline)
-va secrets validate       # resolve every ref against the vault (live)
+va secrets validate       # resolve every harness + extra_manifest (live)
 va secrets validate --offline   # shape only; no manager token
 va secrets list           # Bitwarden SM
 va refresh                # write or update a refs file
@@ -959,7 +963,7 @@ sudo va uninstall</code></pre>
                 </svg>
             </button>
             <pre id="cmd-github"><code># From source instead of the one-liner:
-git clone --branch v0.4.17 --depth 1 \
+git clone --branch v0.4.20 --depth 1 \
   https://github.com/JacobStephens2/vaulted-agent-launcher
 cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
         </div>
@@ -1037,7 +1041,7 @@ cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
             </div>
         </div>
         <p style="color:var(--muted);font-size:0.95rem;margin:0.5rem 0 0">
-            Current release: <code>v0.4.17</code> (Rust launcher since <code>v0.4.0</code>).
+            Current release: <code>v0.4.20</code> (Rust launcher since <code>v0.4.0</code>).
             Design walkthrough:
             <a href="https://stephens.page/blog/one-vault-three-agents-writing-the-pattern-down-found-five-bugs/">One Vault, Three Agents</a>.
         </p>
@@ -1054,7 +1058,8 @@ cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
             Operator contract for agents:
             <a href="/AGENTS.md">AGENTS.md</a>.
             Session resume: <code>va claude --resume &lt;id&gt;</code>,
-            <code>va codex resume &lt;id&gt;</code>, <code>va kimi --continue</code>.
+            <code>va codex resume &lt;id&gt;</code>, <code>va kimi --continue</code>,
+            <code>va agy --continue</code>.
         </p>
 
         <div class="cta-row">
@@ -1064,7 +1069,7 @@ cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
                 </svg>
                 Docs on GitHub
             </a>
-            <a class="cta cta-secondary" href="https://github.com/JacobStephens2/vaulted-agent-launcher/releases/tag/v0.4.17">v0.4.17 release notes</a>
+            <a class="cta cta-secondary" href="https://github.com/JacobStephens2/vaulted-agent-launcher/releases/tag/v0.4.20">v0.4.20 release notes</a>
             <a class="cta cta-secondary" href="https://inkvoke.dev">inkvoke</a>
         </div>
 
@@ -1077,7 +1082,7 @@ cd vaulted-agent-launcher && sudo ./install.sh</code></pre>
                     </svg>
                     JacobStephens2/vaulted-agent-launcher
                 </a>
-                · MIT · v0.4.17 · <a href="https://stephens.page/">stephens.page</a>
+                · MIT · v0.4.20 · <a href="https://stephens.page/">stephens.page</a>
             </p>
             <p>&copy; <span id="current-year"></span> Stephens Page LLC</p>
         </footer>

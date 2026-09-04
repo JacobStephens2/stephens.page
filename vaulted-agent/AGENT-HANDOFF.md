@@ -2,7 +2,7 @@
 
 **Full agent contract:** [AGENTS.md](./AGENTS.md) (also https://vaultedagent.com/AGENTS.md)
 
-Current pin: **v0.4.20**
+Current pin: **v0.4.21**
 
 ```bash
 curl -fsSL https://vaultedagent.com/install.sh | bash
@@ -13,4 +13,4 @@ va secrets validate
 
 Product: https://vaultedagent.com/ · Repo README: https://github.com/JacobStephens2/vaulted-agent#readme
 
-v0.4.20: `va agy` is a shipped harness for the Antigravity CLI (`workdir = caller`; conversation args pass through). Install auto-detects `agy`. AGY owns its OAuth login; an injected `GEMINI_API_KEY` is used only when AGY settings select `modelProvider = gemini` (issue #95).
+v0.4.21: `va update` replaces the installed launcher binary from a GitHub release asset (same stems as install-remote.sh). `--check` and `--dry-run` write nothing. Does not re-run install.sh. `va agy` remains the Antigravity harness from v0.4.20.

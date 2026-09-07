@@ -12,13 +12,13 @@ Also hosted: https://vaultedagent.com/AGENTS.md
 
 Glossary for domain terms (harness, manifest, backend, …): [CONTEXT.md](CONTEXT.md).
 
-Current release pin (product install): **v0.4.21**
+Current release pin (product install): **v0.4.22**
 
 ```bash
 curl -fsSL https://vaultedagent.com/install.sh | bash
 # pin:
-VAULTED_AGENT_VERSION=v0.4.21 curl -fsSL https://vaultedagent.com/install.sh | bash
-vaulted-agent version   # expect 0.4.21 (git stamp may appear in parentheses)
+VAULTED_AGENT_VERSION=v0.4.22 curl -fsSL https://vaultedagent.com/install.sh | bash
+vaulted-agent version   # expect 0.4.22 (git stamp may appear in parentheses)
 ```
 
 ## What you must not do
@@ -73,14 +73,14 @@ elevated launches always read the machine config dir).
 | **This launch only: other manifest** | `va -m readonly.env.tpl claude` |
 | Interactive pick + optional -m | `va -m narrow.env.tpl pick` |
 | One-shot command | `va run -m REFS --backend bitwarden -- cmd…` |
-| Map new vault secrets into refs | `va refresh` / `va refresh --backend onepassword` |
+| Map new vault secrets into refs | `va refresh` / `va refresh --backend onepassword` (also splits 0.3.0 glued `VAR=name:KEY` lines) |
 | Skip fields by name pattern (1P) | `va refresh --exclude '*_USERNAME'` |
 | Remove dangling refs / repair renamed refs | `va refresh --prune` (repair is bitwarden only) |
 | Edit a refs file (with checks) | `va edit-manifest` / `va edit-manifest name.env.tpl` |
 | Auth mode | `va auth-mode` / `va auth-mode prompt` / `va auth-mode file` |
 | Interactive install-time config | `va setup` |
 | Store / rotate the manager token | `printf %s "$TOKEN" \| sudo va setup bitwarden --set-token` |
-| Replace the installed launcher binary | `va update` (latest GitHub release) / `va update v0.4.21` |
+| Replace the installed launcher binary | `va update` (latest GitHub release) / `va update v0.4.22` |
 | Uninstall | `sudo va uninstall` |
 
 Launcher flags **before** the harness name: `-p` / `--prompt-auth`,

@@ -381,6 +381,27 @@ Brand Presence
 
 A curated set of personal builds, selected for relevance to platform and AI-infrastructure work. The full shelf of published apps lives at [stephens.page/apps](/apps.html).
 
+### Tracewake
+
+Turns a labeled GitHub issue into a reviewable draft pull request, unattended. A coding agent runs in a fresh microVM under a Termination Contract. The only output is a Proposal. Nothing merges itself.
+
+**Why it matters**
+Same problem OpenAI's Symphony poses - issue to merged code without sitting in the loop - with the opposite bets. Unattended agents that land their own work are a blast-radius machine; the human merge gate is the product. This is the public factory whose private cousin is the ETA Software Factory above.
+
+**What stands out**
+The operator hands over at a `ready-for-agent` label, not a workflow state. One Run at a time, a fresh microVM per Iteration, a Termination Contract of five declared bounds (the model's "I'm done" is advisory), proposal-only output, and configuration that lives entirely outside the target repo so the codebase never knows Tracewake exists. The public SPEC states those bets side by side with Symphony; 29 ADRs record why.
+
+Python
+FastAPI
+PostgreSQL
+systemd
+microVM
+AI Agents
+
+[SPEC](https://github.com/JacobStephens2/tracewake/blob/main/SPEC.md)
+[ADRs](https://github.com/JacobStephens2/tracewake/tree/main/docs/adr)
+[GitHub](https://github.com/JacobStephens2/tracewake)
+
 ### vaulted-agent
 
 A Rust launcher (`va`) that gives Claude Code, Codex, Grok, Kimi, Muse, and Antigravity real vault credentials in-process - Bitwarden Secrets Manager, 1Password, pass, or sops - with per-agent manifests and optional prompt auth so the vault master token never has to live on disk.

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" font-family="system-ui,-apple-system,sans-serif">
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9b4d24"/>
+      <stop offset="1" stop-color="#6e3416"/>
+    </linearGradient>
+    <linearGradient id="safe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2d8059"/>
+      <stop offset="1" stop-color="#205b3f"/>
+    </linearGradient>
+    <linearGradient id="run" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a4a6b"/>
+      <stop offset="1" stop-color="#24304a"/>
+    </linearGradient>
+    <filter id="sh">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.30"/>
+    </filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#f6f1e8"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="420" fill="#181512"/>
+
+  <text x="600" y="44" font-size="22" font-weight="700" fill="#f6f1e8" text-anchor="middle">Tracewake · labeled issue in, draft PR out</text>
+  <text x="600" y="70" font-size="13" fill="#a3958a" text-anchor="middle">Opposite bets from OpenAI Symphony · nothing merges itself</text>
+
+  <g filter="url(#sh)">
+    <rect x="36" y="110" width="200" height="170" rx="12" fill="#241a12" stroke="#5b3a23"/>
+    <text x="56" y="142" font-size="12" font-weight="700" fill="#c8956a" letter-spacing="1.5">1 · HANDOVER</text>
+    <text x="56" y="176" font-size="14" fill="#f6f1e8">Operator labels</text>
+    <text x="56" y="196" font-size="14" fill="#f6f1e8">ready-for-agent</text>
+    <text x="56" y="228" font-size="12" fill="#a3958a">Not a workflow state</text>
+    <text x="56" y="248" font-size="12" fill="#a3958a">allowlisted operator</text>
+  </g>
+
+  <g filter="url(#sh)">
+    <rect x="268" y="110" width="200" height="170" rx="12" fill="#241a12" stroke="#5b3a23"/>
+    <text x="288" y="142" font-size="12" font-weight="700" fill="#c8956a" letter-spacing="1.5">2 · CYCLE</text>
+    <text x="288" y="176" font-size="14" fill="#f6f1e8">Selector reads</text>
+    <text x="288" y="196" font-size="14" fill="#f6f1e8">Eligibility</text>
+    <text x="288" y="228" font-size="12" fill="#a3958a">Serial per target</text>
+    <text x="288" y="248" font-size="12" fill="#a3958a">review_cap bounds queue</text>
+  </g>
+
+  <g filter="url(#sh)">
+    <rect x="500" y="110" width="220" height="170" rx="12" fill="url(#run)" stroke="#4a5f8a"/>
+    <text x="520" y="142" font-size="12" font-weight="700" fill="#b8c8e8" letter-spacing="1.5">3 · RUN</text>
+    <text x="520" y="176" font-size="14" fill="#f6f1e8">Fresh microVM</text>
+    <text x="520" y="196" font-size="14" fill="#f6f1e8">per Iteration</text>
+    <text x="520" y="228" font-size="12" fill="#a8b8d4">Termination Contract</text>
+    <text x="520" y="248" font-size="12" fill="#a8b8d4">model “done” is advisory</text>
+  </g>
+
+  <g filter="url(#sh)">
+    <rect x="752" y="110" width="200" height="170" rx="12" fill="#241a12" stroke="#5b3a23"/>
+    <text x="772" y="142" font-size="12" font-weight="700" fill="#c8956a" letter-spacing="1.5">4 · PROPOSAL</text>
+    <text x="772" y="176" font-size="14" fill="#f6f1e8">Draft pull request</text>
+    <text x="772" y="196" font-size="14" fill="#f6f1e8">is the only output</text>
+    <text x="772" y="228" font-size="12" fill="#a3958a">Secret-scan the diff</text>
+    <text x="772" y="248" font-size="12" fill="#a3958a">target repo stays clean</text>
+  </g>
+
+  <g filter="url(#sh)">
+    <rect x="984" y="110" width="180" height="170" rx="12" fill="url(#safe)" stroke="#1f5237"/>
+    <text x="1000" y="142" font-size="12" font-weight="700" fill="#d8f0e4" letter-spacing="1.5">5 · HUMAN</text>
+    <text x="1000" y="176" font-size="14" fill="#f1f6f3">Operator reviews</text>
+    <text x="1000" y="196" font-size="14" fill="#f1f6f3">and lands</text>
+    <text x="1000" y="228" font-size="12" fill="#bcd4c5">Nothing merges itself</text>
+    <text x="1000" y="248" font-size="12" fill="#bcd4c5">deploy path untouched</text>
+  </g>
+
+  <line x1="236" y1="195" x2="264" y2="195" stroke="#f6f1e8" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="468" y1="195" x2="496" y2="195" stroke="#f6f1e8" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="720" y1="195" x2="748" y2="195" stroke="#f6f1e8" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="952" y1="195" x2="980" y2="195" stroke="#f6f1e8" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <text x="600" y="340" font-size="14" fill="#e9ddd2" text-anchor="middle">Out-of-repo config · subscription credentials only · Journal records why every decision went the way it did</text>
+  <text x="600" y="372" font-size="13" fill="#a3958a" text-anchor="middle">SPEC.md states the bets beside Symphony · docs/adr/ holds the numbered decisions</text>
+  <text x="600" y="398" font-size="12" fill="#7a6f66" text-anchor="middle">github.com/JacobStephens2/tracewake</text>
+</svg>

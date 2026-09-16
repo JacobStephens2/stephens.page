@@ -401,25 +401,6 @@ Secrets
 [Write-up →](/blog/one-vault-three-agents-writing-the-pattern-down-found-five-bugs/)
 [GitHub](https://github.com/JacobStephens2/vaulted-agent)
 
-### inkvoke
-
-A single-binary Go CLI for OpenAI image models (gpt-image-2 by default): generate, edit, or batch from the terminal - with machine-readable `--json` output and exit codes so coding agents can drive it without scraping human text.
-
-**Why it matters**
-Image generation is useful inside agent workflows only if the tool speaks a stable contract. inkvoke ships an AGENTS.md interface, structured results (path, cost, tokens, errors), and exit codes that separate usage, auth, permanent API, retryable API, and I/O failures.
-
-**What stands out**
-One static binary for macOS/Linux/Windows (amd64 and arm64) - no Python runtime. Batch manifests, photo-edit paths, and a live try surface on the product page. Designed so an autonomous agent can install and invoke it from documentation alone.
-
-Go
-OpenAI
-CLI
-AI Agents
-gpt-image-2
-
-[Product site](https://inkvoke.dev)
-[GitHub](https://github.com/JacobStephens2/inkvoke)
-
 ### muxboard
 
 A Flask blueprint that puts a web dashboard over tmux - across one host or a whole fleet - with a live in-browser terminal, built default-deny with attach caps and a documented threat model for handing out remote-shell access over the web.

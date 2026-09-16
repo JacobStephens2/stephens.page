@@ -281,8 +281,8 @@
               Sanitized architecture decision records and the seven-boundary agent-safety checklist drawn from production systems I operate - per-role isolation, scoped least-privilege credentials, default-deny command surfaces, human merge gates, audit trails, and rollback - including the decision to self-host the legally-binding e-signature instrument and its audit trail (<a target="_blank" rel="noopener" href="https://github.com/JacobStephens2/infrastructure-patterns/blob/main/adr/0017-self-hosted-signing-instrument-over-saas.md">ADR 0017</a>) rather than hand both to a SaaS
             </li>
             <li>
-              <a href="https://github.com/JacobStephens2/vaulted-agent-launcher">vaulted-agent-launcher</a> (<code>va</code>):
-              Per-agent blast radius: launches Claude Code, Codex, Grok, and Kimi with vault-resolved secrets in-process - no <code>.env</code> files or vault tokens on disk (1Password, Bitwarden SM, <code>pass</code>, sops)
+              <a href="https://github.com/JacobStephens2/vaulted-agent">vaulted-agent</a> (<code>va</code>):
+              Per-agent blast radius: launches Claude Code, Codex, Grok, Kimi, Muse, and Antigravity with vault-resolved secrets in-process - no <code>.env</code> files or vault tokens on disk (1Password, Bitwarden SM, <code>pass</code>, sops)
             </li>
             <li>
               <a href="https://github.com/JacobStephens2/cascade">Cascade</a>:

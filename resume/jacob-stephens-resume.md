@@ -160,8 +160,8 @@ United States, Remote
 
 * [infrastructure-patterns](https://github.com/JacobStephens2/infrastructure-patterns):
   Sanitized architecture decision records and the seven-boundary agent-safety checklist drawn from production systems I operate - per-role isolation, scoped least-privilege credentials, default-deny command surfaces, human merge gates, audit trails, and rollback - published so other small-business engineers can safeguard their own systems
-* [vaulted-agent-launcher](https://github.com/JacobStephens2/vaulted-agent-launcher) (`va`):
-  Per-agent blast radius: launches Claude Code, Codex, Grok, and Kimi with vault-resolved secrets in-process - no `.env` files or vault tokens on disk (1Password, Bitwarden SM, `pass`, sops)
+* [vaulted-agent](https://github.com/JacobStephens2/vaulted-agent) (`va`):
+  Per-agent blast radius: launches Claude Code, Codex, Grok, Kimi, Muse, and Antigravity with vault-resolved secrets in-process - no `.env` files or vault tokens on disk (1Password, Bitwarden SM, `pass`, sops)
 * [terraform-cloudflare-dns](https://github.com/JacobStephens2/terraform-cloudflare-dns):
   Infrastructure-as-code for a personal web fleet of ~70 hostnames across 10 domains. Consolidated DNS from four registrars onto Cloudflare and brought ~220 records across 9 zones under Terraform by importing the live records (not recreating them) for a zero-downtime, no-op baseline plan. Remote state on AWS S3 kept off the compute provider for disaster-recovery independence, Ansible roles for one-command subdomain provisioning, a plan-only DigitalOcean rebuild blueprint, and GitHub Actions plan-on-PR. Sanitized public mirror of the production repo
 * [k3s-demo](https://github.com/JacobStephens2/k3s-demo):

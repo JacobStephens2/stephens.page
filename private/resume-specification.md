@@ -28,7 +28,7 @@ The GitHub profile README at `JacobStephens2/JacobStephens2` is authoritative. R
 
 - Ownership framing: "I lead a two-engineer team owning"
 - Cascade: 2 shipped shells (Web PWA, Android); 4 architected (macOS, Windows, iOS, watchOS)
-- `vaulted-agent-launcher` naming (full form, not `vaulted-agent`)
-- Agents supported by `va`: Claude Code, Codex, Grok, Kimi
+- `vaulted-agent` naming (repo and product; `va` is the CLI). GitHub redirects the old `vaulted-agent-launcher` URL.
+- Agents supported by `va`: Claude Code, Codex, Grok, Kimi, Muse, Antigravity
 - Chart35 traction: 83 iOS + 17 Android installs, 52 web accounts (40 verified, 47 synced), App Store / Play / TestFlight, organic search
 - Contact CTA: `https://stephens.page/contact.html` (not `mailto:`)

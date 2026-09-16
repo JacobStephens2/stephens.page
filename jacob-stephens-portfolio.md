@@ -381,9 +381,9 @@ Brand Presence
 
 A curated set of personal builds, selected for relevance to platform and AI-infrastructure work. The full shelf of published apps lives at [stephens.page/apps](/apps.html).
 
-### vaulted-agent-launcher
+### vaulted-agent
 
-A Rust launcher (`va`) that gives Claude Code, Codex, Grok, and Kimi real vault credentials in-process - Bitwarden Secrets Manager, 1Password, pass, or sops - with per-agent manifests and optional prompt auth so the vault master token never has to live on disk.
+A Rust launcher (`va`) that gives Claude Code, Codex, Grok, Kimi, Muse, and Antigravity real vault credentials in-process - Bitwarden Secrets Manager, 1Password, pass, or sops - with per-agent manifests and optional prompt auth so the vault master token never has to live on disk.
 
 **Why it matters**
 AI coding agents need API keys and DB passwords, but a pile of `.env` files on every host is a secrets-management failure waiting to happen. Centralizing resolution in a launcher means rotation is one vault change, and a mis-scoped manifest is visible before the agent starts.
@@ -399,7 +399,7 @@ Secrets
 
 [Product page](https://vaultedagent.com/)
 [Write-up →](/blog/one-vault-three-agents-writing-the-pattern-down-found-five-bugs/)
-[GitHub](https://github.com/JacobStephens2/vaulted-agent-launcher)
+[GitHub](https://github.com/JacobStephens2/vaulted-agent)
 
 ### inkvoke
 

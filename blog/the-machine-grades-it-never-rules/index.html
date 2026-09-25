@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    <!-- Agent-oriented version of this post: /blog/the-machine-grades-it-never-rules/agents.md (text/markdown). -->
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/bee-favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Machine Grades. It Never Rules. | Jacob Stephens</title>
+    <meta name="description" content="Thereish is a couch word game for two to six phones and a laptop. Everyone writes the word that bridges two far-apart words, and a language model grades how close the table landed. How it plays, and the rules that keep the machine out of the player's seat.">
+    <link rel="canonical" href="https://stephens.page/blog/the-machine-grades-it-never-rules/">
+    <link rel="alternate" type="text/markdown" href="/blog/the-machine-grades-it-never-rules/agents.md" title="Agent-oriented version (markdown)">
+    <meta property="og:title" content="The Machine Grades. It Never Rules.">
+    <meta property="og:description" content="Thereish: a couch word game where a language model writes the prompts and grades the answers, but never holds a player's seat.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://stephens.page/blog/the-machine-grades-it-never-rules/">
+    <meta property="og:image" content="https://stephens.page/blog/the-machine-grades-it-never-rules/media/og.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Machine Grades. It Never Rules.">
+    <meta name="twitter:description" content="Thereish: a couch word game where a language model writes the prompts and grades the answers, but never holds a player's seat.">
+    <meta name="twitter:image" content="https://stephens.page/blog/the-machine-grades-it-never-rules/media/og.jpg">
+    <!-- Umami (self-hosted) - analytics + session replay -->
+    <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
+    <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,600;0,700;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #181512;
+            --brand: #9b4d24;
+            --muted: #625a52;
+            --surface: #ffffff;
+            --soft: #efe9df;
+            --rule: #d6d1c9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Source Sans 3', Arial, Helvetica, sans-serif;
+            font-size: 17px;
+            background: var(--surface);
+            color: var(--ink);
+            line-height: 1.65;
+            min-height: 100vh;
+        }
+
+        a { color: var(--brand); text-decoration: none; }
+        a:hover, a:focus-visible { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.12em; }
+
+        .container { max-width: 760px; margin: 0 auto; padding: 1.5rem 1.1rem 3rem; }
+
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.75rem; }
+        .back-link, .contact-link { color: var(--muted); font-size: 0.92rem; }
+        .back-link:hover, .back-link:focus-visible, .contact-link:hover, .contact-link:focus-visible { color: var(--brand); }
+
+        .eyebrow { display: block; margin-bottom: 0.6rem; color: var(--brand); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+        h1 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-weight: 700;
+            font-size: clamp(2.1rem, 5.5vw, 2.9rem);
+            line-height: 1.05;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.8rem;
+        }
+
+        .dek { color: var(--muted); font-size: 1.12rem; max-width: 62ch; }
+        .meta { color: var(--muted); font-size: 0.9rem; margin-top: 0.9rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--rule); }
+
+        article h2 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 1.55rem;
+            font-weight: 600;
+            color: var(--brand);
+            letter-spacing: -0.01em;
+            margin: 2.4rem 0 0.8rem;
+        }
+        article p { margin-bottom: 1rem; }
+        article ul, article ol { margin: 0 0 1rem 1.3rem; }
+        article li { margin-bottom: 0.35rem; }
+        article code { font-size: 0.9em; background: var(--soft); padding: 0.05em 0.3em; border-radius: 4px; }
+        .term { font-weight: 700; }
+
+        figure { margin: 1.6rem 0; }
+        figure img, figure video { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 10px; background: #f7f7f7; }
+        figcaption { color: var(--muted); font-size: 0.88rem; margin-top: 0.55rem; line-height: 1.5; }
+
+        .wide { margin-left: -1.1rem; margin-right: -1.1rem; }
+        @media (min-width: 900px) { .wide { margin-left: -90px; margin-right: -90px; } }
+
+        .phones { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: start; }
+        .phones img { max-width: 300px; margin: 0 auto; }
+        .phones figcaption { text-align: center; }
+
+        .ladder { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.4rem 0 1.2rem; padding: 0; list-style: none; }
+        .ladder li { margin: 0; background: var(--soft); border: 1px solid var(--rule); border-radius: 999px; padding: 0.15rem 0.75rem; font-size: 0.92rem; }
+        .ladder li b { color: var(--brand); }
+
+        .roles { width: 100%; border-collapse: collapse; margin: 0.4rem 0 1.2rem; font-size: 0.95rem; }
+        .roles th, .roles td { text-align: left; vertical-align: top; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); }
+        .roles th { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+        .roles td:first-child { font-weight: 700; white-space: nowrap; }
+        .table-wrap { overflow-x: auto; }
+
+        .pull { border-left: 3px solid var(--brand); padding: 0.2rem 0 0.2rem 1rem; margin: 1.4rem 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 1.15rem; }
+        .note { font-size: 0.92rem; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 0.9rem; margin: 1.4rem 0; }
+
+        .cta { display: inline-block; margin-top: 0.3rem; padding: 0.55rem 1.1rem; border-radius: 8px; background: var(--brand); color: #fff; font-weight: 700; }
+        .cta:hover, .cta:focus-visible { text-decoration: none; opacity: 0.92; }
+
+        .footer { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.85rem; }
+
+        @media (max-width: 640px) {
+            .container { padding: 1.25rem 1rem 2.5rem; }
+            .topbar { flex-direction: column; align-items: flex-start; }
+            .wide { margin-left: 0; margin-right: 0; }
+        }
+    </style>
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/theme.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <span style="display:flex;flex-wrap:wrap;gap:1.1rem">
+                <a href="/blog/" class="back-link">&larr; All posts</a>
+                <a href="https://stephens.page/" class="back-link">Home</a>
+                <a href="https://github.com/JacobStephens2/stephens.page/tree/main/blog/the-machine-grades-it-never-rules/" class="back-link" rel="noopener">Source on GitHub</a>
+            </span>
+            <a href="mailto:jacob@stephens.page" class="contact-link">jacob@stephens.page</a>
+        </div>
+
+        <main>
+            <header>
+                <span class="eyebrow">Thereish &#183; A couch word game &#183; 2026</span>
+                <h1>The machine grades. It never rules.</h1>
+                <p class="dek">Thereish is a word game for two to six phones and a laptop. Two far-apart words go up, everyone writes the word that bridges them, and a language model grades how close the table landed. The model writes the puzzle and keeps score. It never takes a player's seat.</p>
+                <p class="meta"><strong>September 25, 2026</strong> &middot; Play it at <a href="https://thereish.app">thereish.app</a> &middot; reading this as an AI agent? <a href="/blog/the-machine-grades-it-never-rules/agents.md">agents.md</a> is for you</p>
+            </header>
+
+            <article>
+                <figure class="wide">
+                    <video src="media/stage-page.mp4" poster="media/stage-meld.webp" autoplay muted loop playsinline controls preload="metadata" aria-label="A full Page of Thereish on the Stage: the Author writes longship and defibrillator, the table misses at 14, then melds at 94 on oars and rowing."></video>
+                    <figcaption>One whole Page on the Stage, cut to 28 seconds. The Author reads the Gives and writes <em>longship</em> and <em>defibrillator</em>. The first Attempt misses at 14. The two Bridges become the next Bookends, and the second Attempt melds at 94. This was recorded against production on 2026-09-25. Ada and Ben were two headless browsers I drove, and everything else on screen is what the live models wrote.</figcaption>
+                </figure>
+
+                <h2>A one-line note</h2>
+                <p>The whole project began as a single line in an empty README on August 31:</p>
+                <p class="pull">I want to make a game which plays with meaning. Maybe it could even use an LLM somehow. I want it more than anything else to be fun.</p>
+                <p>I needed "fun" to mean something I could test, so the design brief gave it one definition: <strong>a game Melissa likes.</strong> Her favorite games are So Clover, Codenames, Taboo, Monikers and NYT Connections. Each one stretches a single word's meaning over several things at once, with some fair misdirection mixed in. The ones she loves most are communication games, where meaning passes from one mind to another. So I set out to build one of those that two people could play on a couch in the evening.</p>
+                <p>Two weeks and 414 commits later it runs at <a href="https://thereish.app">thereish.app</a>. It has been through three playtests, including an evening with another couple and a night with friends around a coffee table. Each one changed the design.</p>
+
+                <h2>How a Page goes</h2>
+                <p>The unit of play is a <span class="term">Page</span>, about ten minutes from start to finish.</p>
+                <ol>
+                    <li>Someone opens a <span class="term">Room</span> and reads its <span class="term">Code</span> aloud. The Code is a four-letter word, and a model picks it and adds a one-line quip. Everyone else types the Code and a name. There are no accounts.</li>
+                    <li>Each player types a <span class="term">Give</span>, which is a setting in a phrase, like "Viking beaches" or "a hospital night shift". A Give stays private until the first reveal.</li>
+                    <li>The <span class="term">Author</span> reads the Gives and writes two <span class="term">Bookends</span> in a few seconds. Each one comes from a different Give, and the two are picked to sit far apart in meaning.</li>
+                    <li>Everyone writes a <span class="term">Bridge</span>: a word or short phrase whose meaning spans both Bookends. The only rule is that you can't reuse a Bookend or a Bridge this Page has already seen.</li>
+                    <li>After a fixed beat comes the reveal: every Bridge, one number from 0 to 100, its band, and a one-line quip from the <span class="term">Assayer</span> about what you actually wrote.</li>
+                </ol>
+
+                <div class="phones">
+                    <figure>
+                        <img src="media/phone-give.webp" width="540" height="709" alt="A phone showing Room code FANO with its quip, the player's Give 'Viking beaches', and a Start Page button.">
+                        <figcaption>The Code card with its quip, and your Give, kept private.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="media/phone-bridge.webp" width="540" height="624" alt="A phone showing Attempt 1 of 5, Bookends longship and defibrillator, and an input labelled Your bridge.">
+                        <figcaption>The Bookends, and a single box for your Bridge.</figcaption>
+                    </figure>
+                </div>
+
+                <p>The band comes from the <span class="term">Ladder</span>:</p>
+                <ul class="ladder" aria-label="The Ladder">
+                    <li>miss <b>0</b></li><li>adjacent <b>30</b></li><li>close <b>55</b></li><li>almost <b>75</b></li><li>meld <b>90</b></li><li>deep meld <b>100</b></li>
+                </ul>
+                <p>A Meld ends the Page. On a miss, the two Bridges that landed furthest apart become the next Attempt's Bookends, so each Attempt starts closer together than the last one. After five Attempts the Page closes unmelded. "One more?" asks everyone for fresh Gives.</p>
+
+                <figure class="wide">
+                    <img src="media/stage-miss.webp" width="1280" height="800" alt="The Stage on a laptop: Bookends longship and defibrillator, Ada wrote raid, Ben wrote paddles, graded 14, MISS, with the quip: Ben brought the tools to row Ada's raid, though mostly to restart the crew's hearts afterward.">
+                    <figcaption>Any device can become the <strong>Stage</strong>. Once one does, the phones go quiet and the reveal plays on the laptop for the whole table. Here, <em>raid</em> and <em>paddles</em> score a 14, and the quip notes that paddles fit both a longship and a defibrillator.</figcaption>
+                </figure>
+
+                <h2>The number is the joke</h2>
+                <p>Before building any network code, I wrote the rules as one throwaway HTML file, with a fake Author and a fake Assayer that used a toy heuristic. I played it alone on a laptop. The fake Assayer gave one of my Bridges a 24 out of 100, and I smirked.</p>
+                <p>That smirk changed what I thought the grader was for. I had treated it as a referee, a piece of infrastructure in the background. It turned out to be the source of the comedy. A low, precise, dispassionate grade is a punchline, especially when the quip after it names what you wrote. After that, I built the reveal as a small performance: a fixed 2.5-second beat, then the number, the band and the quip, with sound once someone claims the speaker. The Stage can also speak the band and the quip aloud.</p>
+
+                <figure class="wide">
+                    <img src="media/stage-meld.webp" width="1280" height="800" alt="The Stage: Bookends raid and paddles, Ada wrote oars, Ben wrote rowing, graded 94, MELD, with the quip: Longships or hospital wards, you two have finally agreed on how to propel the boat. Below, each player's Give revealed with a generated Mask.">
+                    <figcaption>The second Attempt: <em>oars</em> and <em>rowing</em>, 94, a Meld. The quip draws on both Gives. Each Give now appears under a <strong>Mask</strong>, a small picture the Limner drew from it in the game's house style.</figcaption>
+                </figure>
+
+                <h2>The machine holds no player seat</h2>
+                <p>Most group word games break with only two people. Somebody has to judge, vote, eavesdrop, or play the rival team. The research behind Thereish looked for a pattern in how publishers adapt games for two, and found a clear line. Publishers do fill <em>mechanical</em> seats with bots and dummy players. But every seat that has to <em>understand free language</em> was either left broken at two players or given a three-player minimum. A language model can fill exactly that seat.</p>
+                <p>I chose not to fill it. The first architecture decision in the repo says so:</p>
+                <p class="pull">If a human could do a role better, the role stays human, or the design waits for more humans.</p>
+                <p>So the machine only takes jobs nobody at the table could do better. It writes a fresh puzzle from whatever you typed at 9 p.m. It measures meaning-distance instantly, and the same way every time. It remembers every Page without getting tired or playing favorites. Everything goes through one module called the <strong>Steward</strong>, and each role is a few lines of configuration:</p>
+
+                <div class="table-wrap">
+                <table class="roles">
+                    <thead><tr><th>Role</th><th>Job</th><th>Today</th></tr></thead>
+                    <tbody>
+                        <tr><td>Author</td><td>Writes the Bookends at the table</td><td>Gemini 3.8 Flash, A/B-tested per Page against GPT-6 Astra</td></tr>
+                        <tr><td>Assayer</td><td>Grades an Attempt's Bridges as a set and writes the quip</td><td>Gemini 3.8 Flash at low effort, hedged, every Verdict cached</td></tr>
+                        <tr><td>Scribe</td><td>Names Rooms, titles music, writes the recap after play</td><td>Gemini 3.8 Flash for fast jobs; Claude Fable 5.1 for recaps, behind a prose linter</td></tr>
+                        <tr><td>Foley</td><td>Music, stings, voice</td><td>Mureka for a Track per Page, ElevenLabs for stings, Hume Octave for the voice</td></tr>
+                        <tr><td>Limner</td><td>Draws a Mask for every Give</td><td>Recraft V4 Styles</td></tr>
+                    </tbody>
+                </table>
+                </div>
+                <p>The players always have the final say. The table can overrule the Assayer if everyone agrees, and the overrule is written down as <span class="term">precedent</span>. The next time the same Bridges come up, they get the same grade.</p>
+
+                <h2>Consistency beats accuracy</h2>
+                <p>Research on language-model judges in games agrees on one thing. Players forgive a wrong ruling, but they don't forgive a ruling that contradicts an earlier one. And nothing in these models is deterministic: one study found 80 unique completions in 1,000 calls at temperature zero. You can't prompt your way to consistency, so Thereish enforces it outside the model:</p>
+                <ul>
+                    <li><strong>Every Verdict is cached</strong>, keyed by model, prompt version and normalized inputs. The same inputs always get the same grade.</li>
+                    <li><strong>Both orderings are graded in parallel</strong> and averaged, because position bias is the most common failure of a fast judge model. Both orderings map to one cache key.</li>
+                    <li><strong>Hedged requests are identical requests to one model.</strong> Sending two copies cuts the fast tier's tail latency. Sending to two different models would bring the inconsistency back.</li>
+                    <li><strong>The beat is fixed, not a wait.</strong> A 2.5-second reveal covers a typical grade, so a fast answer and a slow one look the same to the table.</li>
+                </ul>
+
+                <h2>Never send a model to do a linter's job</h2>
+                <p>Every role's output goes through a deterministic gate before any player sees it. A schema validator checks every answer. Elixir stemming stops a Bridge from reusing a Bookend's root, so "lava rock" is out after "lava". The Scribe's recaps go through <a href="https://vale.sh">Vale</a> with a house style plus proselint, write-good and a package that flags common AI-writing habits.</p>
+                <p>That gate taught me something about cost. At first it rejected the Scribe's first draft almost every time, for two rules: no sentence starting with "So", and a word limit. Once I stated both rules in the prompt, four live runs in a row passed on the first try, at half the time and half the cost. Naming a rule in the prompt is cheaper than catching it afterward. The gate shows you which rules are worth naming.</p>
+
+                <h2>What the playtests changed</h2>
+                <p><strong>The second night was too easy.</strong> The Author originally wrote Pages ahead of time. In a Room called DUST we played seven Pages and melded six, three of them on the first Attempt. Twice we both wrote the identical word. It also didn't feel like our game. When Melissa typed "give me two very unrelated words" as her theme, she was asking the Author to follow the rule it was already supposed to follow. So now no Page exists until everyone has given a Give, and the Author writes the Bookends live, in under five seconds.</p>
+                <p><strong>The trap only fired once, and it fell flat.</strong> Pre-written Pages included a planted "bait" Bridge, meant as fair misdirection in the style of Connections. The one time it fired, we both wrote <em>lighthouse</em>, it scored 75, and we both tapped "too harsh". Bait is gone now. The same night, the best Page was one that never melded: five Attempts on <em>river</em> and <em>money</em>. So an unmelded Page now counts as an ordinary ending, not a failure.</p>
+                <p><strong>The Stage is for reading, not touching.</strong> On the third night three of us played around a coffee table with a laptop as the Stage. Everything the reveal needs now fits on one laptop screen, so nobody has to reach for it during play. The phones drop the Code card below the fold as soon as a Page starts.</p>
+
+                <h2>The Chronicle</h2>
+                <p>Everything played goes into the Room's <span class="term">Chronicle</span>. It's an append-only record of every Page, every Verdict with the Assayer's reasoning, every overrule, and a recap the Scribe writes after the Page closes. The reveal leaves the reasoning out, because the second playtest found it cluttered the moment. The Chronicle keeps it, so anyone can read why a grade came out the way it did. It is also available as Markdown at <code>/r/CODE/chronicle.md</code>, for a person or for a coding agent.</p>
+
+                <div class="phones">
+                    <figure>
+                        <img src="media/phone-meld.webp" width="540" height="1188" alt="A phone after the Meld: both Bridges, fairness taps, both Gives revealed with Masks, an Overrule the Assayer button, and One more?">
+                        <figcaption>The phone after a Meld: fairness taps, the Gives revealed, a tap to rate the Bookends, and "One more?".</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="media/phone-chronicle.webp" width="540" height="2042" alt="The Chronicle for Room FANO: both Attempts with the Assayer's recorded reasoning and quips, followed by the Scribe's recap.">
+                        <figcaption>The Chronicle for the Page in the video, ending with the Scribe's recap: "The same boat, one word for the wood and one for the pulling."</figcaption>
+                    </figure>
+                </div>
+
+                <p>The spend for each Room is shown at the bottom of its Chronicle, and an operator page breaks it down by role and model. By the end of the first week, the game had spent $0.80 in total, and $0.71 of that went to recaps written at the highest reasoning effort. Nobody could tell those recaps apart from cheaper ones, so the Scribe now writes at low effort.</p>
+
+                <h2>How it's built</h2>
+                <p>It's a Phoenix LiveView app in Elixir. The server owns the state, each phone gets its own private view, and the Stage is just one more view. I also picked Elixir because I wanted to learn it. The decision came with a kill criterion: if I didn't have a working two-phone Room with rejoin after three evenings, I'd switch to TypeScript and Socket.IO. I didn't need to switch.</p>
+                <ul>
+                    <li><strong>The rules are a pure reducer</strong> in one file, <code>game.ex</code>. It builds the state, applies an event, and projects what one Seat is allowed to see. It has no timers, sockets or model calls.</li>
+                    <li><strong>Every test grades against a fake Steward</strong>, so the suite of 1,102 tests never spends a cent.</li>
+                    <li><strong>The Chronicle is Postgres</strong>: append-only event tables with the Page document as JSONB. Its version history is just the log.</li>
+                    <li><strong>A/B testing is built in.</strong> Each Page is randomly assigned an arm, the labels are blinded, and outcomes go to the Chronicle. With two players there are no p-values, just streaks and a qualitative readout.</li>
+                    <li><strong>Nineteen ADRs</strong> record each settled decision and what it replaced, so the design history can be read on its own.</li>
+                    <li>A push to <code>master</code> deploys a Docker release to the same VPS that serves this blog, behind Apache.</li>
+                </ul>
+
+                <h2>Play it</h2>
+                <p>Open a Room on a laptop, make that laptop the Stage, and have everyone else join on their phones. It works with two players and with up to six. There are no accounts and nothing to install.</p>
+                <p><a class="cta" href="https://thereish.app">Open thereish.app</a></p>
+                <p class="note">The source is private for now while I decide what Thereish should become. The design history above comes from its design brief and ADRs. If you play it and it lands, or doesn't, I'd like to hear about it: <a href="mailto:jacob@stephens.page">jacob@stephens.page</a>.</p>
+            </article>
+        </main>
+
+        <footer class="footer">
+            &copy; <span id="current-year"></span> Jacob Stephens
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="/blog/newsletter-widget.js" defer></script>
+</body>
+</html>

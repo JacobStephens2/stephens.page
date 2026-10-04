@@ -36,7 +36,7 @@
 
 <body>
   <a href="#main-content" class="skip-link">Skip to content</a>
-  <div class="sticky-mobile-header" aria-hidden="true">
+  <div class="sticky-mobile-header" aria-hidden="true" data-theme-toggle>
     <button class="sticky-download-btn" data-download-resume data-variant="anthropic-staff-software-engineer">Download PDF</button>
   </div>
   <main id="main-content" class="content">
@@ -44,7 +44,9 @@
         <header>
           <h1>Jacob Stephens</h1>
 
-          <button id="download-pdf-btn" data-download-resume data-variant="anthropic-staff-software-engineer">Download PDF</button>
+          <div class="header-actions" data-theme-toggle>
+            <button id="download-pdf-btn" data-download-resume data-variant="anthropic-staff-software-engineer">Download PDF</button>
+          </div>
         </header>
 
         <p class="target-role">Prepared for Anthropic - Staff Software Engineer, Infrastructure Asset Systems</p>
@@ -330,6 +332,7 @@
   <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
   <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
 
+  <script src="/theme.js" defer></script>
   <script src="/resume/files/app.js"></script>
 
 </body>

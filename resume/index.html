@@ -41,7 +41,7 @@
 
 <body>
   <a href="#main-content" class="skip-link">Skip to content</a>
-  <div class="sticky-mobile-header" aria-hidden="true">
+  <div class="sticky-mobile-header" aria-hidden="true" data-theme-toggle>
     <button class="sticky-download-btn" data-download-resume>Download PDF</button>
     <a class="sticky-download-md" href="jacob-stephens-resume.md" download="jacob-stephens-resume.md">Download Markdown</a>
   </div>
@@ -50,9 +50,11 @@
         <header>
           <h1>Jacob Stephens</h1>
 
-          <div class="dl-buttons">
-            <button id="download-pdf-btn" data-download-resume>Download PDF</button>
-            <a id="download-md-btn" href="jacob-stephens-resume.md" download="jacob-stephens-resume.md">Download Markdown</a>
+          <div class="header-actions" data-theme-toggle>
+            <div class="dl-buttons">
+              <button id="download-pdf-btn" data-download-resume>Download PDF</button>
+              <a id="download-md-btn" href="jacob-stephens-resume.md" download="jacob-stephens-resume.md">Download Markdown</a>
+            </div>
           </div>
         </header>
 
@@ -343,6 +345,7 @@
   <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
   <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
 
+  <script src="/theme.js" defer></script>
   <script src="/resume/files/app.js"></script>
 
 </body>

@@ -9,10 +9,12 @@ const path = require('path');
 
 const repoRoot = path.join(__dirname, '..');
 
+// Mirrors META_LIGHT / META_DARK in theme.js; update both together.
 const META_LIGHT = '#9b4d24';
 const META_DARK = '#141210';
 
 // toggleParents: one selector per expected toggle, matched against each toggle's parent in DOM order.
+// checksPdfDownload: resume pages; pdfVariant is the expected ?variant= value (null for none).
 const pages = [
     {
         name: 'home',
@@ -40,6 +42,7 @@ const pages = [
             'header > .header-actions[data-theme-toggle]',
         ],
         hasThemeColor: true,
+        checksPdfDownload: true,
         pdfVariant: null,
     },
     {
@@ -50,6 +53,7 @@ const pages = [
             'header > .header-actions[data-theme-toggle]',
         ],
         hasThemeColor: true,
+        checksPdfDownload: true,
         pdfVariant: 'anthropic-staff-software-engineer',
     },
 ];
@@ -136,7 +140,7 @@ async function checkPage(context, baseUrl, spec) {
         check(spec.name, `click → ${expected.dataTheme || 'system'}`, await readThemeState(page), expected);
     }
 
-    if ('pdfVariant' in spec) {
+    if (spec.checksPdfDownload) {
         await page.locator('[data-download-resume]:visible').first().click();
         await page.waitForTimeout(300);
         const variants = pdfRequests.map((u) => new URL(u).searchParams.get('variant'));

@@ -2,7 +2,7 @@ BEGIN:VCARD
 VERSION:3.0
 N:Stephens;Jacob;;;
 FN:Jacob Stephens
-TITLE:Platform & AI Infrastructure Engineer
+TITLE:Software Factories & AI Agent Infrastructure
 EMAIL;TYPE=INTERNET,PREF:jacob@stephens.page
 TEL;TYPE=CELL,VOICE:+14843567773
 URL:https://stephens.page
@@ -10,5 +10,6 @@ URL:https://www.linkedin.com/in/jacob-c-stephens
 URL:https://github.com/JacobStephens2
 X-SOCIALPROFILE;TYPE=linkedin:https://www.linkedin.com/in/jacob-c-stephens
 X-SOCIALPROFILE;TYPE=github:https://github.com/JacobStephens2
-NOTE:Safe AI automation for revenue-critical systems.
+NOTE:Building thirdshift - an open-source software factory in Rust.
+URL:https://thirdshift.app/
 END:VCARD

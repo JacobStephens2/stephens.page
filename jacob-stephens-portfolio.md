@@ -13,6 +13,8 @@ My current focus is thirdshift, an open-source software factory in Rust, and the
 
 ## Current Focus
 
+Software factories, the agent infrastructure around them, and the evidence behind their design.
+
 ### thirdshift
 
 An open-source Rust orchestrator that takes GitHub issues through implementation, review, and CI to pull requests, unattended.
@@ -22,6 +24,7 @@ An open-source Rust orchestrator that takes GitHub issues through implementation
 - Standards and spec reviews, CI checks, and bounded repair loops.
 - Failed runs preserve their work for continuation; merging is explicitly configured.
 - Git worktrees separate code checkouts. Agents still run with the host user's permissions.
+- Builds itself: as of October 12, 2026, 254 of its 314 merged pull requests came out of its own Runs. 22 releases since v0.1.0 on September 25, as Linux and macOS binaries through GitHub Releases and on crates.io, with 15 ADRs recording the design.
 
 [Project](https://thirdshift.app/) · [Source & architecture](https://github.com/JacobStephens2/thirdshift)
 
@@ -30,6 +33,18 @@ An open-source Rust orchestrator that takes GitHub issues through implementation
 Designed an evaluation of 183 replayed code-review sessions across four checkpoints, comparing a second model family with fresh sessions of the same model. The results favored a second look after a whole feature was assembled over adding another review inside every run. Published controls, model-based grading limitations, and the resulting engineering decisions alongside the results.
 
 [Read the study](https://stephens.page/blog/fresh-eyes-beat-a-second-family/) · [Research notes](https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md)
+
+### vaulted-agent
+
+An open-source Rust launcher (`va`) that resolves vault secrets into a coding agent's own process, so Claude Code, Codex, Grok, Kimi Code, Antigravity, and Muse Code get real credentials without a pile of `.env` files on disk.
+
+- One launch path for every agent: scrub the environment, resolve a per-agent manifest from 1Password, Bitwarden Secrets Manager, pass, or sops, drop the vault token, then exec the agent.
+- Manifests hold references rather than secrets, so a diff shows exactly which credentials an agent gained or lost.
+- Optional prompt auth keeps even the vault's manager token off disk; `va run` gives one-shot tools the same path.
+- Manifests limit blast radius; they are not containment. An agent can read its own environment and use what it holds, and with file-based auth it can query the vault directly.
+- Writing the pattern down found five bugs, including one that handed every agent the credential that unlocks the whole vault. 32 releases through v0.4.25, for macOS and Linux.
+
+[Project](https://vaultedagent.com/) · [Write-up](https://stephens.page/blog/one-vault-three-agents-writing-the-pattern-down-found-five-bugs/) · [Source](https://github.com/JacobStephens2/vaulted-agent)
 
 ## Professional Work
 
@@ -415,29 +430,9 @@ AI Agents
 [ADRs](https://github.com/JacobStephens2/tracewake/tree/main/docs/adr)
 [GitHub](https://github.com/JacobStephens2/tracewake)
 
-### vaulted-agent
-
-A Rust launcher (`va`) that gives Claude Code, Codex, Grok, Kimi, Muse, and Antigravity real vault credentials in-process - Bitwarden Secrets Manager, 1Password, pass, or sops - with per-agent manifests and optional prompt auth so the vault master token never has to live on disk.
-
-**Why it matters**
-AI coding agents need API keys and DB passwords, but a pile of `.env` files on every host is a secrets-management failure waiting to happen. Centralizing resolution in a launcher means rotation is one vault change, and a mis-scoped manifest is visible before the agent starts.
-
-**What stands out**
-Publishing the pattern found five production bugs - including one that handed every agent the credential that unlocks the whole vault. The fix is fail-closed manifests, scrub-then-exec so the child never inherits the manager token, and an honest threat model about what still lives on disk when auth is file-based. One curl install, `va setup`, `va claude`.
-
-Rust
-1Password
-Bitwarden SM
-AI Agents
-Secrets
-
-[Product page](https://vaultedagent.com/)
-[Write-up →](/blog/one-vault-three-agents-writing-the-pattern-down-found-five-bugs/)
-[GitHub](https://github.com/JacobStephens2/vaulted-agent)
-
 ### muxboard
 
-A Flask blueprint that puts a web dashboard over tmux - across one host or a whole fleet - with a live in-browser terminal, built default-deny with attach caps and a documented threat model for handing out remote-shell access over the web.
+A Flask blueprint for managing long-running AI agents from a browser: it lists every tmux session across one host or a fleet, attaches live through xterm.js, and creates or kills sessions over SSH. It is built default-deny, with create-specific scopes, attach caps, and a documented threat model for handing out remote-shell access over the web.
 
 **Why it matters**
 Babysitting a long-running agent or build session from a browser tab beats SSHing into each box and remembering which tmux socket belongs to which service account. The single-host case is just the n=1 instance of the same fleet inventory model - there is no separate code path for "just my laptop."
@@ -499,16 +494,16 @@ IaC
 
 ### Kubernetes Demo: single-node k3s
 
-The Kubernetes Demo is a separate single-node k3s learning and portfolio environment, not ETA production. It runs a live, HTTPS-secured two-tier app - a stateless web Deployment in front of a Redis StatefulSet - provisioned end to end by Terraform and cloud-init.
+The Kubernetes Demo was a separate single-node k3s learning and portfolio environment, not ETA production. It ran a live, HTTPS-secured two-tier app - a stateless web Deployment in front of a Redis StatefulSet - provisioned end to end by Terraform and cloud-init, until I tore the AWS node down on September 20, 2026.
 
 **Problem**
-I wanted genuine, running Kubernetes evidence without implying that ETA's production platform uses Kubernetes. Keeping the Kubernetes Demo separate makes the boundary explicit: Manager Sandboxes run in Docker containers, Factory Workers run in Firecracker microVMs, and neither runs on this k3s node.
+I wanted genuine, running Kubernetes evidence without implying that ETA's production platform uses Kubernetes. Keeping the Kubernetes Demo separate makes the boundary explicit: Manager Sandboxes run in Docker containers, Factory Workers run in Firecracker microVMs, and neither ran on this k3s node.
 
 **What I Built**
 A small stateless Go service (static binary in a multi-stage, non-root `FROM scratch` image) fronting a Redis StatefulSet with a PersistentVolumeClaim, with production-grade manifests: a rolling-update Deployment with liveness/readiness probes, CPU/memory limits, a hardened securityContext (non-root, read-only root filesystem, dropped capabilities), ConfigMap and Secret injected via envFrom, a HorizontalPodAutoscaler, a Traefik ingress, and kustomize. Terraform plus cloud-init provision an AWS EC2 node and bootstrap k3s and the app; cert-manager and Let's Encrypt issue TLS. The manifests are schema-validated with kubeconform in CI, and a five-rule OPA Gatekeeper admission layer (non-root, resource limits, no `:latest`, the hardening triad, required probes) enforces the same posture at the API server - rejected-if-violated, not trusted-by-convention - with one rule re-expressed as a built-in ValidatingAdmissionPolicy in CEL to make the engine choice legible.
 
 **Result**
-A clickable, TLS-secured demo where `/count` increments a counter held in Redis and shared across both app pods - the whole path from `terraform apply` to a running, HTTPS-terminated cluster, as code.
+A clickable, TLS-secured demo where `/count` incremented a counter held in Redis and shared across both app pods - the whole path from `terraform apply` to a running, HTTPS-terminated cluster, as code. The screenshot is from a live load test; the application, manifests, and policy set stay public in the repository.
 
 Kubernetes
 k3s
@@ -519,8 +514,26 @@ cert-manager
 OPA Gatekeeper
 Redis
 
-[Live site](https://k3s-demo.stephens.page)
 [Repo](https://github.com/JacobStephens2/k3s-demo)
+
+### Thereish
+
+A couch word game for two to six phones and a laptop. Two far-apart words go up, everyone writes the word that bridges them, and a language model grades how close the table landed. The model writes the puzzle and keeps score; it never takes a player's seat.
+
+**Why it matters**
+Applied-AI product engineering with the model kept in its lane. Every model call goes through one module, the Steward, where each role - Author, Assayer, Scribe, Foley, Limner - is a few lines of configuration, and the Author is A/B-tested per Page with blinded labels. Built in two weeks and 414 commits, then reshaped by three playtests.
+
+**What stands out**
+The rules are one pure reducer in `game.ex` with no timers, sockets, or model calls, so 1,102 tests grade against a fake Steward and never spend a cent. Every model output passes a deterministic gate before a player sees it: a schema validator, Elixir stemming that stops a Bridge from reusing a Bookend's root, and a prose linter on the Scribe's recaps. Phoenix LiveView gives each phone a private view, and the Chronicle is append-only Postgres.
+
+Elixir
+Phoenix LiveView
+PostgreSQL
+LLMs
+A/B Testing
+
+[Play it](https://thereish.app/)
+[Read the write-up →](/blog/the-machine-grades-it-never-rules/)
 
 ### Sotto
 
@@ -570,13 +583,13 @@ Capacitor
 
 ### Cascade
 
-A waterfall white-noise player for focus and sleep - one headless Rust core driving 2 shipped shells (Web PWA, Android), with 4 architected to extend (macOS, Windows, iOS, watchOS).
+A waterfall white-noise player for focus, prayer, and sleep - one headless Rust core driving six native shells. Web (PWA), Android, Windows, and macOS are released; iOS and its watchOS companion are in TestFlight beta.
 
 **Why it matters**
 A daily-use focus/sleep sound app, and an architecture kata: prove a single Rust core can power genuinely native UIs across platforms without a web wrapper. The core owns all behavior - state, pomodoro/sleep timers, custom durations, volume, persisted settings, and time via explicit tick events - and never touches an audio API.
 
 **What stands out**
-A coarse `dispatch(command) → {snapshot, effects}` boundary serialized as one JSON wire shape, so every shell is a thin native UI over shared Rust logic. 2 shipped shells (Web PWA via wasm-bindgen, Android via UniFFI/Kotlin) share the same core; macOS, Windows, iOS, and watchOS are architected to extend over that boundary.
+A coarse `dispatch(command) → {snapshot, effects}` boundary serialized as one JSON wire shape, so every shell is a thin native UI over shared Rust logic. Three bindings carry it: wasm-bindgen for the web PWA, UniFFI for Kotlin on Android and Swift on macOS and iOS, and a hand-rolled C ABI for C# on Windows. The watchOS app is a thin remote that talks to the iPhone. CI compiles every shell, and the macOS build is Developer ID signed and notarized by Apple.
 
 Rust
 WebAssembly
@@ -588,6 +601,7 @@ WinUI 3
 PWA
 
 [Visit Site](https://cascade.stephens.page)
+[Get the apps](https://cascade.stephens.page/apps/)
 [Source](https://github.com/JacobStephens2/cascade)
 
 ### Magisterium MCP Server

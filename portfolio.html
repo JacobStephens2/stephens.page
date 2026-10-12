@@ -531,7 +531,7 @@
             <section class="section" aria-labelledby="current-work-heading">
                 <div class="section-heading">
                     <h2 id="current-work-heading">Current Focus</h2>
-                    <p>Software factories and the evidence behind their design.</p>
+                    <p>Software factories, the agent infrastructure around them, and the evidence behind their design.</p>
                 </div>
                 <div class="portfolio-grid">
                     <article class="portfolio-item" id="thirdshift">
@@ -545,6 +545,10 @@
                             <div class="portfolio-block">
                                 <strong>Operational boundaries</strong>
                                 <span>Failed runs preserve their work for continuation. Merging is an explicit option. Git worktrees separate code checkouts; agents still run with the host user's permissions.</span>
+                            </div>
+                            <div class="portfolio-block">
+                                <strong>Track record</strong>
+                                <span>thirdshift builds itself: as of October 12, 2026, 254 of its 314 merged pull requests came out of its own Runs. It has shipped 22 releases since v0.1.0 on September 25, as Linux and macOS binaries through GitHub Releases and on crates.io, with 15 ADRs recording the design.</span>
                             </div>
                             <div class="portfolio-tags"><span class="portfolio-tag">Rust</span><span class="portfolio-tag">Agent orchestration</span><span class="portfolio-tag">GitHub</span><span class="portfolio-tag">CI/CD</span></div>
                             <div class="portfolio-links"><a href="https://thirdshift.app/" class="portfolio-link">Project</a><a href="https://github.com/JacobStephens2/thirdshift" class="portfolio-link">Source &amp; architecture</a></div>
@@ -564,6 +568,22 @@
                             </div>
                             <div class="portfolio-tags"><span class="portfolio-tag">Agent evaluation</span><span class="portfolio-tag">Code review</span><span class="portfolio-tag">Experimental design</span></div>
                             <div class="portfolio-links"><a href="/blog/fresh-eyes-beat-a-second-family/" class="portfolio-link">Read the study</a><a href="https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md" class="portfolio-link">Research notes</a></div>
+                        </div>
+                    </article>
+                    <article class="portfolio-item" id="vaulted-agent">
+                        <div class="portfolio-content">
+                            <h3 class="portfolio-title">vaulted-agent</h3>
+                            <p class="portfolio-summary">An open-source Rust launcher (<code>va</code>) that resolves vault secrets into a coding agent's own process, so Claude Code, Codex, Grok, Kimi Code, Antigravity, and Muse Code get real credentials without a pile of <code>.env</code> files on disk.</p>
+                            <div class="portfolio-block">
+                                <strong>What I built</strong>
+                                <span>One launch path for every agent: scrub the environment, resolve a per-agent manifest from 1Password, Bitwarden Secrets Manager, pass, or sops, drop the vault token, then exec the agent. Manifests hold references rather than secrets, so a diff shows exactly which credentials an agent gained or lost. Optional prompt auth keeps even the vault's manager token off disk, and <code>va run</code> gives one-shot tools the same path. 32 releases through v0.4.25, for macOS and Linux.</span>
+                            </div>
+                            <div class="portfolio-block">
+                                <strong>Operational boundaries</strong>
+                                <span>Manifests limit blast radius; they are not containment. An agent can read its own environment and use what it holds, and with file-based auth it can query the vault directly. The README states those limits plainly. Writing the pattern down found five bugs, including one that handed every agent the credential that unlocks the whole vault.</span>
+                            </div>
+                            <div class="portfolio-tags"><span class="portfolio-tag">Rust</span><span class="portfolio-tag">Secrets management</span><span class="portfolio-tag">1Password</span><span class="portfolio-tag">Bitwarden SM</span><span class="portfolio-tag">AI agents</span></div>
+                            <div class="portfolio-links"><a href="https://vaultedagent.com/" class="portfolio-link">Project</a><a href="/blog/one-vault-three-agents-writing-the-pattern-down-found-five-bugs/" class="portfolio-link">Write-up</a><a href="https://github.com/JacobStephens2/vaulted-agent" class="portfolio-link">Source</a></div>
                         </div>
                     </article>
                 </div>
@@ -1135,43 +1155,13 @@
                         </div>
                     </article>
 
-                    <article class="portfolio-item" id="vaulted-agent">
-                        <button class="image-button" type="button" data-image="screenshots/vaulted-agent.jpg" data-title="vaulted-agent product illustration">
-                            <img src="screenshots/vaulted-agent.jpg" alt="vaulted-agent: terminal launching va claude with vault-resolved secrets" class="portfolio-image">
-                        </button>
-                        <div class="portfolio-content">
-                            <h3 class="portfolio-title">vaulted-agent</h3>
-                            <p class="portfolio-summary">A Rust launcher (<code>va</code>) that gives Claude Code, Codex, Grok, Kimi, Muse, and Antigravity real vault credentials in-process - Bitwarden Secrets Manager, 1Password, pass, or sops - with per-agent manifests and optional prompt auth so the vault master token never has to live on disk.</p>
-                            <div class="portfolio-block">
-                                <strong>Why it matters</strong>
-                                <span>AI coding agents need API keys and DB passwords, but a pile of <code>.env</code> files on every host is a secrets-management failure waiting to happen. Centralizing resolution in a launcher means rotation is one vault change, and a mis-scoped manifest is visible before the agent starts.</span>
-                            </div>
-                            <div class="portfolio-block">
-                                <strong>What stands out</strong>
-                                <span>Publishing the pattern found five production bugs - including one that handed every agent the credential that unlocks the whole vault. The fix is fail-closed manifests, scrub-then-exec so the child never inherits the manager token, and an honest threat model about what still lives on disk when auth is file-based. One curl install, <code>va setup</code>, <code>va claude</code>.</span>
-                            </div>
-                            <div class="portfolio-tags">
-                                <span class="portfolio-tag">Rust</span>
-                                <span class="portfolio-tag">1Password</span>
-                                <span class="portfolio-tag">Bitwarden SM</span>
-                                <span class="portfolio-tag">AI Agents</span>
-                                <span class="portfolio-tag">Secrets</span>
-                            </div>
-                            <div class="portfolio-links">
-                                <a href="https://vaultedagent.com/" class="portfolio-link">Product page</a>
-                                <a href="/blog/one-vault-three-agents-writing-the-pattern-down-found-five-bugs/" class="portfolio-link">Write-up &rarr;</a>
-                                <a href="https://github.com/JacobStephens2/vaulted-agent" class="portfolio-link" target="_blank" rel="noreferrer"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" style="vertical-align:-2px;margin-right:0.3em"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
-                            </div>
-                        </div>
-                    </article>
-
                     <article class="portfolio-item" id="muxboard">
                         <button class="image-button" type="button" data-image="screenshots/muxboard.jpg" data-title="muxboard product page with live attach">
                             <img src="screenshots/muxboard.jpg" alt="muxboard product site: live browser attach to a chart35 coding-agent session on jacob@stephens droplet" class="portfolio-image">
                         </button>
                         <div class="portfolio-content">
                             <h3 class="portfolio-title">muxboard</h3>
-                            <p class="portfolio-summary">A Flask blueprint that puts a web dashboard over tmux - across one host or a whole fleet - with a live in-browser terminal, built default-deny with attach caps and a documented threat model for handing out remote-shell access over the web.</p>
+                            <p class="portfolio-summary">A Flask blueprint for managing long-running AI agents from a browser: it lists every tmux session across one host or a fleet, attaches live through xterm.js, and creates or kills sessions over SSH. It is built default-deny, with create-specific scopes, attach caps, and a documented threat model for handing out remote-shell access over the web.</p>
                             <div class="portfolio-block">
                                 <strong>Why it matters</strong>
                                 <span>Babysitting a long-running agent or build session from a browser tab beats SSHing into each box and remembering which tmux socket belongs to which service account. The single-host case is just the n=1 instance of the same fleet inventory model - there is no separate code path for "just my laptop."</span>
@@ -1264,10 +1254,10 @@
                         </button>
                         <div class="portfolio-content">
                             <h3 class="portfolio-title">Kubernetes Demo: Single-Node k3s</h3>
-                            <p class="portfolio-summary">The Kubernetes Demo is a separate single-node k3s learning and portfolio environment, not ETA production. It runs a live, HTTPS-secured two-tier app - a stateless web Deployment in front of a Redis StatefulSet - provisioned end to end by Terraform and cloud-init.</p>
+                            <p class="portfolio-summary">The Kubernetes Demo was a separate single-node k3s learning and portfolio environment, not ETA production. It ran a live, HTTPS-secured two-tier app - a stateless web Deployment in front of a Redis StatefulSet - provisioned end to end by Terraform and cloud-init, until I tore the AWS node down on September 20, 2026.</p>
                             <div class="portfolio-block">
                                 <strong>Problem</strong>
-                                <span>I wanted genuine, running Kubernetes evidence without implying that ETA's production platform uses Kubernetes. Keeping the Kubernetes Demo separate makes the boundary explicit: Manager Sandboxes run in Docker containers, Factory Workers run in Firecracker microVMs, and neither runs on this k3s node.</span>
+                                <span>I wanted genuine, running Kubernetes evidence without implying that ETA's production platform uses Kubernetes. Keeping the Kubernetes Demo separate makes the boundary explicit: Manager Sandboxes run in Docker containers, Factory Workers run in Firecracker microVMs, and neither ran on this k3s node.</span>
                             </div>
                             <div class="portfolio-block">
                                 <strong>What I Built</strong>
@@ -1275,7 +1265,7 @@
                             </div>
                             <div class="portfolio-block">
                                 <strong>Result</strong>
-                                <span>A clickable, TLS-secured demo where <code>/count</code> increments a counter held in Redis and shared across both app pods - the whole path from <code>terraform apply</code> to a running, HTTPS-terminated cluster, as code.</span>
+                                <span>A clickable, TLS-secured demo where <code>/count</code> incremented a counter held in Redis and shared across both app pods - the whole path from <code>terraform apply</code> to a running, HTTPS-terminated cluster, as code. The screenshot is from a live load test; the application, manifests, and policy set stay public in the repository.</span>
                             </div>
                             <div class="portfolio-tags">
                                 <span class="portfolio-tag">Kubernetes</span>
@@ -1288,8 +1278,36 @@
                                 <span class="portfolio-tag">Redis</span>
                             </div>
                             <div class="portfolio-links">
-                                <a href="https://k3s-demo.stephens.page" class="portfolio-link" target="_blank" rel="noreferrer">Live site</a>
                                 <a href="https://github.com/JacobStephens2/k3s-demo" class="portfolio-link" target="_blank" rel="noreferrer"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" style="vertical-align:-2px;margin-right:0.3em"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Repo</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="portfolio-item" id="thereish">
+                        <button class="image-button" type="button" data-image="screenshots/thereish-stage.webp" data-images="screenshots/thereish-stage.webp,screenshots/thereish-phone.webp" data-captions="The Stage on a laptop: a 94 meld,A player's phone: writing a Bridge" data-title="Thereish">
+                            <img src="screenshots/thereish-stage.webp" alt="Thereish Stage view: the Bookends raid and paddles, the Bridges oars and rowing, scored 94 with a Meld badge and a one-line quip" class="portfolio-image">
+                        </button>
+                        <div class="portfolio-content">
+                            <h3 class="portfolio-title">Thereish</h3>
+                            <p class="portfolio-summary">A couch word game for two to six phones and a laptop. Two far-apart words go up, everyone writes the word that bridges them, and a language model grades how close the table landed. The model writes the puzzle and keeps score; it never takes a player's seat.</p>
+                            <div class="portfolio-block">
+                                <strong>Why it matters</strong>
+                                <span>Applied-AI product engineering with the model kept in its lane. Every model call goes through one module, the Steward, where each role - Author, Assayer, Scribe, Foley, Limner - is a few lines of configuration, and the Author is A/B-tested per Page with blinded labels. Built in two weeks and 414 commits, then reshaped by three playtests.</span>
+                            </div>
+                            <div class="portfolio-block">
+                                <strong>What stands out</strong>
+                                <span>The rules are one pure reducer in <code>game.ex</code> with no timers, sockets, or model calls, so 1,102 tests grade against a fake Steward and never spend a cent. Every model output passes a deterministic gate before a player sees it: a schema validator, Elixir stemming that stops a Bridge from reusing a Bookend's root, and a prose linter on the Scribe's recaps. Phoenix LiveView gives each phone a private view, and the Chronicle is append-only Postgres.</span>
+                            </div>
+                            <div class="portfolio-tags">
+                                <span class="portfolio-tag">Elixir</span>
+                                <span class="portfolio-tag">Phoenix LiveView</span>
+                                <span class="portfolio-tag">PostgreSQL</span>
+                                <span class="portfolio-tag">LLMs</span>
+                                <span class="portfolio-tag">A/B Testing</span>
+                            </div>
+                            <div class="portfolio-links">
+                                <a href="https://thereish.app/" class="portfolio-link" target="_blank" rel="noreferrer">Play it</a>
+                                <a href="/blog/the-machine-grades-it-never-rules/" class="portfolio-link">Read the write-up &rarr;</a>
                             </div>
                         </div>
                     </article>
@@ -1362,19 +1380,19 @@
                     </article>
 
                     <article class="portfolio-item" id="cascade">
-                        <button class="image-button" type="button" data-image="screenshots/cascade-web-player.png" data-images="screenshots/cascade-web-player.png,screenshots/Cascade-Android-screenshot.jpg,screenshots/cascade-windows-player.png,screenshots/Cascade-macOS-screenshot.png,screenshots/cascade-windows-sync.png,screenshots/cascade-signin.png,screenshots/cascade-core-architecture.png" data-captions="Web PWA,Android app,Windows (architected),macOS (architected),Account &amp; sync,Magic-link sign-in,Architecture" data-title="Cascade screenshot">
+                        <button class="image-button" type="button" data-image="screenshots/cascade-web-player.png" data-images="screenshots/cascade-web-player.png,screenshots/Cascade-Android-screenshot.jpg,screenshots/cascade-windows-player.png,screenshots/Cascade-macOS-screenshot.png,screenshots/cascade-windows-sync.png,screenshots/cascade-signin.png,screenshots/cascade-core-architecture.png" data-captions="Web PWA,Android app,Windows app,macOS app,Account &amp; sync,Magic-link sign-in,Architecture" data-title="Cascade screenshot">
                             <img src="screenshots/cascade-web-player.png" alt="Cascade waterfall white-noise player" class="portfolio-image portfolio-image--portrait">
                         </button>
                         <div class="portfolio-content">
                             <h3 class="portfolio-title">Cascade</h3>
-                            <p class="portfolio-summary">A waterfall white-noise player for focus and sleep - one headless Rust core driving 2 shipped shells (Web PWA, Android), with 4 architected to extend (macOS, Windows, iOS, watchOS).</p>
+                            <p class="portfolio-summary">A waterfall white-noise player for focus, prayer, and sleep - one headless Rust core driving six native shells. Web (PWA), Android, Windows, and macOS are released; iOS and its watchOS companion are in TestFlight beta.</p>
                             <div class="portfolio-block">
                                 <strong>Why it matters</strong>
                                 <span>A daily-use focus/sleep sound app, and an architecture kata: prove a single Rust core can power genuinely native UIs across platforms without a web wrapper. The core owns all behavior - state, pomodoro/sleep timers, custom durations, volume, persisted settings, and time via explicit tick events - and never touches an audio API.</span>
                             </div>
                             <div class="portfolio-block">
                                 <strong>What stands out</strong>
-                                <span>A coarse <code>dispatch(command) &rarr; {snapshot, effects}</code> boundary serialized as one JSON wire shape, so every shell is a thin native UI over shared Rust logic. 2 shipped shells (Web PWA via wasm-bindgen, Android via UniFFI/Kotlin) share the same core; macOS, Windows, iOS, and watchOS are architected to extend over that boundary.</span>
+                                <span>A coarse <code>dispatch(command) &rarr; {snapshot, effects}</code> boundary serialized as one JSON wire shape, so every shell is a thin native UI over shared Rust logic. Three bindings carry it: wasm-bindgen for the web PWA, UniFFI for Kotlin on Android and Swift on macOS and iOS, and a hand-rolled C ABI for C# on Windows. The watchOS app is a thin remote that talks to the iPhone. CI compiles every shell, and the macOS build is Developer ID signed and notarized by Apple.</span>
                             </div>
                             <div class="portfolio-tags">
                                 <span class="portfolio-tag">Rust</span>
@@ -1388,6 +1406,7 @@
                             </div>
                             <div class="portfolio-links">
                                 <a href="https://cascade.stephens.page" class="portfolio-link" target="_blank" rel="noreferrer">Visit Site</a>
+                                <a href="https://cascade.stephens.page/apps/" class="portfolio-link" target="_blank" rel="noreferrer">Get the apps</a>
                                 <a href="https://github.com/JacobStephens2/cascade" class="portfolio-link" target="_blank" rel="noreferrer"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" style="vertical-align:-2px;margin-right:0.3em"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Source</a>
                             </div>
                         </div>

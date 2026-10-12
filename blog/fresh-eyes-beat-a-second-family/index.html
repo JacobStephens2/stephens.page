@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    <!-- AI agents: the machine-oriented version of this post is at
+         /blog/fresh-eyes-beat-a-second-family/agents.md (text/markdown). -->
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/bee-favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Eyes Beat a Second Family | Jacob Stephens</title>
+    <link rel="canonical" href="https://stephens.page/blog/fresh-eyes-beat-a-second-family/">
+    <link rel="alternate" type="text/markdown" href="/blog/fresh-eyes-beat-a-second-family/agents.md" title="Agent-oriented version (markdown)">
+    <meta name="description" content="I replayed 183 code reviews to test whether a second AI model family catches what my coding agents' own review lets through. Mostly it didn't: a fresh session of the same model matched or beat it, and the one place a second look paid was after a whole feature was done.">
+    <meta property="og:title" content="Fresh Eyes Beat a Second Family">
+    <meta property="og:description" content="183 replayed reviews, four checkpoints, bars fixed in advance: where a second model family helps an unattended coding factory, and where a fresh session of the same model does as well.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://stephens.page/blog/fresh-eyes-beat-a-second-family/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Fresh Eyes Beat a Second Family">
+    <meta name="twitter:description" content="183 replayed reviews, four checkpoints, bars fixed in advance: where a second model family helps an unattended coding factory, and where a fresh session of the same model does as well.">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0D3PS27FK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W0D3PS27FK');
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #181512; --brand: #9b4d24; --brand-ink: #ffffff; --muted: #625a52;
+            --surface: #ffffff; --soft: #efe9df; --rule: #d6d1c9; --code-bg: #efe9df; --bar-bg: #ece6dc;
+            --yes: #2f7a4c; --no: #b0442a; --part: #b8860b;
+        }
+        html[data-theme="dark"] { --yes: #7fbf95; --no: #d99a7a; --part: #e0b85a; }
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]):not([data-theme="dark"]) { --yes: #7fbf95; --no: #d99a7a; --part: #e0b85a; }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; background: var(--surface); color: var(--ink); line-height: 1.7; min-height: 100vh; }
+        .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.75rem; }
+        .back-link, .contact-link { color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+        .back-link:hover, .contact-link:hover { color: var(--brand); text-decoration: underline; text-underline-offset: 0.12em; }
+        article.note { padding: 0; }
+        .eyebrow { display: inline-block; margin-bottom: 0.9rem; color: var(--brand); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+        h1.title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: clamp(2rem, 4vw, 2.8rem); line-height: 1.08; letter-spacing: -0.01em; margin-bottom: 1rem; }
+        .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.6rem; padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule); }
+        .meta strong { color: var(--ink); font-weight: 700; }
+        h2 { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: var(--brand); margin-top: 2rem; margin-bottom: 0.8rem; }
+        p { margin-bottom: 1rem; color: var(--ink); }
+        ol, ul { margin-bottom: 1rem; padding-left: 1.4rem; }
+        ol li, ul li { margin-bottom: 0.4rem; }
+        code { background: var(--code-bg); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.92em; }
+        pre { background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.82rem; line-height: 1.5; margin-bottom: 1.2rem; }
+        pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+        a { color: var(--brand); text-decoration: none; }
+        a:hover { text-decoration: underline; text-underline-offset: 0.12em; }
+        /* Figure component */
+        .fig { margin: 1.4rem 0 1.6rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); overflow: hidden; }
+        .fig-head { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--rule); background: var(--soft); }
+        .fig-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brand); }
+        .fig-body { padding: 0.9rem; }
+        .fig-caption { padding: 0.65rem 0.9rem 0.75rem; color: var(--muted); font-size: 0.88rem; border-top: 1px dashed var(--rule); line-height: 1.55; }
+        .fig-scroll { overflow-x: auto; }
+        .panel-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+        /* Sources + provenance */
+        .sources { margin-top: 1rem; font-size: 0.9rem; }
+        .sources h3 { font-family: 'Source Sans 3', Arial, sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 1rem 0 0.5rem; }
+        .sources ul { list-style: none; padding-left: 0; margin-bottom: 0; }
+        .sources li { padding: 0.3rem 0; border-bottom: 1px solid var(--rule); color: var(--muted); line-height: 1.5; }
+        .sources li:last-child { border-bottom: 0; }
+        .sources .cite-title { color: var(--ink); font-weight: 600; }
+        .ai-note { margin-top: 2rem; padding: 1rem 1.2rem; background: var(--soft); border-left: 3px solid var(--brand); border-radius: 0 6px 6px 0; color: var(--muted); font-size: 0.9rem; }
+        .footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); text-align: center; color: var(--muted); font-size: 0.85rem; }
+        @media (max-width: 640px) { .container { padding: 1.25rem 1rem 2.5rem; } .topbar { flex-direction: column; align-items: flex-start; } }
+        /* ---- per-figure CSS ---- */
+        .btn { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.7rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; }
+        .btn:hover, .btn:focus-visible { border-color: var(--brand); }
+        .btn[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+        .ctl { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-size: 0.85rem; color: var(--muted); }
+        #pipeline { min-height: 120px; }
+        #pipeline svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+        .fallback-list { font-size: 0.92rem; }
+        .fallback-list .pass { color: var(--yes); font-weight: 700; }
+        .fallback-list .fail { color: var(--no); font-weight: 700; }
+        table.grid { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+        table.grid th, table.grid td { border-bottom: 1px solid var(--rule); padding: 0.35rem 0.4rem; text-align: center; }
+        table.grid th:first-child, table.grid td:first-child { text-align: left; }
+        #bugGrid td:first-child { min-width: 12.5rem; line-height: 1.35; }
+        #bugGrid td:first-child small { display: block; color: var(--muted); font-size: 0.78rem; }
+        #bugGrid thead th { line-height: 1.2; }
+        table.grid thead th { font-size: 0.74rem; letter-spacing: 0.03em; color: var(--muted); font-weight: 700; vertical-align: bottom; }
+        table.grid td.C { color: var(--yes); font-weight: 700; }
+        table.grid td.P { color: var(--part); font-weight: 700; }
+        table.grid td.M { color: var(--muted); }
+        table.grid td.counted { background: var(--soft); }
+        table.grid tr.sum td { font-weight: 700; border-top: 2px solid var(--rule); }
+        table.grid tr.sum td.ok { color: var(--yes); }
+        table.grid tr.sum td.bad { color: var(--no); }
+        .legend { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+        .chart { min-height: 160px; }
+        .chart svg { max-width: 100%; height: auto; overflow: visible; }
+        .predict { margin-bottom: 0.8rem; }
+        .predict p { margin-bottom: 0.5rem; font-weight: 600; }
+        .reveal { display: none; }
+        .reveal.shown { display: block; }
+        .verdict { font-size: 0.9rem; margin-top: 0.6rem; margin-bottom: 0; }
+        .msg { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; margin-bottom: 0; }
+        .qz { padding: 0.9rem 0 0.7rem; border-bottom: 1px dashed var(--rule); }
+        .qz:first-child { padding-top: 0.2rem; }
+        .qz:last-of-type { border-bottom: 0; }
+        .qz .q { font-weight: 700; margin-bottom: 0.55rem; }
+        .qz .opts { display: grid; gap: 0.4rem; }
+        .qz button.opt { font: inherit; font-size: 0.92rem; text-align: left; padding: 0.45rem 0.7rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; line-height: 1.45; }
+        .qz button.opt:hover:not(:disabled), .qz button.opt:focus-visible { border-color: var(--brand); }
+        .qz button.opt:disabled { cursor: default; }
+        .qz button.opt.correct { border-color: var(--brand); background: var(--soft); font-weight: 600; }
+        .qz button.opt.wrong { opacity: 0.75; }
+        .qz .expl { display: none; margin: 0.55rem 0 0.2rem; font-size: 0.88rem; color: var(--muted); }
+        .qz.answered .expl { display: block; }
+        #qzTally { margin-top: 0.8rem; margin-bottom: 0; font-weight: 600; }
+    </style>
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/theme.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <span style="display:flex;flex-wrap:wrap;gap:1.1rem">
+                <a href="/blog/" class="back-link">&larr; All posts</a>
+                <a href="https://github.com/JacobStephens2/stephens.page/tree/main/blog/fresh-eyes-beat-a-second-family/" class="back-link" rel="noopener">Source on GitHub</a>
+            </span>
+            <a href="mailto:jacob@stephens.page" class="contact-link">jacob@stephens.page</a>
+        </div>
+
+        <article class="note">
+            <div class="eyebrow">Notes &middot; AI coding agents &middot; Code review</div>
+            <h1 class="title">Fresh Eyes Beat a Second Family</h1>
+            <p class="meta"><strong>October 11, 2026</strong> &middot; ~2,200 words &middot; 4 live figures and a quiz &middot; reading this as an AI agent? <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a> is for you</p>
+
+            <p>I expected a second model family to catch the bugs my coding agents let through, and mostly it didn't. Over 183 replayed review sessions, a fresh session of the same model found as many of the escaped bugs as the other family did, or more, at every checkpoint I tested. The one place a second look clearly paid was after a whole feature was finished. There, either family found real bugs that the existing review had missed, in more than half the features.</p>
+
+            <p>This post covers why I ran the test, how I replayed the past instead of waiting on the future, what each of the four checkpoints showed, and what I'm building because of it. The full research note, with the script that ran every session, is in the <a href="https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md" rel="noopener">thirdshift repository</a>.</p>
+
+            <h2>Who reviews the reviewer when nobody is awake?</h2>
+
+            <p><a href="https://thirdshift.app" rel="noopener">thirdshift</a> is my factory for unattended coding. It takes a GitHub issue and returns a pull request. A <em>Run</em> builds one issue. A <em>Spec run</em> builds a feature that has been broken into Tickets, then reviews the finished branch as a whole in a <em>Spec review</em>. <em>Weeding</em> has the factory write its own refactoring plans while I sleep, through <em>Architect runs</em>. Each session runs on a coding-agent CLI, which thirdshift calls a <em>Harness</em>: Claude Code, Codex, and four newer ones.</p>
+
+            <p>Since about September 27, no human has read a factory pull request before it merged. They merge themselves. The only reviewer is the agent's own review: the session that wrote the code starts two reviewer sub-agents of the same model, then decides which of their findings to fix. The numbers made me uneasy:</p>
+
+            <ul>
+                <li><strong>1,152 findings declined</strong> across 199 merged PRs. Only 12 of those declines left the call to a human or a later issue, and nobody read the declines.</li>
+                <li><strong>98% Strong.</strong> 209 Architecture reviews rated their own top pick Strong 98% of the time, which let them publish 202 plans. Nobody else checked a plan.</li>
+                <li><strong>16 bugs reached <code>main</code></strong> on thirdshift itself. Six were timing bugs: what happens when two Runs act at once, or when a step repeats.</li>
+            </ul>
+
+            <p>The obvious fix is to have a different model family check the work. The intuition has support. Zheng et al. (2023) found LLM judges favor their own answers, and Panickssery, Bowman and Feng (2024) found models recognize their own text and rate it higher. If my Claude reviewers share Claude's blind spots, Codex might not. That became <a href="https://github.com/JacobStephens2/thirdshift/issues/429" rel="noopener">issue #429</a>.</p>
+
+            <h2>Replaying the past instead of waiting for bugs</h2>
+
+            <p>I didn't want to build a feature on an intuition. Every review I wanted to test had already happened once, and I knew which bugs it let through, because they had been found and fixed since. So I replayed those reviews.</p>
+
+            <p>Each session got a throwaway repository holding the history only up to the commit under review. There was no remote, no later commits, and a signed-out <code>gh</code>. The prompt forbade builds, tests, network access and edits. Sessions ran one at a time, 183 of them, between October 10 and 11, 2026. Every one exited before its 2.5-hour timeout, and none changed its repository. I checked <code>HEAD</code> and <code>git status</code> before and after each.</p>
+
+            <p>Two design choices did most of the work.</p>
+
+            <ul>
+                <li><strong>A fresh-session control.</strong> Comparing Codex against the recorded review mixes two changes: a different family, and a reviewer who didn't watch the code being written. So most replays also ran the same model in a fresh session. If fresh Claude catches what Codex catches, the family isn't what helped.</li>
+                <li><strong>Bars fixed before any session ran.</strong> This is the logic of preregistration (Nosek et al., 2018): a bar set after the results are in tends to land where the results are. I settled every bar during a 33-question grilling, before the script existed.</li>
+            </ul>
+
+            <p>Fig. 1 shows the four checkpoints I tested and where each sits in the factory. It's colored by result, so you can see the ending now. The rest of the post explains why each piece landed where it did.</p>
+
+            <div class="fig" id="fig1">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 1 &middot; Four checkpoints, four verdicts</span>
+                </div>
+                <div class="fig-body">
+                    <div id="pipeline" role="img" aria-label="The factory pipeline with the four tested checkpoints and their results">
+                        <ol class="fallback-list" id="pipelineFallback">
+                            <li>Architecture review writes a plan &rarr; <strong>plan check</strong>: <span class="pass">passes only for Claude checking Claude</span></li>
+                            <li>Ticket Runs: implement, then in-session review &rarr; <strong>Second opinion in a Run</strong>: <span class="fail">fails</span></li>
+                            <li>Spec review of the whole branch &rarr; <strong>Second opinion after the Spec review</strong>: <span class="pass">passes, either family</span></li>
+                            <li>Spec review moved to the other family's Harness: <span class="fail">fails</span></li>
+                            <li>The pull request merges itself.</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="fig-caption">Rendered live by mermaid.js 11 from the source in this page's script, recolored from the site's theme tokens when you switch light or dark. If the CDN can't be reached, the numbered list above stays in its place.</div>
+            </div>
+
+            <h2>In a Run, the other family caught one bug in six</h2>
+
+            <p>The first replay took the five PRs behind the six timing bugs and reviewed each one as it stood when it merged. A Second opinion would have seen exactly that. Every arm ran thirdshift's current review skill, which asks each finding for a test that fails if the finding is right. Grading was blind: one packet per PR, arms behind shuffled labels, and each finding judged against the bug's real fix and a written catch criterion. A finding had to name the defect and tie it to its consequence. Getting close was a <em>partial</em>, and partials don't count.</p>
+
+            <p>The bar: the other family catches at least 2 bugs that fresh Claude misses. Toggle partials on in Fig. 2 and watch the bottom row. The bar doesn't move.</p>
+
+            <div class="fig" id="fig2">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 2 &middot; Six escaped timing bugs, seven reviewers</span>
+                    <span class="ctl"><button type="button" class="btn" id="partialsBtn" aria-pressed="false">Count partials as catches</button></span>
+                </div>
+                <div class="fig-body fig-scroll">
+                    <table class="grid" id="bugGrid"></table>
+                    <p class="legend">Arms: fresh Claude Opus 5.5 at max, the same with the timing checklist, Codex (GPT-6.1 Sol, xhigh), Grok 4.7, Muse Spark 1.3, MiMo-V2.6-Pro and Gemini 3.8 Flash. <span style="color:var(--yes);font-weight:700">C</span> caught &middot; <span style="color:var(--part);font-weight:700">P</span> partial &middot; M missed. Shaded cells are the ones being counted. "Beyond fresh" counts catches on bugs fresh Claude missed, which is what the bar measures.</p>
+                    <p class="verdict" id="bugVerdict"></p>
+                </div>
+                <div class="fig-caption">A hand-built table over the graded results, since the counting rule is the lesson. The script recomputes both summary rows from the cells, so the toggle shows that counting partials doesn't change any result. The bugs are thirdshift issues <a href="https://github.com/JacobStephens2/thirdshift/issues/24">#24</a>, <a href="https://github.com/JacobStephens2/thirdshift/issues/57">#57</a>, <a href="https://github.com/JacobStephens2/thirdshift/issues/102">#102</a>, <a href="https://github.com/JacobStephens2/thirdshift/issues/175">#175</a>, <a href="https://github.com/JacobStephens2/thirdshift/issues/182">#182</a> and <a href="https://github.com/JacobStephens2/thirdshift/issues/303">#303</a>.</div>
+            </div>
+
+            <p>Codex, GPT-6.1 Sol at its best setting, xhigh, caught one bug, #182. Fresh Claude caught that one too, so Codex added nothing. The four newer Harnesses caught one between them, and fresh Claude had that one too.</p>
+
+            <p><strong>"Codex is just the weaker model."</strong> That's a fair objection. On Artificial Analysis's index, GPT-6.1 Sol at xhigh scores 51.0 and Claude Opus 5.5 at max scores 57.6. So I ran it the other way round. Three bugs have reached <code>main</code> from PRs Codex wrote. Claude reviewing those PRs caught none, with two partials, and fresh Codex caught none either. A stronger model in the second seat didn't rescue the idea. Neither did a weaker one.</p>
+
+            <p>The timing checklist tied. A fresh agent that hadn't seen the bugs wrote it from the project's glossary and ADRs. With it, Claude caught 4, the same count as without it, but not the same 4. It found #24 and lost #102. A checklist that trades one bug for another isn't worth the extra 5 minutes of median review time.</p>
+
+            <p>The most useful row in Fig. 2 is the last column. The factory's original in-session reviews had raised two of these six bugs, #102 and #303. In both cases the author declined them as decisions for someone else, and nobody read the declines. Fresh Claude caught 4. I can't split that gain between "fresh session" and "today's review skill", because the replay changed both at once. Either way, it isn't a second family.</p>
+
+            <h2>The plan check passes only where I no longer need it</h2>
+
+            <p>The plan check re-applies the Architecture review's own four tests to the plan it published. Is the friction real in the code? Does the deletion test hold? Is the design settled? Does it contradict no ADR? The check reads the plan, the glossary, the ADRs and the code as they stood when the plan was written. It never reads the session that wrote the plan. The bar: it stops at least 3 of 20 plans, and most of its stops are right. Fresh Claude agents graded every stop without knowing which arm made it.</p>
+
+            <div class="fig" id="fig3">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 3 &middot; Plans stopped, and stops that held</span>
+                </div>
+                <div class="fig-body">
+                    <div class="chart" id="planChart"></div>
+                    <table class="grid fallback" id="planFallback">
+                        <thead><tr><th>Arm</th><th>Stopped</th><th>Right</th><th>Bar: at least 3, most right</th></tr></thead>
+                        <tbody>
+                            <tr><td>Codex checks Claude's plans</td><td>15</td><td>5</td><td>fails</td></tr>
+                            <tr><td>Fresh Claude checks Claude's plans</td><td>10</td><td>8</td><td>passes</td></tr>
+                            <tr><td>Claude checks Codex's plans</td><td>2</td><td>1</td><td>fails</td></tr>
+                            <tr><td>Fresh Codex checks Codex's plans</td><td>4</td><td>2</td><td>fails</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="fig-caption">Drawn live with Observable Plot 0.6.17, with the dashed rule at the bar's 3 stops. The axis counts plans, out of 20. Pale bars are plans stopped, solid bars are stops the grader agreed with. Colors come from the site's theme tokens and redraw on a theme switch. Without the CDN, the table is the figure.</div>
+            </div>
+
+            <p>Codex stopped three-quarters of Claude's plans, and two-thirds of those stops didn't hold. A check that blocks that often, and is wrong that often, would stall Weeding for nothing. Fresh Claude stopped half and was right 8 times in 10.</p>
+
+            <p>The catch is that the arm that passed doesn't match how the factory runs. Since October 6, Weeding has written its plans on Codex. On Codex's plans, neither arm passes. So the plan check stays unbuilt unless Weeding goes back to Claude.</p>
+
+            <h2>After a whole feature, any second look finds something</h2>
+
+            <p>The last replay took all 30 Spec branches, as they stood just before their recorded Spec review, and gave each one to a second reviewer. This bar is looser than the bug replays', and the two tests aren't the same. The bug replays asked whether a reviewer caught a specific known escape. This one asked whether it found <em>any</em> real behavior bug that the recorded review missed. The bar was such bugs in at least 6 of the 30 Specs, with no more than half the graded findings wrong. Fresh agents graded every finding against the code, as real, wrong or unsure.</p>
+
+            <p>The plan included only a Codex arm. Codex passed, but by then fresh Claude had matched or beaten Codex everywhere else, so I added 30 fresh Claude sessions to tell the family apart from the second look. Before you open Fig. 4, make a guess.</p>
+
+            <div class="fig" id="fig4">
+                <div class="fig-head">
+                    <span class="fig-title">Fig. 4 &middot; Predict, then look: the second look after a Spec review</span>
+                </div>
+                <div class="fig-body">
+                    <div class="predict" id="specPredict">
+                        <p>Which second reviewer found real missed bugs in more of the 30 Specs?</p>
+                        <div class="ctl">
+                            <button type="button" class="btn" data-guess="codex">Codex (the other family)</button>
+                            <button type="button" class="btn" data-guess="claude">Fresh Claude (same family)</button>
+                            <button type="button" class="btn" data-guess="tie">About the same</button>
+                        </div>
+                    </div>
+                    <div class="reveal" id="specReveal">
+                        <p class="msg" id="specGuessMsg" style="margin-bottom:0.6rem"></p>
+                        <div class="chart" id="specChart"></div>
+                        <table class="grid fallback" id="specFallback">
+                            <thead><tr><th>Arm</th><th>Findings</th><th>Real, other arm also raised</th><th>Real, only this arm</th><th>Wrong</th><th>Unsure</th><th>Specs reached (bar: 6)</th></tr></thead>
+                            <tbody>
+                                <tr><td>Codex xhigh</td><td>25</td><td>9</td><td>13</td><td>2</td><td>1</td><td>16</td></tr>
+                                <tr><td>Fresh Claude max</td><td>40</td><td>8</td><td>23</td><td>9</td><td>0</td><td>19</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="fig-caption">Drawn live with Observable Plot after you guess. Each bar is one arm's findings on bugs the recorded review missed, counted on the axis and split by grade and by whether the other arm's full reports raised the same bug. A partial match counts as not raised, which is why the two "also raised" counts differ (9 against 8). The table stays in place if the CDN is unreachable.</div>
+            </div>
+
+            <p>Both families pass easily. Codex found real missed bugs in 16 Specs, and only 2 of its 25 findings were wrong. Fresh Claude reached 19 Specs, but 9 of its 40 findings were wrong, mostly flagging behavior the Spec itself asked for. The two mostly found <em>different</em> bugs. Codex had 13 that Claude didn't raise, in 10 Specs. Claude had 23 that Codex didn't, in 18. Many are minor: rare races, storage failures, parsing edge cases. The findings come from six of my repositories, some private and some still unfixed, so the per-bug detail stays in private grading files.</p>
+
+            <p>Why does a second look pay here and not in a Run? My guess is that a Spec review is the first time anyone sees all the Tickets together, and the bugs between Tickets live there. But the bars differ too, and I can't separate the two explanations.</p>
+
+            <p>I also tested moving the Spec review itself onto Codex. The recorded Claude reviews raised behavior bugs in 23 of the 30 Specs. Codex alone raised them in 22, so swapping would give up catches rather than add them. That fails.</p>
+
+            <h2>What I'm building, and what I'm not</h2>
+
+            <ul>
+                <li><strong>Building:</strong> an opt-in <em>Second opinion</em> that runs after the Spec review, with the Harness, Model and Effort as settings. The open choice is the default. My lean is a fresh session on the Spec run's own Harness, since that did as well as the other family and needs no second login.</li>
+                <li><strong>Not building:</strong> a Second opinion inside each Run, the timing checklist, the four newer Harnesses as reviewers, the plan check, or a Spec review that runs on the other family's Harness.</li>
+                <li><strong>Already shipped, and probably more important:</strong> evidence-backed findings. The original reviews raised 2 of the 6 timing bugs, and the authors talked themselves out of both. Now a reviewer's finding comes with a test, and the author has to run it. A failing test obliges a fix. Finding the bug was never the whole problem. Acting on it was.</li>
+            </ul>
+
+            <h2>What's still open</h2>
+
+            <p><strong>Claude graded Claude.</strong> Every grader was a Claude agent, and Claude is one of the two families being compared. Shuffled labels hide which arm wrote a finding, but Codex and Claude write differently enough that a grader could guess. I asked fresh agents to grade instead of grading myself, so this weakness is mine to own.</p>
+
+            <p><strong>One session per cell.</strong> I didn't measure run-to-run variation. A tie, or a one-bug gap, is inside the noise. That includes the question that matters most for the default: whether Codex's 13 bugs that only it found are more than a second fresh Claude session would have turned up by chance.</p>
+
+            <p><strong>The factory moved while I measured.</strong> thirdshift now runs everything on Codex at high. Today's plans, Spec branches and Spec reviews are Codex's, and neither passing arm was tried on Codex's own Spec work. Codex had run only four Specs when I started, too few for the reverse replay. My plan is to switch the Second opinion on, let roughly ten Spec runs go by, and count real fixes from the reviewer reports thirdshift already keeps. That count is the test I couldn't run in replay.</p>
+
+            <div class="fig" id="fig5">
+                <div class="fig-head">
+                    <span class="fig-title">Quiz &middot; Pass it before you merge</span>
+                </div>
+                <div class="fig-body" id="quiz">
+                    <div class="qz">
+                        <div class="q">1. Why did most replays include a fresh session of the same model as its own arm?</div>
+                        <div class="opts">
+                            <button type="button" class="opt">To have a cheaper baseline</button>
+                            <button type="button" class="opt" data-c="1">To tell a different family apart from a different session</button>
+                            <button type="button" class="opt">Because Codex couldn't run every replay</button>
+                        </div>
+                        <p class="expl">Comparing Codex with the recorded review changes two things at once. Fresh Claude isolates the session. In the timing-bug replay, it caught everything Codex caught.</p>
+                    </div>
+                    <div class="qz">
+                        <div class="q">2. Codex stopped 15 of Claude's 20 plans, well past the bar of 3. Why doesn't that pass?</div>
+                        <div class="opts">
+                            <button type="button" class="opt">It took too long</button>
+                            <button type="button" class="opt" data-c="1">Only 5 of the 15 stops held, and the bar needs most to be right</button>
+                            <button type="button" class="opt">Plans can't be checked by another family</button>
+                        </div>
+                        <p class="expl">A check that blocks often and is usually wrong stalls the factory for nothing. Fresh Claude stopped 10 and was right on 8.</p>
+                    </div>
+                    <div class="qz">
+                        <div class="q">3. The factory's original reviews had raised 2 of the 6 timing bugs. What happened to those findings?</div>
+                        <div class="opts">
+                            <button type="button" class="opt">They were fixed, but the fixes were wrong</button>
+                            <button type="button" class="opt">They were filed as issues and forgotten</button>
+                            <button type="button" class="opt" data-c="1">The author declined both as someone else's decision, and the PRs merged themselves</button>
+                        </div>
+                        <p class="expl">That's why evidence-backed findings matter: the reviewer attaches a test, and the author has to run it. A failing test obliges a fix.</p>
+                    </div>
+                    <div class="qz">
+                        <div class="q">4. Why can't the fresh arm's 4 catches be credited to the fresh session alone?</div>
+                        <div class="opts">
+                            <button type="button" class="opt" data-c="1">The replay also used today's review skill, so two things changed at once</button>
+                            <button type="button" class="opt">Two of the catches were partials</button>
+                            <button type="button" class="opt">Fresh Claude saw the fixes</button>
+                        </div>
+                        <p class="expl">The recorded reviews ran on an older skill, inside the implement session. The replay changed both the skill and the session, so the gain can't be split between them.</p>
+                    </div>
+                    <div class="qz">
+                        <div class="q">5. Which checkpoint passed its bar for both families?</div>
+                        <div class="opts">
+                            <button type="button" class="opt">The plan check</button>
+                            <button type="button" class="opt">A Second opinion inside each Run</button>
+                            <button type="button" class="opt" data-c="1">A Second opinion after the Spec review</button>
+                        </div>
+                        <p class="expl">Codex reached 16 Specs and fresh Claude 19, against a bar of 6. They mostly found different bugs.</p>
+                    </div>
+                    <div class="qz">
+                        <div class="q">6. The plan check passed for fresh Claude checking Claude's plans. Why isn't it being built?</div>
+                        <div class="opts">
+                            <button type="button" class="opt" data-c="1">Weeding writes its plans on Codex now, and on Codex's plans neither arm passed</button>
+                            <button type="button" class="opt">Claude's stops were mostly wrong</button>
+                            <button type="button" class="opt">It needs a human to read every plan</button>
+                        </div>
+                        <p class="expl">A check that only works for a setup the factory no longer runs would never fire. It waits until Weeding goes back to Claude.</p>
+                    </div>
+                    <p id="qzTally">0 of 6 answered.</p>
+                </div>
+            </div>
+
+            <h2>Sources</h2>
+            <div class="sources">
+                <h3>Ideas and authorities</h3>
+                <ul>
+                    <li>Lianmin Zheng et al., <span class="cite-title">"Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"</span> (2023): the self-enhancement bias that motivated asking another family. <a href="https://arxiv.org/abs/2306.05685" rel="noopener">arxiv.org/abs/2306.05685</a></li>
+                    <li>Arjun Panickssery, Samuel R. Bowman and Shi Feng, <span class="cite-title">"LLM Evaluators Recognize and Favor Their Own Generations"</span> (2024): self-recognition and self-preference in model judges. <a href="https://arxiv.org/abs/2404.13076" rel="noopener">arxiv.org/abs/2404.13076</a></li>
+                    <li>Brian A. Nosek, Charles R. Ebersole, Alexander C. DeHaven and David T. Mellor, <span class="cite-title">"The preregistration revolution"</span>, PNAS (2018): why the bars were fixed before any session ran. <a href="https://doi.org/10.1073/pnas.1708274114" rel="noopener">doi.org/10.1073/pnas.1708274114</a></li>
+                    <li>Geoffrey Litt, <span class="cite-title">"Understanding: the New Bottleneck"</span> (talk I attended): the quiz-before-merge rule this post ends on. <a href="https://www.youtube.com/watch?v=WkBPX-oDMnA" rel="noopener">youtube.com/watch?v=WkBPX-oDMnA</a></li>
+                    <li><span class="cite-title">Artificial Analysis Intelligence Index</span>: the 51.0 and 57.6 scores used in the "weaker model" objection. <a href="https://artificialanalysis.ai/" rel="noopener">artificialanalysis.ai</a></li>
+                </ul>
+                <h3>Tools demonstrated or referenced</h3>
+                <ul>
+                    <li><span class="cite-title">Second opinion replays, the research note</span> (every number here), with <code>replay.py</code> and <code>stages.sh</code> beside it. <a href="https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md" rel="noopener">github.com/JacobStephens2/thirdshift</a></li>
+                    <li><span class="cite-title">thirdshift</span>, the factory under test. <a href="https://thirdshift.app" rel="noopener">thirdshift.app</a></li>
+                    <li><span class="cite-title">mermaid.js 11</span> (Fig. 1). <a href="https://mermaid.js.org/" rel="noopener">mermaid.js.org</a></li>
+                    <li><span class="cite-title">Observable Plot 0.6.17</span> (Figs. 3 and 4). <a href="https://observablehq.com/plot/" rel="noopener">observablehq.com/plot</a></li>
+                    <li><span class="cite-title">The reviewers:</span> Claude Code 2.1.296 (Claude Opus 5.5), Codex 0.162.0 (GPT-6.1 Sol), Antigravity 1.3.3 (Gemini 3.8 Flash), Grok Build 1.0.50 (Grok 4.7), Muse Code 1.4.4 (Muse Spark 1.3), OpenCode 2.0.24 (MiMo-V2.6-Pro).</li>
+                </ul>
+            </div>
+
+            <div class="ai-note">
+                Drafted from the research note <code>docs/research/second-opinion-replays.md</code> and the #429 grilling log, with help from Claude. The question, the four checkpoints, the arms and every bar are mine, settled across 33 grilling questions before any session ran. Claude wrote the replay script, ran the 183 sessions, and organized the grading. Fresh Claude agents graded the plans and the Spec findings at my request, and Claude graded the bugs against their fixes, a conflict named under "What's still open". Claude drafted this post from those notes, and the decisions are mine. Fig. 1 runs mermaid.js and Figs. 3 and 4 run Observable Plot, both live from jsDelivr with table fallbacks. Fig. 2 is a hand-built table whose totals the page computes from its cells.
+            </div>
+
+            <p><strong>For AI agents:</strong> the machine-oriented version is at <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a>, with directives, the verified numbers in tables, an operational checklist, and a self-test.</p>
+        </article>
+
+        <footer class="footer">
+            &copy; <span id="current-year"></span> Jacob Stephens
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script>
+    (function () {
+        function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+        var redraws = [];
+        function onThemeChange() { redraws.forEach(function (f) { try { f(); } catch (e) {} }); }
+        new MutationObserver(onThemeChange).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onThemeChange);
+
+        /* ---------- Fig. 1: the pipeline, mermaid ---------- */
+        var PIPE = [
+            'flowchart TD',
+            '  A["Architecture review<br/>writes a plan"] --> PC{{"Plan check<br/>passes only Claude on Claude"}}',
+            '  PC --> T["Ticket Runs<br/>implement + in-session review"]',
+            '  T --> SO1{{"Second opinion in a Run<br/>fails both ways"}}',
+            '  SO1 --> S["Spec review<br/>of the whole branch"]',
+            '  S --> SO2{{"Second opinion after the Spec review<br/>passes, either family"}}',
+            '  S -.-> SW{{"Spec review on the other<br/>family\'s Harness: fails"}}',
+            '  SO2 --> M["Pull request<br/>merges itself"]'
+        ].join('\n');
+        var PIPE_CLASSES = '\n  class PC part\n  class SO1,SW fail\n  class SO2 pass';
+        var MM = null, mmN = 0;
+        function drawPipeline() {
+            if (!MM) return;
+            var classes = '\n  classDef pass fill:' + cssVar('--soft') + ',stroke:' + cssVar('--yes') + ',stroke-width:2.5px,color:' + cssVar('--ink') +
+                '\n  classDef fail fill:' + cssVar('--soft') + ',stroke:' + cssVar('--no') + ',stroke-width:2.5px,stroke-dasharray:5 3,color:' + cssVar('--ink') +
+                '\n  classDef part fill:' + cssVar('--soft') + ',stroke:' + cssVar('--part') + ',stroke-width:2.5px,color:' + cssVar('--ink');
+            MM.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'base', fontFamily: 'Source Sans 3, Arial, sans-serif',
+                themeVariables: { primaryColor: cssVar('--surface'), primaryTextColor: cssVar('--ink'), primaryBorderColor: cssVar('--rule'),
+                    lineColor: cssVar('--muted'), background: cssVar('--surface'), fontSize: '14px' } });
+            MM.render('pipe' + (++mmN), PIPE + classes + PIPE_CLASSES).then(function (o) {
+                document.getElementById('pipeline').innerHTML = o.svg;
+                window.__pipelineRendered = true;
+            }).catch(function (e) { window.__pipelineError = String(e); });
+        }
+        window.__onMermaid = function (m) { MM = m; drawPipeline(); };
+        redraws.push(drawPipeline);
+
+        /* ---------- Fig. 2: the bug grid ---------- */
+        var ARMS = ['Fresh Claude', 'Claude + checklist', 'Codex', 'Grok', 'Muse', 'MiMo', 'Gemini'];
+        var BUGS = [
+            ['#24|SIGHUP skips the Failed run path', 'MCMMMMM', 'no'],
+            ['#57|Base moves during the CI wait', 'MMMMMMM', 'no'],
+            ['#102|A CI-fix Repair with no commit repeats', 'CMMMMMP', 'raised, declined'],
+            ['#175|Conflict check against a moved ref', 'CCMPMMM', 'no'],
+            ['#182|Foreign commits during a Repair', 'CCCCPMP', 'no'],
+            ['#303|A Spec with every Ticket closed stalls Pickup', 'CCMMMMP', 'raised, declined']
+        ];
+        var partials = false;
+        function counts(arm) {
+            var caught = 0, beyond = 0;
+            BUGS.forEach(function (b) {
+                var g = b[1][arm], hit = g === 'C' || (partials && g === 'P');
+                var fresh = b[1][0] === 'C' || (partials && b[1][0] === 'P');
+                if (hit) { caught++; if (!fresh) beyond++; }
+            });
+            return { caught: caught, beyond: beyond };
+        }
+        function drawGrid() {
+            var h = '<thead><tr><th>Bug</th>' + ARMS.map(function (a) { return '<th>' + a + '</th>'; }).join('') + '<th>Original review</th></tr></thead><tbody>';
+            BUGS.forEach(function (b) {
+                var nm = b[0].split('|');
+                h += '<tr><td><strong>' + nm[0] + '</strong><small>' + nm[1] + '</small></td>';
+                for (var i = 0; i < ARMS.length; i++) {
+                    var g = b[1][i], on = g === 'C' || (partials && g === 'P');
+                    h += '<td class="' + g + (on ? ' counted' : '') + '">' + g + '</td>';
+                }
+                h += '<td style="font-size:0.78rem">' + b[2] + '</td></tr>';
+            });
+            var c = ARMS.map(function (_, i) { return counts(i); });
+            h += '<tr class="sum"><td>Caught</td>' + c.map(function (x) { return '<td>' + x.caught + '</td>'; }).join('') + '<td style="font-size:0.78rem">2, both declined</td></tr>';
+            h += '<tr class="sum"><td>Beyond fresh (bar: 2)</td><td>-</td>' + c.slice(1).map(function (x) { return '<td class="' + (x.beyond >= 2 ? 'ok' : 'bad') + '">' + x.beyond + '</td>'; }).join('') + '<td></td></tr>';
+            h += '</tbody>';
+            document.getElementById('bugGrid').innerHTML = h;
+            var passing = c.slice(1).filter(function (x) { return x.beyond >= 2; }).length;
+            document.getElementById('bugVerdict').textContent = (partials ? 'Counting partials: ' : 'Catches only: ') +
+                passing + ' of 6 arms beat fresh Claude by the 2 bugs the bar asks for. ' +
+                (passing ? '' : 'The only bug any arm added beyond fresh Claude is #24, by the checklist arm, which is Claude too.');
+            window.__grid = { partials: partials, caught: c.map(function (x) { return x.caught; }), beyond: c.map(function (x) { return x.beyond; }), passing: passing };
+        }
+        var pb = document.getElementById('partialsBtn');
+        pb.addEventListener('click', function () { partials = !partials; pb.setAttribute('aria-pressed', String(partials)); drawGrid(); });
+        drawGrid();
+
+        /* ---------- Figs. 3 and 4: Observable Plot ---------- */
+        var Plot = null, specShown = false;
+        var PLANS = [
+            { arm: 'Codex on Claude\'s plans', stopped: 15, right: 5 },
+            { arm: 'Fresh Claude on Claude\'s', stopped: 10, right: 8 },
+            { arm: 'Claude on Codex\'s plans', stopped: 2, right: 1 },
+            { arm: 'Fresh Codex on Codex\'s', stopped: 4, right: 2 }
+        ];
+        function plotStyle() { return { background: 'transparent', color: cssVar('--ink'), fontFamily: 'Source Sans 3, Arial, sans-serif', fontSize: '13px', overflow: 'visible' }; }
+        function drawPlans() {
+            if (!Plot) return;
+            var host = document.getElementById('planChart'), w = Math.max(320, host.clientWidth || 640);
+            var el = Plot.plot({
+                width: w, height: 220, marginTop: 24, marginLeft: 170, marginRight: 70, style: plotStyle(),
+                x: { label: null, domain: [0, 20], grid: false }, y: { label: null, domain: PLANS.map(function (d) { return d.arm; }) },
+                marks: [
+                    Plot.barX(PLANS, { y: 'arm', x: 'stopped', fill: cssVar('--bar-bg'), stroke: cssVar('--rule') }),
+                    Plot.barX(PLANS, { y: 'arm', x: 'right', fill: cssVar('--brand'), insetTop: 5, insetBottom: 5 }),
+                    Plot.ruleX([3], { stroke: cssVar('--muted'), strokeDasharray: '4,3' }),
+                    Plot.text(PLANS, { y: 'arm', x: 'stopped', text: function (d) { return d.right + ' of ' + d.stopped + ' held'; }, dx: 6, textAnchor: 'start', fill: cssVar('--muted') }),
+                    Plot.text([{ x: 3 }], { x: 'x', frameAnchor: 'top', text: function () { return 'bar: 3'; }, dy: -2, dx: 4, textAnchor: 'start', fill: cssVar('--muted') })
+                ]
+            });
+            host.innerHTML = ''; host.appendChild(el);
+            document.getElementById('planFallback').style.display = 'none';
+            window.__planRendered = true;
+        }
+        var SPEC = [];
+        [['Codex xhigh', 9, 13, 2, 1], ['Fresh Claude max', 8, 23, 9, 0]].forEach(function (r) {
+            SPEC.push({ arm: r[0], part: 'real, other arm raised it too', n: r[1] });
+            SPEC.push({ arm: r[0], part: 'real, only this arm', n: r[2] });
+            SPEC.push({ arm: r[0], part: 'wrong', n: r[3] });
+            SPEC.push({ arm: r[0], part: 'unsure', n: r[4] });
+        });
+        var REACH = { 'Codex xhigh': 16, 'Fresh Claude max': 19 };
+        function drawSpec() {
+            if (!Plot || !specShown) return;
+            var host = document.getElementById('specChart'), w = Math.max(320, host.clientWidth || 640);
+            var parts = ['real, other arm raised it too', 'real, only this arm', 'wrong', 'unsure'];
+            var el = Plot.plot({
+                width: w, height: 190, marginLeft: 120, marginRight: 110, style: plotStyle(),
+                x: { label: null, grid: false }, y: { label: null, domain: ['Codex xhigh', 'Fresh Claude max'] },
+                color: { domain: parts, range: [cssVar('--yes'), cssVar('--brand'), cssVar('--muted'), cssVar('--rule')], legend: true, style: plotStyle() },
+                marks: [
+                    Plot.barX(SPEC, Plot.stackX({ y: 'arm', x: 'n', fill: 'part', order: parts, title: function (d) { return d.part + ': ' + d.n; } })),
+                    Plot.text(['Codex xhigh', 'Fresh Claude max'], { y: function (d) { return d; }, x: function (d) { return d === 'Codex xhigh' ? 25 : 40; },
+                        text: function (d) { return REACH[d] + ' Specs reached'; }, dx: 6, textAnchor: 'start', fill: cssVar('--muted') })
+                ]
+            });
+            host.innerHTML = ''; host.appendChild(el);
+            document.getElementById('specFallback').style.display = 'none';
+            window.__specRendered = true;
+        }
+        window.__onPlot = function (p) { Plot = p; drawPlans(); drawSpec(); };
+        redraws.push(drawPlans, drawSpec);
+
+        var GUESS = {
+            codex: 'Not quite. Codex reached 16 Specs and fresh Claude 19. But Codex was wrong far less often: 2 of 25 findings, against 9 of 40.',
+            claude: 'Right on reach: fresh Claude 19 Specs, Codex 16. But fresh Claude was wrong more often, 9 of 40 findings against Codex\'s 2 of 25.',
+            tie: 'Close: 19 Specs for fresh Claude, 16 for Codex, both far past the bar of 6. The bigger difference is in what they found.'
+        };
+        Array.prototype.forEach.call(document.querySelectorAll('#specPredict button'), function (b) {
+            b.addEventListener('click', function () {
+                Array.prototype.forEach.call(document.querySelectorAll('#specPredict button'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+                document.getElementById('specGuessMsg').textContent = GUESS[b.getAttribute('data-guess')];
+                document.getElementById('specReveal').classList.add('shown');
+                specShown = true; drawSpec();
+                window.__guess = b.getAttribute('data-guess');
+            });
+        });
+        var rt;
+        window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { drawPlans(); drawSpec(); }, 150); });
+
+        /* ---------- Quiz ---------- */
+        var qs = document.querySelectorAll('#quiz .qz'), total = qs.length;
+        function tally() {
+            var answered = document.querySelectorAll('#quiz .qz.answered').length, right = document.querySelectorAll('#quiz .qz.answered.got').length;
+            var t = answered + ' of ' + total + ' answered';
+            if (answered === total) t += ', ' + right + ' right. ' + (right === total ? 'Merge approved.' : 'Blocked: no merge until the quiz passes.');
+            else t += '.';
+            document.getElementById('qzTally').textContent = t;
+        }
+        Array.prototype.forEach.call(qs, function (q) {
+            Array.prototype.forEach.call(q.querySelectorAll('button.opt'), function (b) {
+                b.addEventListener('click', function () {
+                    if (q.classList.contains('answered')) return;
+                    q.classList.add('answered');
+                    if (b.hasAttribute('data-c')) q.classList.add('got');
+                    Array.prototype.forEach.call(q.querySelectorAll('button.opt'), function (x) {
+                        x.disabled = true;
+                        if (x.hasAttribute('data-c')) x.classList.add('correct'); else if (x === b) x.classList.add('wrong');
+                    });
+                    tally();
+                });
+            });
+        });
+    })();
+    </script>
+    <script type="module">
+        import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs')
+            .then(function (m) { window.__onMermaid(m.default); })
+            .catch(function () { window.__mermaidFailed = true; });
+        import('https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.17/+esm')
+            .then(function (p) { window.__onPlot(p); })
+            .catch(function () {
+                window.__plotFailed = true;
+                document.querySelectorAll('.chart').forEach(function (c) { c.innerHTML = '<p class="msg">The chart library could not load, so the table below is the figure.</p>'; c.style.minHeight = '0'; });
+            });
+    </script>
+    <script src="/blog/newsletter-widget.js" defer></script>
+</body>
+</html>

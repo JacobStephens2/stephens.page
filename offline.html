@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/bee-favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline | Jacob Stephens</title>
+    <meta name="robots" content="noindex">
+    <link rel="preload" href="/fonts/source-sans-3-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <style>
+        @font-face {
+            font-family: 'Source Sans 3';
+            src: url('/fonts/source-sans-3-latin.woff2') format('woff2');
+            font-weight: 400 700;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Source Serif 4';
+            src: url('/fonts/source-serif-4-latin.woff2') format('woff2');
+            font-weight: 600 700;
+            font-style: normal;
+            font-display: swap;
+        }
+        :root {
+            --ink: #181512;
+            --brand: #9b4d24;
+            --muted: #625a52;
+            --surface: #ffffff;
+            --rule: #d6d1c9;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Source Sans 3', Arial, Helvetica, sans-serif;
+            background: var(--surface);
+            color: var(--ink);
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1.4rem;
+            padding: 1.5rem;
+        }
+        .name {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-weight: 700;
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            letter-spacing: -0.01em;
+        }
+        .lead {
+            color: var(--muted);
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
+        }
+        .qr {
+            display: inline-block;
+            line-height: 0;
+            border: 1px solid var(--rule);
+            border-radius: 14px;
+            padding: clamp(0.75rem, 2vw, 1.25rem);
+            background: var(--surface);
+        }
+        .qr img {
+            display: block;
+            width: min(78vw, 60svh, 380px);
+            height: auto;
+            aspect-ratio: 1 / 1;
+        }
+        .fallback {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .fallback a {
+            color: var(--brand);
+            text-decoration: none;
+            border-bottom: 1px solid currentColor;
+        }
+        .fallback a:hover,
+        .fallback a:focus-visible { color: var(--ink); }
+    </style>
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/theme.js" defer></script>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/app-icons/apple-touch-icon.png">
+</head>
+<body>
+    <h1 class="name">You're offline</h1>
+    <p class="lead">This page isn't saved on this device yet.</p>
+    <p class="fallback"><a href="/card/">Open my card</a> &middot; <a href="/card/qr/">Show my QR code</a></p>
+</body>
+</html>

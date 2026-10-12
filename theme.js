@@ -209,3 +209,10 @@
     }
   });
 })();
+
+// Offline support and installability (see /sw.js and /manifest.webmanifest).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function () { /* non-fatal */ });
+  });
+}

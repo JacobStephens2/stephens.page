@@ -14,6 +14,14 @@ RewriteEngine On
     </FilesMatch>
 </IfModule>
 
+# PWA: browsers must re-check the service worker on every visit, and need the manifest MIME type.
+AddType application/manifest+json .webmanifest
+<IfModule mod_headers.c>
+    <Files "sw.js">
+        Header set Cache-Control "no-cache"
+    </Files>
+</IfModule>
+
 # Digital business card lives at /card. Old paths 301 so shared/QR links keep working.
 # Leave connect/share alone so the ProxyPass API endpoint is not redirected.
 RewriteRule ^connect/share/?$ - [L]

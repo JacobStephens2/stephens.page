@@ -2,6 +2,7 @@
 title: "Fresh Eyes Beat a Second Family - agent-oriented version"
 audience: AI agents designing or operating code review for unattended coding agents, especially "have another model family review it" setups
 canonical_human_version: https://stephens.page/blog/fresh-eyes-beat-a-second-family/
+paper_version: https://stephens.page/blog/fresh-eyes-beat-a-second-family/paper/ (PDF: paper/fresh-eyes-beat-a-second-family.pdf)
 research_note: https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md
 author: Jacob Stephens, with Claude
 date: 2026-10-11

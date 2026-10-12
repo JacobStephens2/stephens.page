@@ -18,7 +18,7 @@ Software and infrastructure engineer building software factories and reliable AI
 
 ## Experience
 
-### Senior Platform & Infrastructure Engineer
+### Head of Engineering
 Educational Travel Adventures | Feb 2022 - Present | Remote
 
 - Lead a two-engineer team with end-to-end responsibility for architecture, operations, deployment, and on-call response across the production stack of a multi-million-dollar travel business.

@@ -1,15 +1,35 @@
 Portfolio
 
-# Real systems, real results.
+# Software factories, backed by production engineering.
 
-Platform and infrastructure engineer specializing in safe AI automation for revenue-critical legacy systems. I lead a two-engineer team owning a multi-million-dollar specialty-travel stack - the reservations platform, payment and ACH rails, Linux fleet, Manager Sandboxes, and human-gated software factory it runs on - and the architecture decisions behind them.
+My current focus is thirdshift, an open-source software factory in Rust, and the evaluations that guide its design. As Head of Engineering at Educational Travel Adventures, I also lead a two-engineer team running reservations, payments, a Linux fleet, and AI-agent infrastructure for a multi-million-dollar travel business.
 
 * **Professional**
   Production systems built over years at Educational Travel Adventures.
 * **Client**
   Focused builds for payments, publishing, and business visibility.
-* **Personal**
-  Side projects that reflect how I think about product and infrastructure.
+* **Open source**
+  Agent infrastructure and products with code and design decisions you can inspect.
+
+## Current Focus
+
+### thirdshift
+
+An open-source Rust orchestrator that takes GitHub issues through implementation, review, and CI to pull requests, unattended.
+
+- Deterministic orchestration across six coding-agent harnesses.
+- Dependency-aware parallel tickets in separate Git worktrees.
+- Standards and spec reviews, CI checks, and bounded repair loops.
+- Failed runs preserve their work for continuation; merging is explicitly configured.
+- Git worktrees separate code checkouts. Agents still run with the host user's permissions.
+
+[Project](https://thirdshift.app/) · [Source & architecture](https://github.com/JacobStephens2/thirdshift)
+
+### Testing the factory's reviewers
+
+Designed an evaluation of 183 replayed code-review sessions across four checkpoints, comparing a second model family with fresh sessions of the same model. The results favored a second look after a whole feature was assembled over adding another review inside every run. Published controls, model-based grading limitations, and the resulting engineering decisions alongside the results.
+
+[Read the study](https://stephens.page/blog/fresh-eyes-beat-a-second-family/) · [Research notes](https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md)
 
 ## Professional Work
 
@@ -381,12 +401,14 @@ Brand Presence
 
 A curated set of personal builds, selected for relevance to platform and AI-infrastructure work. The full shelf of published apps lives at [stephens.page/apps](/apps.html).
 
-### Tracewake
+### Tracewake (v0 prototype)
+
+An earlier exploration of bounded coding-agent runs and proposal-only output. My current software-factory work is [thirdshift](https://thirdshift.app/).
 
 Turns a labeled GitHub issue into a reviewable draft pull request, unattended. A coding agent runs in a fresh microVM under a Termination Contract. The only output is a Proposal. Nothing merges itself.
 
 **Why it matters**
-Same problem OpenAI's Symphony poses - issue to merged code without sitting in the loop - with the opposite bets. Unattended agents that land their own work are a blast-radius machine; the human merge gate is the product. This is the public factory whose private cousin is the ETA Software Factory above.
+An earlier exploration of bounded coding-agent runs and proposal-only output, with a human merge gate. My current software-factory work is [thirdshift](https://thirdshift.app/); Tracewake preserves a different set of design decisions for comparison.
 
 **What stands out**
 The operator hands over at a `ready-for-agent` label, not a workflow state. One Run at a time, a fresh microVM per Iteration, a Termination Contract of five declared bounds (the model's "I'm done" is advisory), proposal-only output, and configuration that lives entirely outside the target repo so the codebase never knows Tracewake exists. The public SPEC states those bets side by side with Symphony; 29 ADRs record why.

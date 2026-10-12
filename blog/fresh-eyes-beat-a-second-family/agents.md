@@ -28,7 +28,10 @@ The governing finding:
   comes from a second look; the reviewer's family matters little.
 - **Add it in one place:** after the Spec review (whole feature built). Second
   reviewer found real missed bugs in 16/30 Specs (Codex) and 19/30 (fresh
-  Claude), bar 6. Ship as opt-in config; Harness, Model, Effort are settings.
+  Claude), bar 6. **The second review drives the gain, not the cross-family
+  choice:** same-family fresh Claude reached more Specs. Codex was more precise
+  (2/25 wrong vs 9/40) and found mostly different bugs. Ship as opt-in config;
+  Harness, Model, Effort are settings.
 - **Do not add it:** inside each Run (Codex 1 of 6 escaped bugs, already caught
   by fresh Claude; reverse 0 of 3), as a plan check (passes only Claude on
   Claude's plans; production plans are Codex's), or by moving the Spec review to

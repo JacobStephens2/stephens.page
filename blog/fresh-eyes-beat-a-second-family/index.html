@@ -56,6 +56,17 @@
         .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.6rem; padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule); }
         .meta strong { color: var(--ink); font-weight: 700; }
         h2 { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: var(--brand); margin-top: 2rem; margin-bottom: 0.8rem; }
+        details.sec { margin: 0; }
+        details.sec > summary { list-style: none; cursor: pointer; border-radius: 4px; }
+        details.sec > summary::-webkit-details-marker { display: none; }
+        details.sec > summary h2 { margin: 1.1rem 0 0.6rem; }
+        details.sec > summary h2::before { content: ''; display: inline-block; border-left: 0.36em solid currentColor; border-top: 0.24em solid transparent; border-bottom: 0.24em solid transparent; margin-right: 0.55em; vertical-align: 0.14em; transition: transform 0.15s; }
+        details.sec[open] > summary h2::before { transform: rotate(90deg); }
+        details.sec > summary:hover h2 { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+        details.sec > summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+        details.sec[open] > .sec-body { padding-bottom: 0.4rem; }
+        .fold-hint { font-size: 0.92rem; color: var(--muted); margin: 1.4rem 0 0.2rem; }
+        button.linkish { background: none; border: 0; padding: 0; font: inherit; color: var(--brand); cursor: pointer; text-decoration: underline; text-underline-offset: 0.15em; }
         p { margin-bottom: 1rem; color: var(--ink); }
         ol, ul { margin-bottom: 1rem; padding-left: 1.4rem; }
         ol li, ul li { margin-bottom: 0.4rem; }
@@ -166,7 +177,11 @@
 
             <p>This post covers why I ran the test, how I replayed the past instead of waiting on the future, what each of the four checkpoints showed, and what I'm building because of it. The full research note, with the script that ran every session, is in the <a href="https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md" rel="noopener">thirdshift repository</a>.</p>
 
-            <h2>Who reviews the reviewer when nobody is awake?</h2>
+            <p class="fold-hint">Each section below starts folded, so the headings read as the argument in brief. Click one to open it, or <button type="button" class="linkish" data-fold-all>expand all</button>.</p>
+
+            <details class="sec" id="who-reviews-the-reviewer-when-nobody-is-awake">
+                <summary><h2>Who reviews the reviewer when nobody is awake?</h2></summary>
+                <div class="sec-body">
 
             <p><a href="https://thirdshift.app" rel="noopener">thirdshift</a> is my factory for unattended coding. It takes a GitHub issue and returns a pull request. A <em>Run</em> builds one issue. A <em>Spec run</em> builds a feature that has been broken into Tickets, then reviews the finished branch as a whole in a <em>Spec review</em>. <em>Weeding</em> has the factory write its own refactoring plans while I sleep, through <em>Architect runs</em>. Each session runs on a coding-agent CLI, which thirdshift calls a <em>Harness</em>: Claude Code, Codex, and four newer ones.</p>
 
@@ -179,8 +194,12 @@
             </ul>
 
             <p>The obvious fix is to have a different model family check the work. The intuition has support. Zheng et al. (2023) found LLM judges favor their own answers, and Panickssery, Bowman and Feng (2024) found models recognize their own text and rate it higher. If my Claude reviewers share Claude's blind spots, Codex might not. That became <a href="https://github.com/JacobStephens2/thirdshift/issues/429" rel="noopener">issue #429</a>.</p>
+                </div>
+            </details>
 
-            <h2>Replaying the past instead of waiting for bugs</h2>
+            <details class="sec" id="replaying-the-past-instead-of-waiting-for-bugs">
+                <summary><h2>Replaying the past instead of waiting for bugs</h2></summary>
+                <div class="sec-body">
 
             <p>I didn't want to build a feature on an intuition. Every review I wanted to test had already happened once, and I knew which bugs it let through, because they had been found and fixed since. So I replayed those reviews.</p>
 
@@ -212,8 +231,12 @@
                 </div>
                 <div class="fig-caption">Rendered live by mermaid.js 11 from the source in this page's script, recolored from the site's theme tokens when you switch light or dark. If the CDN can't be reached, the numbered list above stays in its place.</div>
             </div>
+                </div>
+            </details>
 
-            <h2>In a Run, the other family caught one bug in six</h2>
+            <details class="sec" id="in-a-run-the-other-family-caught-one-bug-in-six">
+                <summary><h2>In a Run, the other family caught one bug in six</h2></summary>
+                <div class="sec-body">
 
             <p>The first replay took the five PRs behind the six timing bugs and reviewed each one as it stood when it merged. A Second opinion would have seen exactly that. Every arm ran thirdshift's current review skill, which asks each finding for a test that fails if the finding is right. Grading was blind: one packet per PR, arms behind shuffled labels, and each finding judged against the bug's real fix and a written catch criterion. A finding had to name the defect and tie it to its consequence. Getting close was a <em>partial</em>, and partials don't count.</p>
 
@@ -239,8 +262,12 @@
             <p>The timing checklist tied. A fresh agent that hadn't seen the bugs wrote it from the project's glossary and ADRs. With it, Claude caught 4, the same count as without it, but not the same 4. It found #24 and lost #102. A checklist that trades one bug for another isn't worth the extra 5 minutes of median review time.</p>
 
             <p>The most useful row in Fig. 2 is the last column. The factory's original in-session reviews had raised two of these six bugs, #102 and #303. In both cases the author declined them as decisions for someone else, and nobody read the declines. Fresh Claude caught 4. I can't split that gain between "fresh session" and "today's review skill", because the replay changed both at once. Either way, it isn't a second family.</p>
+                </div>
+            </details>
 
-            <h2>The plan check passes only with Claude at max checking</h2>
+            <details class="sec" id="the-plan-check-passes-only-with-claude-at-max-checking">
+                <summary><h2>The plan check passes only with Claude at max checking</h2></summary>
+                <div class="sec-body">
 
             <p>The plan check re-applies the Architecture review's own four tests to the plan it published. Is the friction real in the code? Does the deletion test hold? Is the design settled? Does it contradict no ADR? The check reads the plan, the glossary, the ADRs and the code as they stood when the plan was written. It never reads the session that wrote the plan. The bar: it stops at least 3 of 20 plans, and most of its stops are right. Fresh Claude agents graded every stop without knowing which arm made it.</p>
 
@@ -269,8 +296,12 @@
             <p>The catch was that the arm that passed didn't match how the factory runs. Since October 6, Weeding has written its plans on Codex, and on Codex's plans neither of the first two arms passed. Claude had checked them only at high effort, though, while fresh Claude had checked its own plans at max. So after publishing, I ran Claude at max over Codex's 20 plans.</p>
 
             <p>It stopped 3, and the grader agreed with 2. That meets the bar with nothing to spare. Its two right stops were the same two plans fresh Codex had stopped, for the same reasons: each would have built code that reported an interrupted step wrongly. Claude's edge was one fewer wrong stop, 1 against Codex's 2. This is the one checkpoint where the other family came out ahead, and it did so on precision, by a single plan, with one session per cell. Both passing arms had Claude at max as the checker, whichever family wrote the plan, so I read this as being about the checker's strength more than its family. Whether to build it is open again.</p>
+                </div>
+            </details>
 
-            <h2>After a whole feature, any second look finds something</h2>
+            <details class="sec" id="after-a-whole-feature-any-second-look-finds-something">
+                <summary><h2>After a whole feature, any second look finds something</h2></summary>
+                <div class="sec-body">
 
             <p>The last replay took all 30 Spec branches, as they stood just before their recorded Spec review, and gave each one to a second reviewer. This bar is looser than the bug replays', and the two tests aren't the same. The bug replays asked whether a reviewer caught a specific known escape. This one asked whether it found <em>any</em> real behavior bug that the recorded review missed. The bar was such bugs in at least 6 of the 30 Specs, with no more than half the graded findings wrong. Fresh agents graded every finding against the code, as real, wrong or unsure.</p>
 
@@ -309,8 +340,12 @@
             <p>Why does a second look pay here and not in a Run? My guess is that a Spec review is the first time anyone sees all the Tickets together, and the bugs between Tickets live there. But the bars differ too, and I can't separate the two explanations.</p>
 
             <p>I also tested moving the Spec review itself onto Codex. The recorded Claude reviews raised behavior bugs in 23 of the 30 Specs. Codex alone raised them in 22, so swapping would give up catches rather than add them. That fails.</p>
+                </div>
+            </details>
 
-            <h2>What I'm building, and what I'm not</h2>
+            <details class="sec" id="what-im-building-and-what-im-not">
+                <summary><h2>What I'm building, and what I'm not</h2></summary>
+                <div class="sec-body">
 
             <ul>
                 <li><strong>Building:</strong> an opt-in <em>Second opinion</em> that runs after the Spec review, with the Harness, Model and Effort as settings. The open choice is the default. My lean is a fresh session on the Spec run's own Harness, since that did as well as the other family and needs no second login.</li>
@@ -318,15 +353,24 @@
                 <li><strong>Undecided:</strong> the plan check, as an opt-in with Claude at max as the checker.</li>
                 <li><strong>Already shipped, and probably more important:</strong> evidence-backed findings. The original reviews raised 2 of the 6 timing bugs, and the authors talked themselves out of both. Now a reviewer's finding comes with a test, and the author has to run it. A failing test obliges a fix. Finding the bug was never the whole problem. Acting on it was.</li>
             </ul>
+                </div>
+            </details>
 
-            <h2>What's still open</h2>
+            <details class="sec" id="whats-still-open">
+                <summary><h2>What's still open</h2></summary>
+                <div class="sec-body">
 
             <p><strong>Claude graded Claude.</strong> Every grader was a Claude agent, and Claude is one of the two families being compared. Shuffled labels hide which arm wrote a finding, but Codex and Claude write differently enough that a grader could guess. I asked fresh agents to grade instead of grading myself, so this weakness is mine to own.</p>
 
             <p><strong>One session per cell.</strong> I didn't measure run-to-run variation. A tie, or a one-bug gap, is inside the noise. That includes the question that matters most for the default: whether Codex's 13 bugs that only it found are more than a second fresh Claude session would have turned up by chance.</p>
 
             <p><strong>The factory moved while I measured.</strong> thirdshift now runs everything on Codex at high, so today's plans, Spec branches and Spec reviews are Codex's. Codex had run only four Specs when I started, too few for a replay against the bar of 6. After publishing, I ran a pilot anyway: a fresh Codex session on each of those four, after its recorded Codex Spec review. It found real missed bugs in 2 of the 4. All 3 of its findings were real, and none were wrong. One was half of a notification bug, #603, that later reached main and has since been fixed. Neither reviewer caught it when I replayed the Ticket PRs it came from. Four Specs prove little, so my plan stands: switch the Second opinion on, let roughly ten Spec runs go by, and count real fixes from the reviewer reports thirdshift already keeps. That count is the test I couldn't run in replay.</p>
+                </div>
+            </details>
 
+            <details class="sec" id="quiz-pass-it-before-you-merge">
+                <summary><h2>Quiz: pass it before you merge</h2></summary>
+                <div class="sec-body">
             <div class="fig" id="fig5">
                 <div class="fig-head">
                     <span class="fig-title">Quiz &middot; Pass it before you merge</span>
@@ -389,8 +433,12 @@
                     <p id="qzTally">0 of 6 answered.</p>
                 </div>
             </div>
+                </div>
+            </details>
 
-            <h2>Sources</h2>
+            <details class="sec" id="sources">
+                <summary><h2>Sources</h2></summary>
+                <div class="sec-body">
             <div class="sources">
                 <h3>Ideas and authorities</h3>
                 <ul>
@@ -409,6 +457,8 @@
                     <li><span class="cite-title">The reviewers:</span> Claude Code 2.1.296 (Claude Opus 5.5), Codex 0.162.0 (GPT-6.1 Sol), Antigravity 1.3.3 (Gemini 3.8 Flash), Grok Build 1.0.50 (Grok 4.7), Muse Code 1.4.4 (Muse Spark 1.3), OpenCode 2.0.24 (MiMo-V2.6-Pro).</li>
                 </ul>
             </div>
+                </div>
+            </details>
 
             <div class="ai-note">
                 Drafted from the research note <code>docs/research/second-opinion-replays.md</code> and the #429 grilling log, with help from Claude. The question, the four checkpoints, the arms and every bar are mine, settled across 33 grilling questions before any session ran. Claude wrote the replay script, ran the 183 sessions, and organized the grading. Fresh Claude agents graded the plans and the Spec findings at my request, and Claude graded the bugs against their fixes, a conflict named under "What's still open". Claude drafted this post from those notes, and the decisions are mine. Fig. 1 runs mermaid.js and Figs. 3 and 4 run Observable Plot, both live from jsDelivr with table fallbacks. Fig. 2 is a hand-built table whose totals the page computes from its cells.
@@ -445,9 +495,11 @@
             '  SO2 --> M["Pull request<br/>merges itself"]'
         ].join('\n');
         var PIPE_CLASSES = '\n  class PC part\n  class SO1,SW fail\n  class SO2 pass';
-        var MM = null, mmN = 0;
+        var MM = null, mmN = 0, mmBusy = false, mmAgain = false;
         function drawPipeline() {
             if (!MM) return;
+            if (mmBusy) { mmAgain = true; return; }
+            mmBusy = true;
             var classes = '\n  classDef pass fill:' + cssVar('--soft') + ',stroke:' + cssVar('--yes') + ',stroke-width:2.5px,color:' + cssVar('--ink') +
                 '\n  classDef fail fill:' + cssVar('--soft') + ',stroke:' + cssVar('--no') + ',stroke-width:2.5px,stroke-dasharray:5 3,color:' + cssVar('--ink') +
                 '\n  classDef part fill:' + cssVar('--soft') + ',stroke:' + cssVar('--part') + ',stroke-width:2.5px,color:' + cssVar('--ink');
@@ -457,7 +509,10 @@
             MM.render('pipe' + (++mmN), PIPE + classes + PIPE_CLASSES).then(function (o) {
                 document.getElementById('pipeline').innerHTML = o.svg;
                 window.__pipelineRendered = true;
-            }).catch(function (e) { window.__pipelineError = String(e); });
+            }).catch(function (e) { window.__pipelineError = String(e); }).then(function () {
+                mmBusy = false;
+                if (mmAgain) { mmAgain = false; drawPipeline(); }
+            });
         }
         window.__onMermaid = function (m) { MM = m; drawPipeline(); };
         redraws.push(drawPipeline);
@@ -564,6 +619,17 @@
         }
         window.__onPlot = function (p) { Plot = p; drawPlans(); drawSpec(); };
         redraws.push(drawPlans, drawSpec);
+        /* The Plot charts measure their container, so redraw one when its folded section opens. */
+        var foldTimer = null;
+        document.querySelectorAll('details.sec').forEach(function (d) {
+            d.addEventListener('toggle', function () {
+                if (!d.open) return;
+                var plans = d.querySelector('#planChart'), spec = d.querySelector('#specChart');
+                if (!plans && !spec) return;
+                clearTimeout(foldTimer);
+                foldTimer = setTimeout(function () { try { if (plans) drawPlans(); if (spec) drawSpec(); } catch (e) {} }, 80);
+            });
+        });
 
         var GUESS = {
             codex: 'Not quite. Codex reached 16 Specs and fresh Claude 19. But Codex was wrong far less often: 2 of 25 findings, against 9 of 40.',
@@ -619,5 +685,26 @@
             });
     </script>
     <script src="/blog/newsletter-widget.js" defer></script>
+    <script>
+    (function () {
+        var secs = [].slice.call(document.querySelectorAll('details.sec'));
+        var btns = [].slice.call(document.querySelectorAll('[data-fold-all]'));
+        function allOpen() { return secs.every(function (d) { return d.open; }); }
+        function sync() { var o = allOpen(); btns.forEach(function (b) { b.textContent = o ? 'collapse all' : 'expand all'; b.setAttribute('aria-pressed', o ? 'true' : 'false'); }); }
+        btns.forEach(function (b) { b.addEventListener('click', function () { var o = allOpen(); secs.forEach(function (d) { d.open = !o; }); sync(); }); });
+        secs.forEach(function (d) { d.addEventListener('toggle', sync); });
+        function openHash() {
+            var id = decodeURIComponent(location.hash.slice(1)); if (!id) return;
+            var t = document.getElementById(id); if (!t) return;
+            var d = t.closest('details.sec'); if (d && !d.open) d.open = true;
+            t.scrollIntoView();
+        }
+        window.addEventListener('hashchange', openHash); openHash();
+        var was = null;
+        window.addEventListener('beforeprint', function () { was = secs.map(function (d) { return d.open; }); secs.forEach(function (d) { d.open = true; }); });
+        window.addEventListener('afterprint', function () { if (was) secs.forEach(function (d, i) { d.open = was[i]; }); was = null; });
+        sync();
+    })();
+    </script>
 </body>
 </html>

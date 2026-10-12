@@ -86,6 +86,20 @@
         sup.fn a { font-size: 0.75em; }
         .footnotes { border-top: 0.8px solid var(--rule); margin-top: 2rem; padding-top: 0.6rem; font-size: 0.82rem; }
         .footnotes p { text-indent: 0 !important; margin-bottom: 0.35rem; }
+        details.sec { margin: 0; }
+        details.sec > summary { list-style: none; cursor: pointer; border-radius: 2px; }
+        details.sec > summary::-webkit-details-marker { display: none; }
+        details.sec > summary h2 { margin: 1.05rem 0 0.5rem; }
+        details.sec > summary h2::before { content: ''; display: inline-block; border-left: 0.42em solid currentColor; border-top: 0.28em solid transparent; border-bottom: 0.28em solid transparent; margin-right: 0.6em; vertical-align: 0.1em; transition: transform 0.15s; }
+        details.sec[open] > summary h2::before { transform: rotate(90deg); }
+        details.sec > summary:hover h2 { color: #1a3d8f; }
+        details.sec > summary:focus-visible { outline: 2px solid #1a3d8f; outline-offset: 3px; }
+        details.sec[open] > .sec-body { padding-bottom: 0.6rem; }
+        .sec-body > p:first-child { text-indent: 0; }
+        .fold-hint { font-size: 0.85rem; color: var(--muted); font-style: italic; text-align: left; margin-bottom: 0.4rem; }
+        button.linkish { background: none; border: 0; padding: 0; font: inherit; color: #1a3d8f; cursor: pointer; }
+        button.linkish:hover { text-decoration: underline; }
+        .box { margin-top: 1.6rem; }
         @media (max-width: 640px) {
             body { padding: 0; font-size: 16px; }
             .topnote { padding: 0.7rem 1rem 0; }
@@ -100,6 +114,8 @@
             html, body { background: #fff; padding: 0; font-size: 10.5pt; }
             .page { box-shadow: none; padding: 0; max-width: none; }
             .topnote { display: none; }
+            .fold-hint { display: none; }
+            details.sec > summary h2::before { display: none; }
             a { color: inherit; }
             h2, h3 { break-after: avoid; }
             .table, figure, .box { break-inside: avoid; }
@@ -109,7 +125,7 @@
 <body>
     <div class="topnote">
         <span><a href="/blog/fresh-eyes-beat-a-second-family/">&larr; Blog version, with live figures</a></span>
-        <span><a href="fresh-eyes-beat-a-second-family.pdf">PDF</a> &middot; <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a></span>
+        <span><button type="button" class="linkish" data-fold-all>expand all</button> &middot; <a href="fresh-eyes-beat-a-second-family.pdf">PDF</a> &middot; <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a></span>
     </div>
     <main class="page">
         <header class="front">
@@ -125,8 +141,11 @@
         </section>
         <p class="keywords"><b>Keywords:</b> AI code review, LLM-as-a-judge, self-preference bias, model diversity, autonomous coding agents, replay evaluation, preregistration.</p>
         <hr class="sep">
+        <p class="fold-hint">Sections start folded so the paper reads as an outline. Click a heading to open it, or <button type="button" class="linkish" data-fold-all>expand all</button>.</p>
 
-        <h2>1&ensp;Introduction</h2>
+        <details class="sec" id="1-introduction">
+            <summary><h2>1&ensp;Introduction</h2></summary>
+            <div class="sec-body">
         <p>Coding agents now write, review and merge code with nobody watching. In thirdshift [6], the system studied here, no human has read a pull request before it merged since late September 2026. Each pull request merges itself once the agent's own review is done. That review is performed by two reviewer sub-agents of the same model that wrote the code, after which the authoring session decides which findings to fix. Three facts from the pipeline's records motivated this study. First, authors declined 1,152 review findings across 199 merged pull requests, and only 12 of those declines deferred the decision to a human or a later issue. Second, 209 architecture reviews rated their own preferred plan &ldquo;Strong&rdquo; 98% of the time, publishing 202 plans that nobody else checked. Third, 16 bugs had reached the main branch, 6 of them timing bugs: faults that appear only when two Runs act at once or a step repeats.</p>
         <p>A natural remedy is to have a different model family review the work. The idea has empirical support. LLM judges prefer their own answers [1], and models recognize and favor their own generations [2]. If Claude reviewers share Claude's blind spots, a Codex reviewer might not. Cross-family review is attractive for a second reason: it is easy to add to a pipeline that already supports several coding-agent CLIs.</p>
         <p>The comparison usually made, though, confounds two changes. A reviewer from another family is also a reviewer that did not watch the code being written. We therefore ask whether a second family helps <em>beyond</em> what a fresh session of the same model provides, and where in the pipeline any such help appears.</p>
@@ -136,16 +155,24 @@
             <li>Results at four checkpoints of an unattended pipeline, each with a fresh same-model control, across seven reviewer configurations and 183 sessions, plus 24 follow-up sessions (&sect;5).</li>
             <li>Evidence that a fresh same-model session matched or exceeded the other family's catches at every checkpoint, and that the one checkpoint where a second look clearly paid, after a feature-level review, paid for either family (&sect;6).</li>
         </ol>
+            </div>
+        </details>
 
-        <h2>2&ensp;Background and Related Work</h2>
+        <details class="sec" id="2-background-and-related-work">
+            <summary><h2>2&ensp;Background and Related Work</h2></summary>
+            <div class="sec-body">
         <h3>2.1&ensp;The system under study</h3>
         <p>thirdshift turns GitHub issues into pull requests. We use its vocabulary throughout. A <em>Run</em> builds one issue into one pull request: an implement session writes the code, starts two same-model reviewer sub-agents, and then decides which of their findings to act on. A <em>Spec run</em> builds a feature that has been split into <em>Tickets</em>. Each Ticket gets a Run, and a <em>Spec review</em> then reviews the finished feature branch as a whole. In <em>Weeding</em>, the system writes its own refactoring plans through <em>Architect runs</em>, publishes them, and later builds them. A <em>Harness</em> is the coding-agent CLI a session runs on. During the study the system supported Claude Code, Codex and four newer Harnesses. Weeding has written its plans on Codex since 6 October 2026, and by the end of the study every production session ran on Codex at high effort, so current plans, Spec branches and Spec reviews are Codex's work.</p>
         <h3>2.2&ensp;Self-preference in model judges</h3>
         <p>Zheng et al. [1] reported self-enhancement bias in LLM-as-a-judge settings: judges rated answers from their own model more favorably. Panickssery, Bowman and Feng [2] showed that models can recognize their own generations and that self-recognition correlates with self-preference. Both results motivate cross-family review. Neither tests whether a reviewer of another family finds more <em>defects</em> in code than a fresh instance of the same model. That is the question here.</p>
         <h3>2.3&ensp;Preregistration</h3>
         <p>Bars chosen after results are seen tend to land where the results are. Following the logic of preregistration [3], every pass/fail bar in this study was fixed during a structured design interview of 33 recorded questions before the replay script existed. The record is kept in the project's issue tracker and design log [5, 7]. Deviations are reported in &sect;4.6.</p>
+            </div>
+        </details>
 
-        <h2>3&ensp;Research Questions</h2>
+        <details class="sec" id="3-research-questions">
+            <summary><h2>3&ensp;Research Questions</h2></summary>
+            <div class="sec-body">
         <p>We test four places a second reviewer could be added (Figure 1). Table 1 states each with its preregistered bar.</p>
         <ul>
             <li><b>RQ1</b> (in a Run): Does a reviewer from another family catch escaped bugs that a fresh same-model reviewer misses?</li>
@@ -209,8 +236,12 @@
                 </tbody>
             </table>
         </div>
+            </div>
+        </details>
 
-        <h2>4&ensp;Method</h2>
+        <details class="sec" id="4-method">
+            <summary><h2>4&ensp;Method</h2></summary>
+            <div class="sec-body">
         <h3>4.1&ensp;Replay design and isolation</h3>
         <p>Each review we evaluate already happened once, and the bugs it let through have since been found and fixed. Each replay session received a throwaway repository containing history only up to the reviewed commit: the branch under review plus a <code>base</code> branch for comparison, no remote, and no later commits. The GitHub CLI was signed out with an empty configuration directory. The prompt forbade builds, tests, network access and any change to the repository. We recorded <code>HEAD</code> and <code>git status</code> before and after every session, so that any session that changed its repository could be discarded. None did. The 183 main sessions ran one at a time between 2026-10-10 04:23 and 2026-10-11 20:12 UTC, and every one exited before a 2.5-hour timeout. An automated scan for GitHub CLI use flagged two sessions. Both hits were quoted search patterns, not calls.</p>
         <h3>4.2&ensp;Subjects</h3>
@@ -253,8 +284,12 @@
             <li>The RQ3 plan had only a Codex arm. After Codex passed, and after fresh Claude had matched or beaten Codex everywhere else, 30 fresh Claude sessions were added over the same branches to separate family from freshness. Sessions, prompt and grading match the Codex arm's.</li>
             <li>Two follow-ups were run after the first write-up (&sect;5.5): Claude at max on Codex's plans, and a pilot of fresh Codex on Codex's own Specs. Both reuse the registered bars and grading prompts.</li>
         </ol>
+            </div>
+        </details>
 
-        <h2>5&ensp;Results</h2>
+        <details class="sec" id="5-results">
+            <summary><h2>5&ensp;Results</h2></summary>
+            <div class="sec-body">
         <h3>5.1&ensp;RQ1: a second opinion inside a Run</h3>
         <div class="table">
             <div class="cap"><b>Table 3.</b> Forward replay: six escaped timing bugs. C caught, P partial, M missed. The last column records whether the original in-session review raised the bug.</div>
@@ -353,8 +388,12 @@
                 </tbody>
             </table>
         </div>
+            </div>
+        </details>
 
-        <h2>6&ensp;Discussion</h2>
+        <details class="sec" id="6-discussion">
+            <summary><h2>6&ensp;Discussion</h2></summary>
+            <div class="sec-body">
         <h3>6.1&ensp;Freshness, not family</h3>
         <p>At every checkpoint, a fresh same-model session caught as many of the target defects as the other family, or more. In RQ1 the fresh control caught everything Codex caught. In RQ3 the same-family fresh session reached more features than Codex. The only advantage the other family showed was precision: fewer wrong findings in RQ3, and one fewer wrong stop in the plan follow-up. The prior work on self-preference [1, 2] concerns judgments of quality. Our results suggest that for finding defects, what dominates is whether the reviewer watched the code being written, not which family it comes from. A practical consequence is that the &ldquo;fresh session&rdquo; control should be the default comparison for any proposed cross-family reviewer. Without it, gains from independence are credited to diversity.</p>
         <h3>6.2&ensp;Placement matters more than identity</h3>
@@ -363,8 +402,12 @@
         <p>The original in-session reviews had raised two of the six escaped timing bugs (#102 and #303). In both cases the authoring agent declined them as decisions for someone else, and the pull requests merged themselves. The fresh arm's four catches are confounded: it changed both the session and the review skill (&sect;7), so the gain cannot be credited to either alone. The two declined findings, however, show a failure that no additional reviewer fixes. The system has since shipped <em>evidence-backed findings</em>. A correctness finding must carry a test; the author must run it; a failing test obliges a fix, and a decline must cite the run [7].</p>
         <h3>6.4&ensp;Model strength</h3>
         <p>Model strength alone does not explain the RQ1 result, because the stronger model failed in the second seat too. For the plan check it may matter more. Both passing configurations used the strongest checker at its highest effort, whichever family wrote the plans.</p>
+            </div>
+        </details>
 
-        <h2>7&ensp;Threats to Validity</h2>
+        <details class="sec" id="7-threats-to-validity">
+            <summary><h2>7&ensp;Threats to Validity</h2></summary>
+            <div class="sec-body">
         <p><i>Same-family grading.</i> Every grader was a Claude agent, and Claude is one of the compared families. Labels were shuffled and identifying lines removed, but Codex and Claude reports differ in style, so a grader could infer the arm. The author chose agent grading, so this risk belongs to the design.</p>
         <p><i>One session per cell.</i> Run-to-run variance was not measured. Ties and one-item differences, including the plan follow-up's margin, are within noise. In particular, we cannot say whether Codex's 13 RQ3-unique bugs exceed what a second fresh Claude session would add by chance.</p>
         <p><i>Confounded treatment in RQ1.</i> The fresh arm differed from the original reviews in both session freshness and review-skill version.</p>
@@ -372,17 +415,25 @@
         <p><i>Construct validity.</i> Partial catches do not count. Counting them would change no outcome. RQ1 and RQ3 use different bars by design.</p>
         <p><i>External validity.</i> The subjects come from one system and six repositories by one developer, with specific model versions as of October 2026. Production has since moved to Codex, where only four Specs existed, so the RQ3 result on Codex-written features rests on the pilot in &sect;5.5.</p>
         <p><i>Small samples.</i> Six and three bugs, 20 plans per direction and 30 Specs can show only large effects. The bars were set with that in mind.</p>
+            </div>
+        </details>
 
-        <h2>8&ensp;Conclusion</h2>
+        <details class="sec" id="8-conclusion">
+            <summary><h2>8&ensp;Conclusion</h2></summary>
+            <div class="sec-body">
         <p>Before crediting a gain to a different model family, run the same model in a fresh session. In 183 preregistered replays, a fresh same-model reviewer matched or beat the other family's catches at every checkpoint. The one place a second look clearly paid, after the feature-level review, paid for either family. thirdshift will add an opt-in second opinion at that point only, with the reviewer's Harness, model and effort configurable. Our current lean is a fresh session on the Spec run's own Harness. A planned look-back will count real fixes over roughly ten production Spec runs from the reviewer reports the system already keeps. That is the test the replay could not run.</p>
+            </div>
+        </details>
 
         <div class="box">
             <p><b>Data and code availability.</b> The research note with every reported number, the replay script <code>replay.py</code> and the stage runner <code>stages.sh</code> are public in the thirdshift repository [5]. The design log recording every bar before data collection is public as well [7]. Per-finding grading files contain material from private repositories and from unfixed defects, and are withheld.</p>
             <p><b>AI use and contributions.</b> J.S. posed the question and set the checkpoints, arms and every bar in a recorded design interview before any session ran, and made all decisions. Claude (Anthropic) wrote the replay script, ran the sessions and organized the grading. Fresh Claude agents graded the plans and Spec findings at J.S.'s request, and Claude graded the bugs against their fixes, a conflict noted in &sect;7. Claude drafted this paper from the research note and the blog version. The decisions it reports are J.S.'s.</p>
         </div>
 
-        <section class="refs">
-            <h2>References</h2>
+        <details class="sec" id="references">
+            <summary><h2>References</h2></summary>
+            <div class="sec-body">
+        <div class="refs">
             <ol>
                 <li>Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, et al. 2023. Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. <em>Advances in Neural Information Processing Systems 36, Datasets and Benchmarks Track</em>. <a href="https://arxiv.org/abs/2306.05685">arXiv:2306.05685</a>.</li>
                 <li>Arjun Panickssery, Samuel R. Bowman, and Shi Feng. 2024. LLM Evaluators Recognize and Favor Their Own Generations. <a href="https://arxiv.org/abs/2404.13076">arXiv:2404.13076</a>.</li>
@@ -392,9 +443,13 @@
                 <li>thirdshift: an unattended coding factory. <a href="https://thirdshift.app">thirdshift.app</a>.</li>
                 <li>thirdshift issue <a href="https://github.com/JacobStephens2/thirdshift/issues/429">#429</a> (multi-family review), its design log <a href="https://github.com/JacobStephens2/thirdshift/blob/main/.scratch/grill-with-docs/429-multi-family-review.md"><code>.scratch/grill-with-docs/429-multi-family-review.md</code></a>, and issue <a href="https://github.com/JacobStephens2/thirdshift/issues/486">#486</a> (evidence-backed review findings).</li>
             </ol>
-        </section>
+        </div>
+            </div>
+        </details>
 
-        <h2>Appendix A&ensp;Newer Harnesses on the six timing bugs</h2>
+        <details class="sec" id="appendix-a-newer-harnesses-on-the-six-timing-bugs">
+            <summary><h2>Appendix A&ensp;Newer Harnesses on the six timing bugs</h2></summary>
+            <div class="sec-body">
         <div class="table">
             <div class="cap"><b>Table A1.</b> Forward replay with four newer Harnesses. C caught, P partial, M missed.</div>
             <table>
@@ -411,8 +466,12 @@
             </table>
         </div>
         <p class="small">Antigravity 1.3.3 changed how its <code>-p</code> flag takes the prompt. The replay script was adjusted, and the same incompatibility in thirdshift's own adapter was filed as issue #658 and fixed in pull request #661.</p>
+            </div>
+        </details>
 
-        <h2>Appendix B&ensp;Pilot: fresh Codex on Codex's Specs</h2>
+        <details class="sec" id="appendix-b-pilot-fresh-codex-on-codexs-specs">
+            <summary><h2>Appendix B&ensp;Pilot: fresh Codex on Codex's Specs</h2></summary>
+            <div class="sec-body">
         <div class="table">
             <div class="cap"><b>Table B1.</b> Real behavior bugs the recorded Codex Spec review missed, found by a fresh Codex session. None of the pilot's findings were graded wrong.</div>
             <table>
@@ -424,6 +483,30 @@
                 </tbody>
             </table>
         </div>
+            </div>
+        </details>
+
     </main>
+    <script>
+    (function () {
+        var secs = [].slice.call(document.querySelectorAll('details.sec'));
+        var btns = [].slice.call(document.querySelectorAll('[data-fold-all]'));
+        function allOpen() { return secs.every(function (d) { return d.open; }); }
+        function sync() { var o = allOpen(); btns.forEach(function (b) { b.textContent = o ? 'collapse all' : 'expand all'; b.setAttribute('aria-pressed', o ? 'true' : 'false'); }); }
+        btns.forEach(function (b) { b.addEventListener('click', function () { var o = allOpen(); secs.forEach(function (d) { d.open = !o; }); sync(); }); });
+        secs.forEach(function (d) { d.addEventListener('toggle', sync); });
+        function openHash() {
+            var id = decodeURIComponent(location.hash.slice(1)); if (!id) return;
+            var t = document.getElementById(id); if (!t) return;
+            var d = t.closest('details.sec'); if (d && !d.open) d.open = true;
+            t.scrollIntoView();
+        }
+        window.addEventListener('hashchange', openHash); openHash();
+        var was = null;
+        window.addEventListener('beforeprint', function () { was = secs.map(function (d) { return d.open; }); secs.forEach(function (d) { d.open = true; }); });
+        window.addEventListener('afterprint', function () { if (was) secs.forEach(function (d, i) { d.open = was[i]; }); was = null; });
+        sync();
+    })();
+    </script>
 </body>
 </html>

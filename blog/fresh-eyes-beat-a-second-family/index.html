@@ -149,14 +149,15 @@
         <article class="note">
             <div class="eyebrow">Notes &middot; AI coding agents &middot; Code review</div>
             <h1 class="title">Fresh Eyes Beat a Second Family</h1>
-            <p class="meta"><strong>October 11, 2026</strong> &middot; ~2,200 words &middot; 4 live figures and a quiz &middot; reading this as an AI agent? <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a> is for you</p>
+            <p class="meta"><strong>October 11, 2026</strong>, updated October 12 with two follow-up runs &middot; ~2,500 words &middot; 4 live figures and a quiz &middot; reading this as an AI agent? <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a> is for you</p>
 
             <section class="tldr" aria-labelledby="tldr-label">
                 <div class="panel-label" id="tldr-label">TL;DR</div>
                 <p><strong>Is a review by a second model family worth adding to thirdshift?</strong> Mostly no. What helped was a second look, and the family it came from mattered little.</p>
                 <ul>
                     <li><strong>Where it's worth adding:</strong> after the Spec review, once a whole feature's Tickets are built. A second reviewer there found real bugs the review had missed, in 16 of 30 features for Codex and 19 for a fresh Claude session, against a bar of 6. <strong>The second review is what made the difference, not the other family.</strong> Fresh Claude, the same family that wrote the code, reached more features than Codex did. Codex's edge was precision: 2 of its 25 findings were wrong, against 9 of Claude's 40. The two also found mostly different bugs. I'm building it as an opt-in setting, with the reviewer's Harness and model configurable.</li>
-                    <li><strong>Where it isn't:</strong> inside each Run. Codex caught 1 of 6 escaped timing bugs, and fresh Claude caught that one too. Reversed, Claude caught 0 of Codex's 3. A plan check passed only for Claude checking Claude's plans, and the factory writes its plans on Codex now. Moving the Spec review itself to the other family found slightly less than the original review.</li>
+                    <li><strong>Where it isn't:</strong> inside each Run. Codex caught 1 of 6 escaped timing bugs, and fresh Claude caught that one too. Reversed, Claude caught 0 of Codex's 3. Moving the Spec review itself to the other family found slightly less than the original review.</li>
+                    <li><strong>Still undecided:</strong> a check on the factory's refactoring plans. It passed only with Claude at max as the checker. On the Codex plans the factory writes now, it passed exactly at the bar. It stopped the same 2 bad plans in 20 that a fresh Codex check did, with 1 wrong stop to Codex's 2.</li>
                     <li><strong>The bigger lesson:</strong> the factory's own reviews had already raised 2 of the 6 timing bugs, and the authors declined both. Acting on a finding mattered as much as finding it, which is why findings now come with a test the author has to run.</li>
                 </ul>
             </section>
@@ -201,7 +202,7 @@
                 <div class="fig-body">
                     <div id="pipeline" role="img" aria-label="The factory pipeline with the four tested checkpoints and their results">
                         <ol class="fallback-list" id="pipelineFallback">
-                            <li>Architecture review writes a plan &rarr; <strong>plan check</strong>: <span class="pass">passes only for Claude checking Claude</span></li>
+                            <li>Architecture review writes a plan &rarr; <strong>plan check</strong>: <span class="pass">passes only with Claude at max checking</span></li>
                             <li>Ticket Runs: implement, then in-session review &rarr; <strong>Second opinion in a Run</strong>: <span class="fail">fails</span></li>
                             <li>Spec review of the whole branch &rarr; <strong>Second opinion after the Spec review</strong>: <span class="pass">passes, either family</span></li>
                             <li>Spec review moved to the other family's Harness: <span class="fail">fails</span></li>
@@ -239,7 +240,7 @@
 
             <p>The most useful row in Fig. 2 is the last column. The factory's original in-session reviews had raised two of these six bugs, #102 and #303. In both cases the author declined them as decisions for someone else, and nobody read the declines. Fresh Claude caught 4. I can't split that gain between "fresh session" and "today's review skill", because the replay changed both at once. Either way, it isn't a second family.</p>
 
-            <h2>The plan check passes only where I no longer need it</h2>
+            <h2>The plan check passes only with Claude at max checking</h2>
 
             <p>The plan check re-applies the Architecture review's own four tests to the plan it published. Is the friction real in the code? Does the deletion test hold? Is the design settled? Does it contradict no ADR? The check reads the plan, the glossary, the ADRs and the code as they stood when the plan was written. It never reads the session that wrote the plan. The bar: it stops at least 3 of 20 plans, and most of its stops are right. Fresh Claude agents graded every stop without knowing which arm made it.</p>
 
@@ -254,17 +255,20 @@
                         <tbody>
                             <tr><td>Codex checks Claude's plans</td><td>15</td><td>5</td><td>fails</td></tr>
                             <tr><td>Fresh Claude checks Claude's plans</td><td>10</td><td>8</td><td>passes</td></tr>
-                            <tr><td>Claude checks Codex's plans</td><td>2</td><td>1</td><td>fails</td></tr>
+                            <tr><td>Claude (high) checks Codex's plans</td><td>2</td><td>1</td><td>fails</td></tr>
                             <tr><td>Fresh Codex checks Codex's plans</td><td>4</td><td>2</td><td>fails</td></tr>
+                            <tr><td>Claude (max) checks Codex's plans</td><td>3</td><td>2</td><td>passes, at the bar</td></tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="fig-caption">Drawn live with Observable Plot 0.6.17, with the dashed rule at the bar's 3 stops. The axis counts plans, out of 20. Pale bars are plans stopped, solid bars are stops the grader agreed with. Colors come from the site's theme tokens and redraw on a theme switch. Without the CDN, the table is the figure.</div>
+                <div class="fig-caption">Drawn live with Observable Plot 0.6.17, with the dashed rule at the bar's 3 stops. The axis counts plans, out of 20. Pale bars are plans stopped, solid bars are stops the grader agreed with. Colors come from the site's theme tokens and redraw on a theme switch. The last row was added on October 12, after this post went up. Without the CDN, the table is the figure.</div>
             </div>
 
             <p>Codex stopped three-quarters of Claude's plans, and two-thirds of those stops didn't hold. A check that blocks that often, and is wrong that often, would stall Weeding for nothing. Fresh Claude stopped half and was right 8 times in 10.</p>
 
-            <p>The catch is that the arm that passed doesn't match how the factory runs. Since October 6, Weeding has written its plans on Codex. On Codex's plans, neither arm passes. So the plan check stays unbuilt unless Weeding goes back to Claude.</p>
+            <p>The catch was that the arm that passed didn't match how the factory runs. Since October 6, Weeding has written its plans on Codex, and on Codex's plans neither of the first two arms passed. Claude had checked them only at high effort, though, while fresh Claude had checked its own plans at max. So after publishing, I ran Claude at max over Codex's 20 plans.</p>
+
+            <p>It stopped 3, and the grader agreed with 2. That meets the bar with nothing to spare. Its two right stops were the same two plans fresh Codex had stopped, for the same reasons: each would have built code that reported an interrupted step wrongly. Claude's edge was one fewer wrong stop, 1 against Codex's 2. This is the one checkpoint where the other family came out ahead, and it did so on precision, by a single plan, with one session per cell. Both passing arms had Claude at max as the checker, whichever family wrote the plan, so I read this as being about the checker's strength more than its family. Whether to build it is open again.</p>
 
             <h2>After a whole feature, any second look finds something</h2>
 
@@ -310,7 +314,8 @@
 
             <ul>
                 <li><strong>Building:</strong> an opt-in <em>Second opinion</em> that runs after the Spec review, with the Harness, Model and Effort as settings. The open choice is the default. My lean is a fresh session on the Spec run's own Harness, since that did as well as the other family and needs no second login.</li>
-                <li><strong>Not building:</strong> a Second opinion inside each Run, the timing checklist, the four newer Harnesses as reviewers, the plan check, or a Spec review that runs on the other family's Harness.</li>
+                <li><strong>Not building:</strong> a Second opinion inside each Run, the timing checklist, the four newer Harnesses as reviewers, or a Spec review that runs on the other family's Harness.</li>
+                <li><strong>Undecided:</strong> the plan check, as an opt-in with Claude at max as the checker.</li>
                 <li><strong>Already shipped, and probably more important:</strong> evidence-backed findings. The original reviews raised 2 of the 6 timing bugs, and the authors talked themselves out of both. Now a reviewer's finding comes with a test, and the author has to run it. A failing test obliges a fix. Finding the bug was never the whole problem. Acting on it was.</li>
             </ul>
 
@@ -320,7 +325,7 @@
 
             <p><strong>One session per cell.</strong> I didn't measure run-to-run variation. A tie, or a one-bug gap, is inside the noise. That includes the question that matters most for the default: whether Codex's 13 bugs that only it found are more than a second fresh Claude session would have turned up by chance.</p>
 
-            <p><strong>The factory moved while I measured.</strong> thirdshift now runs everything on Codex at high. Today's plans, Spec branches and Spec reviews are Codex's, and neither passing arm was tried on Codex's own Spec work. Codex had run only four Specs when I started, too few for the reverse replay. My plan is to switch the Second opinion on, let roughly ten Spec runs go by, and count real fixes from the reviewer reports thirdshift already keeps. That count is the test I couldn't run in replay.</p>
+            <p><strong>The factory moved while I measured.</strong> thirdshift now runs everything on Codex at high, so today's plans, Spec branches and Spec reviews are Codex's. Codex had run only four Specs when I started, too few for a replay against the bar of 6. After publishing, I ran a pilot anyway: a fresh Codex session on each of those four, after its recorded Codex Spec review. It found real missed bugs in 2 of the 4. All 3 of its findings were real, and none were wrong. One was half of a notification bug, #603, that later reached main and has since been fixed. Neither reviewer caught it when I replayed the Ticket PRs it came from. Four Specs prove little, so my plan stands: switch the Second opinion on, let roughly ten Spec runs go by, and count real fixes from the reviewer reports thirdshift already keeps. That count is the test I couldn't run in replay.</p>
 
             <div class="fig" id="fig5">
                 <div class="fig-head">
@@ -373,13 +378,13 @@
                         <p class="expl">Codex reached 16 Specs and fresh Claude 19, against a bar of 6. They mostly found different bugs.</p>
                     </div>
                     <div class="qz">
-                        <div class="q">6. The plan check passed for fresh Claude checking Claude's plans. Why isn't it being built?</div>
+                        <div class="q">6. Claude at max passed the plan check's bar on Codex's plans, where a fresh Codex check failed. What did it add?</div>
                         <div class="opts">
-                            <button type="button" class="opt" data-c="1">Weeding writes its plans on Codex now, and on Codex's plans neither arm passed</button>
-                            <button type="button" class="opt">Claude's stops were mostly wrong</button>
-                            <button type="button" class="opt">It needs a human to read every plan</button>
+                            <button type="button" class="opt">It stopped bad plans Codex missed</button>
+                            <button type="button" class="opt" data-c="1">The same 2 bad plans, with 1 wrong stop instead of 2</button>
+                            <button type="button" class="opt">It stopped every plan Codex wrote</button>
                         </div>
-                        <p class="expl">A check that only works for a setup the factory no longer runs would never fire. It waits until Weeding goes back to Claude.</p>
+                        <p class="expl">Both stopped the same two plans for the same reasons. Claude's edge was precision, by one plan, exactly at the bar, with one session per cell.</p>
                     </div>
                     <p id="qzTally">0 of 6 answered.</p>
                 </div>
@@ -431,7 +436,7 @@
         /* ---------- Fig. 1: the pipeline, mermaid ---------- */
         var PIPE = [
             'flowchart TD',
-            '  A["Architecture review<br/>writes a plan"] --> PC{{"Plan check<br/>passes only Claude on Claude"}}',
+            '  A["Architecture review<br/>writes a plan"] --> PC{{"Plan check<br/>passes only with Claude max"}}',
             '  PC --> T["Ticket Runs<br/>implement + in-session review"]',
             '  T --> SO1{{"Second opinion in a Run<br/>fails both ways"}}',
             '  SO1 --> S["Spec review<br/>of the whole branch"]',
@@ -508,15 +513,16 @@
         var PLANS = [
             { arm: 'Codex on Claude\'s plans', stopped: 15, right: 5 },
             { arm: 'Fresh Claude on Claude\'s', stopped: 10, right: 8 },
-            { arm: 'Claude on Codex\'s plans', stopped: 2, right: 1 },
-            { arm: 'Fresh Codex on Codex\'s', stopped: 4, right: 2 }
+            { arm: 'Claude high on Codex\'s', stopped: 2, right: 1 },
+            { arm: 'Fresh Codex on Codex\'s', stopped: 4, right: 2 },
+            { arm: 'Claude max on Codex\'s', stopped: 3, right: 2 }
         ];
         function plotStyle() { return { background: 'transparent', color: cssVar('--ink'), fontFamily: 'Source Sans 3, Arial, sans-serif', fontSize: '13px', overflow: 'visible' }; }
         function drawPlans() {
             if (!Plot) return;
             var host = document.getElementById('planChart'), w = Math.max(320, host.clientWidth || 640);
             var el = Plot.plot({
-                width: w, height: 220, marginTop: 24, marginLeft: 170, marginRight: 70, style: plotStyle(),
+                width: w, height: 260, marginTop: 24, marginLeft: 170, marginRight: 70, style: plotStyle(),
                 x: { label: null, domain: [0, 20], grid: false }, y: { label: null, domain: PLANS.map(function (d) { return d.arm; }) },
                 marks: [
                     Plot.barX(PLANS, { y: 'arm', x: 'stopped', fill: cssVar('--bar-bg'), stroke: cssVar('--rule') }),

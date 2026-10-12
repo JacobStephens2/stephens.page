@@ -5,6 +5,7 @@ canonical_human_version: https://stephens.page/blog/fresh-eyes-beat-a-second-fam
 research_note: https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md
 author: Jacob Stephens, with Claude
 date: 2026-10-11
+updated: 2026-10-12 (plan check at Claude max on Codex's plans; fresh Codex pilot on Codex's Specs)
 license: MIT (per the site repository's LICENSE)
 ---
 
@@ -21,6 +22,7 @@ The governing finding:
 > a fresh session.** In 183 replayed reviews, a fresh same-model session matched
 > or beat the other family at every checkpoint. The one checkpoint where a second
 > look clearly paid, after a whole feature (Spec) was finished, paid for either family.
+> (A later follow-up gave the other family one edge, on precision only: see result 2.)
 
 ## TL;DR
 
@@ -33,9 +35,11 @@ The governing finding:
   (2/25 wrong vs 9/40) and found mostly different bugs. Ship as opt-in config;
   Harness, Model, Effort are settings.
 - **Do not add it:** inside each Run (Codex 1 of 6 escaped bugs, already caught
-  by fresh Claude; reverse 0 of 3), as a plan check (passes only Claude on
-  Claude's plans; production plans are Codex's), or by moving the Spec review to
-  the other family (22 vs 23 Specs).
+  by fresh Claude; reverse 0 of 3), or by moving the Spec review to the other
+  family (22 vs 23 Specs).
+- **Undecided:** a plan check. Passes only with Claude at max as checker. On
+  Codex's plans (production) it passes exactly at the bar (3 stops, 2 right),
+  stopping the same 2 bad plans fresh Codex stopped, with 1 wrong stop vs 2.
 - **Bigger lever:** the original reviews raised 2 of the 6 bugs and authors
   declined both. Make findings carry a test the author must run.
 
@@ -123,7 +127,7 @@ review 25.4 vs 20.1 minutes. Not adopted.
 Confound: fresh Claude's 4 vs the original reviews' 2 changed two variables at
 once (fresh session, newer review skill). Do not attribute the gain to either alone.
 
-### 2. Plan check - PASSES ONLY FOR CLAUDE ON CLAUDE
+### 2. Plan check - PASSES ONLY WITH CLAUDE AT MAX AS CHECKER
 
 Bar: stops at least 3 of 20 plans, and most stops are right (graded blind by fresh agents).
 
@@ -133,9 +137,14 @@ Bar: stops at least 3 of 20 plans, and most stops are right (graded blind by fre
 | Fresh Claude checks Claude's plans | 10 | 8 | passes |
 | Claude (high) checks Codex's plans | 2 | 1 | fails (under 3) |
 | Fresh Codex checks Codex's plans | 4 | 2 | fails (half, not most) |
+| Claude (max) checks Codex's plans | 3 | 2 | passes, exactly at the bar |
 
-Weeding has written plans on Codex since 2026-10-06, so the passing arm does not
-match production. Not built.
+Weeding has written plans on Codex since 2026-10-06. The last row was added
+after publication (2026-10-12) to test Claude at max on production plans. Its 2
+right stops are the same 2 plans fresh Codex stopped, for the same reasons; the
+gain is 1 fewer wrong stop, within one-session-per-cell noise. Both passing arms
+use Claude at max as checker, so checker strength may matter more than family.
+Build decision open.
 
 ### 3. Second opinion after the Spec review - PASSES, EITHER FAMILY
 
@@ -166,7 +175,8 @@ in 22. Swapping would lose catches.
   are settings. Default under discussion; the current lean is a fresh session on
   the Spec run's own Harness.
 - Do not build: Second opinion inside each Run; timing checklist; the four newer
-  Harnesses as reviewers; plan check; Spec review on the other family's Harness.
+  Harnesses as reviewers; Spec review on the other family's Harness.
+- Undecided: plan check as an opt-in, with Claude at max as checker.
 - Already shipped: evidence-backed findings. A reviewer's correctness finding
   carries a test; the author runs it; a failure obliges a fix; a pass allows a
   decline that cites the run.
@@ -188,9 +198,12 @@ in 22. Swapping would lose catches.
 - One session per cell; run-to-run variance unmeasured. Whether Codex's 13
   unique Spec bugs exceed what a second fresh Claude session would add by
   chance is unknown.
-- The factory now runs on Codex at high; neither passing Spec arm was tested on
-  Codex-written Specs (only four existed). Planned check: count real fixes over
-  about ten Spec runs with the Second opinion on, from the kept reviewer reports.
+- The factory now runs on Codex at high. Only four Codex-written Specs existed,
+  too few for the bar of 6. Post-publication pilot (2026-10-12): fresh Codex
+  after each recorded Codex Spec review found real missed bugs in 2 of 4 Specs,
+  3 findings, all real, 0 wrong; one was half of thirdshift #603, a bug that
+  later reached main (since fixed). Planned check: count real fixes over about
+  ten Spec runs with the Second opinion on, from the kept reviewer reports.
 
 ## Self-test (answers inline)
 
@@ -203,5 +216,6 @@ in 22. Swapping would lose catches.
    review skill changed too.**
 5. Which checkpoint passed for both families? **The Second opinion after the
    Spec review (16 and 19 Specs vs a bar of 6).**
-6. Why is the passing plan check not built? **It passed only for Claude checking
-   Claude's plans; production plans are Codex's, where neither arm passed.**
+6. Claude at max passed the plan check on Codex's plans; what did it add over
+   fresh Codex? **No new catches: the same 2 bad plans, with 1 wrong stop instead
+   of 2, exactly at the bar.**

@@ -22,6 +22,20 @@ The governing finding:
 > or beat the other family at every checkpoint. The one checkpoint where a second
 > look clearly paid, after a whole feature (Spec) was finished, paid for either family.
 
+## TL;DR
+
+- **Is multi-family review worth adding to thirdshift? Mostly no.** The gain
+  comes from a second look; the reviewer's family matters little.
+- **Add it in one place:** after the Spec review (whole feature built). Second
+  reviewer found real missed bugs in 16/30 Specs (Codex) and 19/30 (fresh
+  Claude), bar 6. Ship as opt-in config; Harness, Model, Effort are settings.
+- **Do not add it:** inside each Run (Codex 1 of 6 escaped bugs, already caught
+  by fresh Claude; reverse 0 of 3), as a plan check (passes only Claude on
+  Claude's plans; production plans are Codex's), or by moving the Spec review to
+  the other family (22 vs 23 Specs).
+- **Bigger lever:** the original reviews raised 2 of the 6 bugs and authors
+  declined both. Make findings carry a test the author must run.
+
 ## Context you need
 
 - **Run:** one issue built into one pull request. The implement session writes the

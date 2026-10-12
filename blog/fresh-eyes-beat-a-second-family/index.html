@@ -83,6 +83,10 @@
         .footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); text-align: center; color: var(--muted); font-size: 0.85rem; }
         @media (max-width: 640px) { .container { padding: 1.25rem 1rem 2.5rem; } .topbar { flex-direction: column; align-items: flex-start; } }
         /* ---- per-figure CSS ---- */
+        .tldr { margin: 0 0 1.6rem; padding: 1rem 1.2rem 0.4rem; background: var(--soft); border-left: 3px solid var(--brand); border-radius: 0 6px 6px 0; }
+        .tldr .panel-label { color: var(--brand); }
+        .tldr p, .tldr li { font-size: 0.97rem; }
+        .tldr ul { margin-bottom: 0.6rem; }
         .btn { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.7rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; }
         .btn:hover, .btn:focus-visible { border-color: var(--brand); }
         .btn[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
@@ -146,6 +150,16 @@
             <div class="eyebrow">Notes &middot; AI coding agents &middot; Code review</div>
             <h1 class="title">Fresh Eyes Beat a Second Family</h1>
             <p class="meta"><strong>October 11, 2026</strong> &middot; ~2,200 words &middot; 4 live figures and a quiz &middot; reading this as an AI agent? <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a> is for you</p>
+
+            <section class="tldr" aria-labelledby="tldr-label">
+                <div class="panel-label" id="tldr-label">TL;DR</div>
+                <p><strong>Is a review by a second model family worth adding to thirdshift?</strong> Mostly no. What helped was a second look, and the family it came from mattered little.</p>
+                <ul>
+                    <li><strong>Where it's worth adding:</strong> after the Spec review, once a whole feature's Tickets are built. A second reviewer there found real bugs the review had missed, in 16 of 30 features for Codex and 19 for a fresh Claude session, against a bar of 6. I'm building it as an opt-in setting, with the reviewer's Harness and model configurable.</li>
+                    <li><strong>Where it isn't:</strong> inside each Run. Codex caught 1 of 6 escaped timing bugs, and fresh Claude caught that one too. Reversed, Claude caught 0 of Codex's 3. A plan check passed only for Claude checking Claude's plans, and the factory writes its plans on Codex now. Moving the Spec review itself to the other family found slightly less than the original review.</li>
+                    <li><strong>The bigger lesson:</strong> the factory's own reviews had already raised 2 of the 6 timing bugs, and the authors declined both. Acting on a finding mattered as much as finding it, which is why findings now come with a test the author has to run.</li>
+                </ul>
+            </section>
 
             <p>I expected a second model family to catch the bugs my coding agents let through, and mostly it didn't. Over 183 replayed review sessions, a fresh session of the same model found as many of the escaped bugs as the other family did, or more, at every checkpoint I tested. The one place a second look clearly paid was after a whole feature was finished. There, either family found real bugs that the existing review had missed, in more than half the features.</p>
 

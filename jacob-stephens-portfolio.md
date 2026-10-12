@@ -40,18 +40,9 @@ A connected case study tying these systems together - architecture, the legacy�
 [Read the ETA Platform case study →](/blog/one-engineer-platform-production-systems/)
 [Architecture decisions (ADRs) →](https://github.com/JacobStephens2/infrastructure-patterns)
 
-**The seven-boundary agent-safety checklist**
-How an AI agent is allowed to touch a revenue-critical legacy system - and where a human stays in command.
+[Seven-boundary agent-safety checklist →](/blog/human-in-the-loop-ai-agents-for-legacy-business-systems/)
 
-1. **Isolation** - each agent runs in its own per-role container; no shared filesystem or database.
-2. **Data** - a snapshot-refreshed replica with least-privilege, read-only DB users; production write paths are off-limits.
-3. **Command** - default-deny execution; only an explicit allowlist of commands runs.
-4. **Code promotion** - nothing reaches production without a human merge and review gate.
-5. **Audit** - every action is logged and attributable; the trail reads "the system did X," and is reversible.
-6. **Rollback** - every change ships with a kill switch or manual fallback.
-7. **Upstream & downstream** - known model provenance, a labor-impact note, and an explicit not-delegated list: no agent approves, merges, deploys, pays, or alters revenue-critical data without a named human.
-
-[The full write-up →](https://stephens.page/blog/human-in-the-loop-ai-agents/)
+The checklist is a design framework. The project descriptions below state the current implementation and its trade-offs.
 
 ### Tourbot
 
@@ -87,10 +78,10 @@ Tourbot Chat runs inside three Manager Sandboxes - role-specific Tourbot instanc
 Managers needed to answer complex business questions - revenue breakdowns, booking trends, vendor performance - without waiting on developer time. They also wanted to experiment with reports and workflows on their own terms, without risking the production system.
 
 **What I Built**
-Each Manager Sandbox runs a role-specific Tourbot instance in its own Docker container, fronted by Traefik, with a dedicated Claude-powered OpenClaw agent. Agents query a replica of the production database refreshed once daily, run analysis, generate reports, and even modify PHP code, all isolated by role: allowlist-controlled command execution, dedicated least-privilege database users, and a git-based review gate so nothing reaches production unreviewed. Each container is provisioned from a shared compose definition, so standing up a new Manager Sandbox is a one-command operation.
+Role-specific Tourbot instances in separate Docker containers behind Traefik, with AI assistants and persistent coding-agent sessions. The three managers share a writable sandbox database refreshed daily from production, with per-manager credentials for attribution. Containers separate application files and processes; the database is shared. Managers can prototype code and data changes, while pull requests and engineering review control promotion to production.
 
 **Result**
-Non-technical managers independently explore business data, generate custom reports, and prototype workflow changes through plain conversation - 14 manager-prototyped features have shipped to production through the human merge gate across Sales, General Management, and Marketing, with zero agent-caused incidents - while the system enforces per-role isolation, read-only data access, and code-review boundaries that keep the production platform safe from accidental or unreviewed change.
+Managers in Sales, General Management, and Marketing explore business data and prototype workflow changes through conversation. Fourteen manager-prototyped features have shipped through engineering review and hardening. Shared sandbox data keeps the daily refresh affordable, with an explicit trade-off: a manager's database experiment can affect the other sandboxes until the next refresh.
 
 OpenClaw
 Claude
@@ -114,7 +105,7 @@ The strongest building tools are terminal agents - Claude Code, Codex CLI - but 
 An xterm.js terminal embedded in Tourbot behind a dedicated permission, connected over a token-authenticated WebSocket bridge (Node, node-pty) into the Manager Sandbox container - plus a route onto Claude Code remote, so the same server-side sessions can be driven from Claude's remote-control UI instead of the raw CLI. Every session is a persistent tmux session - close the laptop, the agent keeps working; pick it back up from any device, including a phone. A session manager spans both agent families (Claude Code and Codex sessions side by side), with file upload into the agent's workspace, full-scrollback copy, lightweight pane polling for idle detection, and one-click session reset. Under the hood, privilege separation: Claude Code runs under a dedicated non-root account via a sudo wrapper - it refuses to run as root - while other session types stay isolated on a separate tmux server.
 
 **Result**
-The general manager and marketing managers run real coding agents against their Manager Sandboxes - doing their own building, at subscription cost instead of API metering. In practice most drive Claude through the remote-control UI, with the embedded terminal as the direct view and the Codex path - and every Tourbot Chat boundary still holds either way: Docker container isolation, a replica database, and the human merge gate before anything reaches production. The platform hosts the sessions; the UI is whichever door fits the user. Platform engineering in the literal sense - taking a capability that required an engineer's toolchain and shipping it as a permissioned, self-service feature of the business system.
+Managers run persistent coding agents against their Manager Sandboxes through the browser terminal or the agent's remote-control UI. The platform supplies the sessions and access controls, with separate application containers, a shared snapshot-refreshed sandbox database, and engineering review before code reaches production. This makes a capability that previously required an engineer's terminal setup available inside the business system.
 
 xterm.js
 WebSockets
@@ -178,16 +169,16 @@ PWA
 
 ### ETA Orchestration & Status
 
-A Python and Flask service that probes Educational Travel Adventures' fleet of web, database, and cron servers and renders a single-page health view - paired with a hardened Linux host that lets a Claude Code agent operate safely across that infrastructure.
+A Python/Flask operations console bringing fleet health, deployment review, branch previews, browser terminals, and agent credential management into one authenticated workspace.
 
 **Problem**
 A dozen production and supporting servers - MySQL 8 and 5.7, Apache, ACH cron processing, Docker-hosted Manager Sandboxes, an asset host - with no single place to see what was reachable, green, or degrading, and no clean way to give an AI agent multi-server access without leaking credentials or muddying audit logs.
 
 **What I Built**
-A Flask app behind Caddy and gunicorn that sweeps TCP, HTTP, and MySQL probes every 60 seconds across the fleet, with deploy controls, fleet-wide tmux management, and a web terminal - all gated by single-use magic-link tokens. The same VM runs a hardened service-account pipeline: secrets injected at launch from a managed vault, database grants scoped to least privilege, and a wrapper that lets engineers trigger the agent without ever handling its credentials. Auditing reads as "the orchestrator did X," not "Engineer Y did X via it."
+A Flask/SQLite console behind Caddy with Google sign-in, WebAuthn passkeys, and server-enforced permissions. Engineers inspect fleet health, review production changes and migrations, manage branch preview environments, and attach to persistent terminal sessions in the browser. Deployment attempts retain a history of stages and outcomes. Coding agents launch through vaulted-agent with credentials resolved from 1Password; the console also exposes which credential profiles each harness can reach.
 
 **Result**
-One URL to check fleet health, refreshed in the background so page loads never block on a probe - and a controlled launchpad from which an AI agent can coordinate work between web and database servers with credentials it never sees on disk.
+A shared engineering workbench for operating production and supervising agent work, with permissions enforced on the server. The console itself runs from a pinned release checkout, so edits in the shared development tree do not become a production release.
 
 Python
 Flask

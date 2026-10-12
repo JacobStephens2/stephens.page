@@ -634,11 +634,11 @@
                             </div>
                             <div class="portfolio-block">
                                 <strong>What I Built</strong>
-                                <span>Each Manager Sandbox runs a role-specific Tourbot instance in its own Docker container, fronted by Traefik, with a dedicated Claude-powered OpenClaw agent. Agents query a replica of the production database refreshed once daily, run analysis, generate reports, and even modify PHP code, all isolated by role: allowlist-controlled command execution, dedicated least-privilege database users, and a git-based review gate so nothing reaches production unreviewed. Each container is provisioned from a shared compose definition, so standing up a new Manager Sandbox is a one-command operation.</span>
+                                <span>Role-specific Tourbot instances in separate Docker containers behind Traefik, with AI assistants and persistent coding-agent sessions. The three managers share a writable sandbox database refreshed daily from production, with per-manager credentials for attribution. Containers separate application files and processes; the database is shared. Managers can prototype code and data changes, while pull requests and engineering review control promotion to production.</span>
                             </div>
                             <div class="portfolio-block">
                                 <strong>Result</strong>
-                                <span>Non-technical managers independently explore business data, generate custom reports, and prototype workflow changes through plain conversation - 14 manager-prototyped features have shipped to production through the human merge gate across Sales, General Management, and Marketing, with zero agent-caused incidents - while the system enforces per-role isolation, read-only data access, and code-review boundaries that keep the production platform safe from accidental or unreviewed change.</span>
+                                <span>Managers in Sales, General Management, and Marketing explore business data and prototype workflow changes through conversation. Fourteen manager-prototyped features have shipped through engineering review and hardening. Shared sandbox data keeps the daily refresh affordable, with an explicit trade-off: a manager's database experiment can affect the other sandboxes until the next refresh.</span>
                             </div>
                             <div class="portfolio-tags">
                                 <span class="portfolio-tag">OpenClaw</span>
@@ -673,7 +673,7 @@
                             </div>
                             <div class="portfolio-block">
                                 <strong>Result</strong>
-                                <span>The general manager and marketing managers run real coding agents against their Manager Sandboxes - doing their own building, at subscription cost instead of API metering. In practice most drive Claude through the remote-control UI, with the embedded terminal as the direct view and the Codex path - and every Tourbot Chat boundary still holds either way: Docker container isolation, a replica database, and the human merge gate before anything reaches production. The platform hosts the sessions; the UI is whichever door fits the user. Platform engineering in the literal sense - taking a capability that required an engineer's toolchain and shipping it as a permissioned, self-service feature of the business system.</span>
+                                <span>Managers run persistent coding agents against their Manager Sandboxes through the browser terminal or the agent's remote-control UI. The platform supplies the sessions and access controls, with separate application containers, a shared snapshot-refreshed sandbox database, and engineering review before code reaches production. This makes a capability that previously required an engineer's terminal setup available inside the business system.</span>
                             </div>
                             <div class="portfolio-tags">
                                 <span class="portfolio-tag">xterm.js</span>
@@ -768,18 +768,18 @@
                         </button>
                         <div class="portfolio-content">
                             <h3 class="portfolio-title">ETA Orchestration &amp; Status</h3>
-                            <p class="portfolio-summary">A Python and Flask service that probes Educational Travel Adventures' fleet of web, database, and cron servers and renders a single-page health view - paired with a hardened Linux host that lets a Claude Code agent operate safely across that infrastructure.</p>
+                            <p class="portfolio-summary">A Python/Flask operations console bringing fleet health, deployment review, branch previews, browser terminals, and agent credential management into one authenticated workspace.</p>
                             <div class="portfolio-block">
                                 <strong>Problem</strong>
                                 <span>A dozen production and supporting servers - MySQL 8 and 5.7, Apache, ACH cron processing, Docker-hosted Manager Sandboxes, an asset host - with no single place to see what was reachable, green, or degrading, and no clean way to give an AI agent multi-server access without leaking credentials or muddying audit logs.</span>
                             </div>
                             <div class="portfolio-block">
                                 <strong>What I Built</strong>
-                                <span>A Flask app behind Caddy and gunicorn that sweeps TCP, HTTP, and MySQL probes every 60 seconds across the fleet, with deploy controls, fleet-wide tmux management, and a web terminal - all gated by single-use magic-link tokens. The same VM runs a hardened service-account pipeline: secrets injected at launch from a managed vault, database grants scoped to least privilege, and a wrapper that lets engineers trigger the agent without ever handling its credentials. Auditing reads as "the orchestrator did X," not "Engineer Y did X via it."</span>
+                                <span>A Flask/SQLite console behind Caddy with Google sign-in, WebAuthn passkeys, and server-enforced permissions. Engineers inspect fleet health, review production changes and migrations, manage branch preview environments, and attach to persistent terminal sessions in the browser. Deployment attempts retain a history of stages and outcomes. Coding agents launch through vaulted-agent with credentials resolved from 1Password; the console also exposes which credential profiles each harness can reach.</span>
                             </div>
                             <div class="portfolio-block">
                                 <strong>Result</strong>
-                                <span>One URL to check fleet health, refreshed in the background so page loads never block on a probe - and a controlled launchpad from which an AI agent can coordinate work between web and database servers with credentials it never sees on disk.</span>
+                                <span>A shared engineering workbench for operating production and supervising agent work, with permissions enforced on the server. The console itself runs from a pinned release checkout, so edits in the shared development tree do not become a production release.</span>
                             </div>
                             <div class="portfolio-tags">
                                 <span class="portfolio-tag">Python</span>

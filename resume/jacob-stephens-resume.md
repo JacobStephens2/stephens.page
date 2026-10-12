@@ -22,8 +22,8 @@ Software and infrastructure engineer building software factories and reliable AI
 Educational Travel Adventures | Feb 2022 - Present | Remote
 
 - Lead a two-engineer team with end-to-end responsibility for architecture, operations, deployment, and on-call response across the production stack of a multi-million-dollar travel business.
-- Designed three role-specific Manager Sandboxes in Docker behind Traefik, with isolated databases, refreshed production snapshots, scoped credentials, and default-deny commands. Shipped 14 manager-prototyped features through a human merge gate.
-- Built an agent-orchestration and operations dashboard (Python, Flask, SQLite) with a least-privilege agent user and vault-injected credentials; deployed Prometheus, Grafana, and Alertmanager across 14 hosts.
+- Built three Docker/Traefik Manager Sandboxes with separate application containers, a shared writable database refreshed daily, and per-manager credentials. Shipped 14 manager-prototyped features through human review.
+- Built an operations console (Python, Flask, SQLite) for fleet health, deploy review, branch previews, and browser terminals, with Google sign-in, passkeys, and per-permission access. Deployed Prometheus, Grafana, and Alertmanager across 14 hosts.
 - Reduced group-manifest SQL statements per request from about 2,650 to 183 with byte-identical output. A separate measurement-led index pass eliminated about 80% of measured query time on the live primary using online DDL.
 - Shipped a mobile-first guide PWA with offline support and receipt-attached expenses: 77 guides filed 410 tour reports and 1,800+ expense reports (about $154K) over a 12-month period.
 - Led PHP 5-to-8, MySQL 5-to-8, and CentOS-to-Rocky Linux migrations. Modernized payment integrations and ACH/NACHA workflows, including bank-account encryption, as part of a PCI compliance initiative.
@@ -41,7 +41,7 @@ Steward Goods | Mar 2020 - Nov 2021 | Remote
 
 ## Selected Projects
 
-- [vaulted-agent](https://github.com/JacobStephens2/vaulted-agent): Launches coding agents with vault-resolved secrets injected in-process, keeping vault tokens and .env files off disk. Supports 1Password, Bitwarden Secrets Manager, pass, and SOPS.
+- [vaulted-agent](https://github.com/JacobStephens2/vaulted-agent): Launches coding agents with vault-resolved secrets injected in-process, per-agent manifests, and vault-manager tokens removed from the child environment. Supports 1Password, Bitwarden Secrets Manager, pass, and SOPS.
 - [infrastructure-patterns](https://github.com/JacobStephens2/infrastructure-patterns): Public, sanitized architecture decisions covering agent isolation, scoped credentials, human merge gates, audit trails, and rollback.
 - [Infrastructure as code](https://github.com/JacobStephens2/terraform-cloudflare-dns): Imported about 220 live DNS records across nine zones into Terraform without recreating them; added S3 remote state, Ansible provisioning, and plan-on-PR checks.
 

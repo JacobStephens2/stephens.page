@@ -377,8 +377,8 @@
                 <div class="cs-highlight">
                     <h3>Multi-tenant AI assistants for managers</h3>
                     <span class="cs-line"><strong>Problem.</strong> Non-technical managers wanted to query business data and prototype changes safely, without waiting on developer time.</span>
-                    <span class="cs-line"><strong>Approach.</strong> Manager Sandboxes - role-specific Tourbot instances in Docker containers, fronted by Traefik - with isolated databases refreshed every few hours from a production mirror, per-container resource limits, allowlist-constrained (default-deny) agent command execution, and AI work isolated on per-role branches with a manual promotion step.</span>
-                    <span class="cs-line"><strong>Outcome.</strong> Managers explore data and draft workflow changes through conversation; isolation and a human gate keep production safe.</span>
+                    <span class="cs-line"><strong>Approach.</strong> Manager Sandboxes - role-specific Tourbot instances in separate Docker containers behind Traefik, with per-container resource limits and persistent coding-agent sessions. The current design uses one shared writable sandbox database, refreshed daily from production, with per-manager credentials. Pull requests and engineering review control code promotion.</span>
+                    <span class="cs-line"><strong>Outcome.</strong> Managers explore data and draft workflow changes through conversation; 14 manager-prototyped features have shipped through engineering review. Containers separate application files and processes, while shared sandbox data makes refreshes cheaper and allows one manager's database experiments to affect the others.</span>
                 </div>
 
                 <div class="cs-highlight">
@@ -403,8 +403,8 @@
                 </div>
                 <div class="cs-stack">
                     <div class="cs-row"><b>PHP 8 / MySQL 8</b> - the platform's core; modernized in place rather than rewritten, because a rewrite would have frozen a business that can't stop.</div>
-                    <div class="cs-row"><b>Docker + Traefik</b> - Manager Sandboxes need hard filesystem and database isolation; containers give each role its own world cheaply.</div>
-                    <div class="cs-row"><b>Python / Flask + a scoped system user</b> - the agent-orchestration VM runs an autonomous coding agent with least-privilege, auditable credentials it never handles directly.</div>
+                    <div class="cs-row"><b>Docker + Traefik</b> - Separate application containers with a shared writable sandbox database: lower refresh cost, with data changes visible across managers.</div>
+                    <div class="cs-row"><b>Python / Flask / SQLite</b> - an operations console for fleet health, deploy review, previews, and browser terminals, with passkeys and server-enforced permissions. Coding-agent credentials are resolved from a vault at launch.</div>
                     <div class="cs-row"><b>FastAPI / Next.js / PostgreSQL</b> - ProspectForge is greenfield, so it uses a typed, modern stack independent of the legacy MySQL core.</div>
                     <div class="cs-row"><b>Server-side deploy script + PHPUnit/CI</b> - for a single-server PHP app, a guarded shell pipeline (dirty-tree, flock, ancestor-only, healthcheck, one-command rollback) beats a hosted runner; CI runs the suite across PHP 8.1-8.4.</div>
                     <div class="cs-row"><b>Prometheus / Grafana / Alertmanager</b> - capacity questions ("why is DB CPU at 65%?") need metrics history, not a ping dashboard; a dedicated Terraform-provisioned droplet keeps paging out of the app as the single source of paging truth.</div>

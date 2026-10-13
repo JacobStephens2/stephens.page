@@ -108,6 +108,17 @@
   }
 
   function mountToggle() {
+    // Theme toggle slots: a page marks [data-theme-toggle] elements to say where toggles go.
+    // When slots exist, each gets exactly one toggle and the layout heuristics below are skipped.
+    var slots = document.querySelectorAll('[data-theme-toggle]');
+    if (slots.length) {
+      slots.forEach(function (slot) {
+        if (!slot.querySelector('.theme-toggle')) slot.appendChild(createToggleButton());
+      });
+      updateToggleLabels();
+      return;
+    }
+
     if (document.querySelector('.theme-toggle')) return;
 
     var btn = createToggleButton();

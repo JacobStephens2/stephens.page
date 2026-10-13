@@ -58,6 +58,7 @@ salabim and Pillow in the browser to generate a genuine animation.
 | [`theme.css`](https://stephens.page/theme.css), [`theme.js`](https://stephens.page/theme.js) | Shared light/dark theme and persistent theme control |
 | [`contact.html`](https://stephens.page/contact), `contact-submit.php` | Contact page and server-side form handler |
 | `private/render_resume_pdf.sh` | Headless Chrome PDF render used by `resume/download-pdf.php` |
+| `private/check_theme_toggle.js` | Headless Playwright check of theme toggle placement, the theme cycle, and resume PDF download requests |
 | `.htaccess` | Apache routing, redirects, and content-type configuration |
 
 `resume.stephens.page` should redirect to `https://stephens.page/resume/` so old

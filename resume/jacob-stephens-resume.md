@@ -45,7 +45,7 @@ Steward Goods | Mar 2020 - Nov 2021 | Remote
 - [infrastructure-patterns](https://github.com/JacobStephens2/infrastructure-patterns): Public, sanitized architecture decisions covering agent isolation, scoped credentials, human merge gates, audit trails, and rollback.
 - [Infrastructure as code](https://github.com/JacobStephens2/terraform-cloudflare-dns): Imported about 220 live DNS records across nine zones into Terraform without recreating them; added S3 remote state, Ansible provisioning, and plan-on-PR checks.
 
-- [Cascade](https://github.com/JacobStephens2/cascade): A headless Rust audio core shared by Web PWA and Android shells through a single JSON interface, with wasm-bindgen and UniFFI bindings.
+- [Cascade](https://github.com/JacobStephens2/cascade): A headless Rust audio core shared by four released shells (web PWA, Android, Windows, macOS) through a single JSON interface, with wasm-bindgen, UniFFI, and C ABI bindings; iOS and watchOS shells are in TestFlight.
 - [Chart35](https://stephens.page/chart35.html): A shipped fertility tracker with client-side AES-256-GCM encryption, offline-first storage, and expiring provider-share links.
 
 ## Core Technologies

@@ -45,17 +45,6 @@ const pages = [
         checksPdfDownload: true,
         pdfVariant: null,
     },
-    {
-        name: 'resume (Anthropic variant)',
-        path: '/resume/anthropic-staff-software-engineer/',
-        toggleParents: [
-            '.sticky-mobile-header[data-theme-toggle]',
-            'header > .header-actions[data-theme-toggle]',
-        ],
-        hasThemeColor: true,
-        checksPdfDownload: true,
-        pdfVariant: 'anthropic-staff-software-engineer',
-    },
 ];
 
 const failures = [];

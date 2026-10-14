@@ -6,9 +6,7 @@ $renderScript = dirname(__DIR__) . '/private/render_resume_pdf.sh';
 
 // Tailored resume variants: strict whitelist of slug => page URL. Anything not
 // listed here falls back to the main resume.
-$variants = [
-    'anthropic-staff-software-engineer' => 'https://stephens.page/resume/anthropic-staff-software-engineer/?pdf=1',
-];
+$variants = [];
 
 $variant = isset($_GET['variant']) && is_string($_GET['variant']) ? $_GET['variant'] : '';
 $resumeUrl = $variants[$variant] ?? null;

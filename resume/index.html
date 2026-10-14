@@ -21,27 +21,25 @@
   <style>
     @media print {
       .work h3:first-of-type + p + ul { break-inside: auto; }
-      h2, h3, .current-work h3 + p { break-after: avoid; }
-      .current-work { break-inside: avoid; }
+      h2, h3 { break-after: avoid; }
       .summary, p, li { font-size: 11pt; line-height: 1.35; }
-      .earlier-experience { break-before: page; }
       .work li, .projects li { padding-top: 3pt; }
       @page { margin: 0.45in 0.55in; }
 
     }
   </style>
   <link rel="canonical" href="https://stephens.page/resume/">
-  <meta name="description" content="Resume of Jacob Stephens: software factories, Rust coding-agent orchestration, AI infrastructure, and production engineering.">
+  <meta name="description" content="Resume of Jacob Stephens: production platform and infrastructure engineering, backend systems, and Rust coding-agent orchestration.">
   <meta name="image" content="https://stephens.page/resume/files/stewardgoods-icon.png">
   <meta property="og:url" content="https://stephens.page/resume/">
   <meta property="og:title" content="Jacob Stephens&#39; Resume">
   <meta property="og:site_name" content="Jacob Stephens Resume">
-  <meta property="og:description" content="Resume of Jacob Stephens: software factories, Rust coding-agent orchestration, AI infrastructure, and production engineering.">
+  <meta property="og:description" content="Resume of Jacob Stephens: production platform and infrastructure engineering, backend systems, and Rust coding-agent orchestration.">
   <meta property="og:image" content="https://stephens.page/resume/files/stewardgoods-icon.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:creator" content="JacobSt73263669">
   <meta name="twitter:title" content="Jacob Stephens&#39; Resume">
-  <meta name="twitter:description" content="Resume of Jacob Stephens: software factories, Rust coding-agent orchestration, AI infrastructure, and production engineering.">
+  <meta name="twitter:description" content="Resume of Jacob Stephens: production platform and infrastructure engineering, backend systems, and Rust coding-agent orchestration.">
   <meta name="twitter:image" content="https://stephens.page/resume/files/stewardgoods-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/app-icons/apple-touch-icon.png">
@@ -80,17 +78,7 @@
             <a href="https://thirdshift.app/" target="_blank" rel="noopener"><span class="contact-icon" aria-hidden="true">↗</span>thirdshift</a>
         </p>
 
-        <p class="summary">Software and infrastructure engineer building software factories and reliable AI-agent workflows. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery. Lead a two-engineer team responsible for a specialty-travel company's reservations, payments, Linux fleet, and agent infrastructure, with 4+ years of production ownership.</p>
-        <section class="projects current-work">
-          <h2>Current Focus: Software Factories</h2>
-          <h3><a href="https://thirdshift.app/">thirdshift</a> | Open-source Rust orchestration</h3>
-          <p><a href="https://github.com/JacobStephens2/thirdshift">Source &amp; architecture</a> | <a href="https://stephens.page/blog/fresh-eyes-beat-a-second-family/">Review evaluation: 183 sessions</a></p>
-          <ul>
-            <li>Built a deterministic orchestration engine across six coding-agent harnesses, coordinating implementation, standards and spec reviews, CI checks, and bounded repair loops; merging is explicitly configured.</li>
-            <li>Implemented dependency-aware parallel ticket execution in separate Git worktrees, resumable runs, and architecture-improvement and security-audit workflows. Failed runs preserve work for continuation.</li>
-            <li>Designed an evaluation of 183 replayed code-review sessions with fresh-session controls and predefined acceptance bars. Published results and limitations to guide where to add a second review, rather than assuming a different model family improves reliability.</li>
-</ul>
-        </section>
+        <p class="summary">Platform and infrastructure engineer with 4+ years of production ownership. Lead a two-engineer team responsible for a specialty-travel company's reservations, payments, Linux fleet, backend services, and agent infrastructure. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery.</p>
         <section class="work">
           <h2>Experience</h2>
           <h3>Head of Engineering</h3>
@@ -118,6 +106,7 @@
         <section class="projects">
           <h2>Selected Projects</h2>
           <ul>
+            <li><a href="https://thirdshift.app/">thirdshift</a> (<a href="https://github.com/JacobStephens2/thirdshift">source</a> | <a href="https://stephens.page/blog/fresh-eyes-beat-a-second-family/">review evaluation</a>): A deterministic Rust orchestrator for unattended issue-to-PR delivery across six coding-agent harnesses, with dependency-aware parallel tickets in separate Git worktrees, standards and spec reviews, CI checks, bounded repair loops, and resumable runs. Designed an evaluation of 183 replayed code-review sessions with fresh-session controls and predefined acceptance bars, and published the results and limitations.</li>
             <li><a href="https://github.com/JacobStephens2/vaulted-agent">vaulted-agent</a>: Launches coding agents with vault-resolved secrets injected in-process, per-agent manifests, and vault-manager tokens removed from the child environment. Supports 1Password, Bitwarden Secrets Manager, pass, and SOPS.</li>
             <li><a href="https://github.com/JacobStephens2/infrastructure-patterns">infrastructure-patterns</a>: Public, sanitized architecture decisions covering agent isolation, scoped credentials, human merge gates, audit trails, and rollback.</li>
             <li><a href="https://github.com/JacobStephens2/terraform-cloudflare-dns">Infrastructure as code</a>: Imported about 220 live DNS records across nine zones into Terraform without recreating them; added S3 remote state, Ansible provisioning, and plan-on-PR checks.</li>

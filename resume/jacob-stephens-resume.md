@@ -4,14 +4,14 @@
 
 [stephens.page](https://stephens.page/) · [thirdshift](https://thirdshift.app/) · [GitHub](https://github.com/JacobStephens2) · [LinkedIn](https://www.linkedin.com/in/jacob-c-stephens)
 
-Platform and infrastructure engineer with 4+ years of production ownership. Lead a two-engineer team responsible for a specialty-travel company's reservations, payments, Linux fleet, backend services, and agent infrastructure. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery.
+Platform and infrastructure engineer with 4+ years of production ownership. Lead an engineering team responsible for a specialty-travel company's reservations, payments, Linux fleet, backend services, and agent infrastructure. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery.
 
 ## Experience
 
 ### Head of Engineering
 Educational Travel Adventures | Feb 2022 - Present | Remote
 
-- Lead a two-engineer team with end-to-end responsibility for architecture, operations, deployment, and on-call response across the production stack of a multi-million-dollar travel business.
+- Lead an engineering team with end-to-end responsibility for architecture, operations, deployment, and on-call response across the production stack of a multi-million-dollar travel business.
 - Built three Docker/Traefik Manager Sandboxes with separate application containers, a shared writable database refreshed daily, and per-manager credentials. Shipped 14 manager-prototyped features through human review.
 - Built an operations console (Python, Flask, SQLite) for fleet health, deploy review, branch previews, and browser terminals, with Google sign-in, passkeys, and per-permission access. Deployed Prometheus, Grafana, and Alertmanager across 14 hosts.
 - Reduced group-manifest SQL statements per request from about 2,650 to 183 with byte-identical output. A separate measurement-led index pass eliminated about 80% of measured query time on the live primary using online DDL.

@@ -2,7 +2,7 @@ BEGIN:VCARD
 VERSION:3.0
 N:Stephens;Jacob;;;
 FN:Jacob Stephens
-TITLE:Software Factories & AI Agent Infrastructure
+TITLE:Head of Engineering
 EMAIL;TYPE=INTERNET,PREF:jacob@stephens.page
 TEL;TYPE=CELL,VOICE:+14843567773
 URL:https://stephens.page
@@ -10,6 +10,6 @@ URL:https://www.linkedin.com/in/jacob-c-stephens
 URL:https://github.com/JacobStephens2
 X-SOCIALPROFILE;TYPE=linkedin:https://www.linkedin.com/in/jacob-c-stephens
 X-SOCIALPROFILE;TYPE=github:https://github.com/JacobStephens2
-NOTE:Building thirdshift - an open-source software factory in Rust.
+NOTE:Platform engineering and AI agent infrastructure. Currently building thirdshift.
 URL:https://thirdshift.app/
 END:VCARD

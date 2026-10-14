@@ -4,17 +4,7 @@
 
 [stephens.page](https://stephens.page/) · [thirdshift](https://thirdshift.app/) · [GitHub](https://github.com/JacobStephens2) · [LinkedIn](https://www.linkedin.com/in/jacob-c-stephens)
 
-Software and infrastructure engineer building software factories and reliable AI-agent workflows. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery. Lead a two-engineer team responsible for a specialty-travel company's reservations, payments, Linux fleet, and agent infrastructure, with 4+ years of production ownership.
-
-## Current Focus: Software Factories
-
-### thirdshift | Open-source Rust orchestration
-
-[Source & architecture](https://github.com/JacobStephens2/thirdshift) · [Review evaluation: 183 sessions](https://stephens.page/blog/fresh-eyes-beat-a-second-family/)
-
-- Built a deterministic orchestration engine across six coding-agent harnesses, coordinating implementation, standards and spec reviews, CI checks, and bounded repair loops; merging is explicitly configured.
-- Implemented dependency-aware parallel ticket execution in separate Git worktrees, resumable runs, and architecture-improvement and security-audit workflows. Failed runs preserve work for continuation.
-- Designed an evaluation of 183 replayed code-review sessions with fresh-session controls and predefined acceptance bars. Published results and limitations to guide where to add a second review, rather than assuming a different model family improves reliability.
+Platform and infrastructure engineer with 4+ years of production ownership. Lead a two-engineer team responsible for a specialty-travel company's reservations, payments, Linux fleet, backend services, and agent infrastructure. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery.
 
 ## Experience
 
@@ -41,6 +31,7 @@ Steward Goods | Mar 2020 - Nov 2021 | Remote
 
 ## Selected Projects
 
+- [thirdshift](https://thirdshift.app/) ([source](https://github.com/JacobStephens2/thirdshift) | [review evaluation](https://stephens.page/blog/fresh-eyes-beat-a-second-family/)): A deterministic Rust orchestrator for unattended issue-to-PR delivery across six coding-agent harnesses, with dependency-aware parallel tickets in separate Git worktrees, standards and spec reviews, CI checks, bounded repair loops, and resumable runs. Designed an evaluation of 183 replayed code-review sessions with fresh-session controls and predefined acceptance bars, and published the results and limitations.
 - [vaulted-agent](https://github.com/JacobStephens2/vaulted-agent): Launches coding agents with vault-resolved secrets injected in-process, per-agent manifests, and vault-manager tokens removed from the child environment. Supports 1Password, Bitwarden Secrets Manager, pass, and SOPS.
 - [infrastructure-patterns](https://github.com/JacobStephens2/infrastructure-patterns): Public, sanitized architecture decisions covering agent isolation, scoped credentials, human merge gates, audit trails, and rollback.
 - [Infrastructure as code](https://github.com/JacobStephens2/terraform-cloudflare-dns): Imported about 220 live DNS records across nine zones into Terraform without recreating them; added S3 remote state, Ansible provisioning, and plan-on-PR checks.

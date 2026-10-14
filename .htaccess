@@ -33,6 +33,7 @@ RewriteRule ^vaulted-agent-launcher/?$ /vaulted-agent/ [R=301,L]
 
 # Old top-level case-study URLs -> new /blog/ slugs.
 RewriteRule ^stacks/?$ /stack [R=301,L]
+RewriteRule ^resume/anthropic-staff-software-engineer/?$ /resume/ [R=301,L]
 RewriteRule ^eta-platform(\.html)?$ /blog/one-engineer-platform-production-systems/ [R=301,L]
 RewriteRule ^chart35(\.html)?$ /blog/a-privacy-first-fertility-chart-encrypted-on-your-device/ [R=301,L]
 

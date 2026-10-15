@@ -344,7 +344,7 @@
                     <div class="cs-metric"><span class="cs-num">2,650 &rarr; 183</span><span class="cs-cap">SQL statements per manifest render</span></div>
                     <div class="cs-metric"><span class="cs-num">~1s</span><span class="cs-cap">manifest load, down from 5-7s</span></div>
                     <div class="cs-metric"><span class="cs-num">4</span><span class="cs-cap">user-facing portals on one shared core</span></div>
-                    <div class="cs-metric"><span class="cs-num">14</span><span class="cs-cap">manager-prototyped features shipped to production</span></div>
+                    <div class="cs-metric"><span class="cs-num">30+</span><span class="cs-cap">marketing-workflow pull requests merged by engineering</span></div>
                     <div class="cs-metric"><span class="cs-num">77</span><span class="cs-cap">field guides on the guides PWA this season</span></div>
                     <div class="cs-metric"><span class="cs-num">3,300+</span><span class="cs-cap">traveler SMS sent from the field</span></div>
                     <div class="cs-metric"><span class="cs-num">~$154K</span><span class="cs-cap">guide expenses reconciled this season</span></div>
@@ -378,7 +378,7 @@
                     <h3>Multi-tenant AI assistants for managers</h3>
                     <span class="cs-line"><strong>Problem.</strong> Non-technical managers wanted to query business data and prototype changes safely, without waiting on developer time.</span>
                     <span class="cs-line"><strong>Approach.</strong> Manager Sandboxes - role-specific Tourbot instances in separate Docker containers behind Traefik, with per-container resource limits and persistent coding-agent sessions. The current design uses one shared writable sandbox database, refreshed daily from production, with per-manager credentials. Pull requests and engineering review control code promotion.</span>
-                    <span class="cs-line"><strong>Outcome.</strong> Managers explore data and draft workflow changes through conversation; 14 manager-prototyped features have shipped through engineering review. Containers separate application files and processes, while shared sandbox data makes refreshes cheaper and allows one manager's database experiments to affect the others.</span>
+                    <span class="cs-line"><strong>Outcome.</strong> Managers explore data and draft workflow changes through conversation; the marketing workflow alone has produced 30+ pull requests merged by engineering. Containers separate application files and processes, while shared sandbox data makes refreshes cheaper and allows one manager's database experiments to affect the others.</span>
                 </div>
 
                 <div class="cs-highlight">

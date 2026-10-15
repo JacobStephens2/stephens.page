@@ -209,6 +209,10 @@
             object-position: top;
             display: block;
         }
+        .portfolio-image--contain {
+            object-fit: contain;
+            object-position: center;
+        }
         .portfolio-image--portrait {
             height: 380px;
             object-fit: contain;
@@ -535,6 +539,9 @@
                 </div>
                 <div class="portfolio-grid">
                     <article class="portfolio-item" id="thirdshift">
+                        <button class="image-button" type="button" data-image="screenshots/thirdshift.png" data-title="thirdshift - from issue to pull request">
+                            <img src="screenshots/thirdshift.png" alt="thirdshift four-color press illustration: prepare, implement, review, and finish an issue as a pull request" class="portfolio-image portfolio-image--contain">
+                        </button>
                         <div class="portfolio-content">
                             <h3 class="portfolio-title">thirdshift</h3>
                             <p class="portfolio-summary">An open-source Rust orchestrator that takes GitHub issues through implementation, review, and CI to pull requests, unattended.</p>
@@ -555,6 +562,9 @@
                         </div>
                     </article>
                     <article class="portfolio-item" id="thirdshift-review-study">
+                        <button class="image-button" type="button" data-image="screenshots/thirdshift-review-results.jpg" data-title="Reviewer study - a second look after the Spec review">
+                            <img src="screenshots/thirdshift-review-results.jpg" alt="Reviewer study results chart comparing Codex and fresh Claude findings after a whole-feature review" class="portfolio-image portfolio-image--contain">
+                        </button>
                         <div class="portfolio-content">
                             <h3 class="portfolio-title">Testing the factory's reviewers</h3>
                             <p class="portfolio-summary">183 replayed code-review sessions investigating where an additional reviewer helps an unattended software factory.</p>
@@ -571,6 +581,9 @@
                         </div>
                     </article>
                     <article class="portfolio-item" id="vaulted-agent">
+                        <button class="image-button" type="button" data-image="screenshots/vaulted-agent.jpg" data-title="vaulted-agent product illustration">
+                            <img src="screenshots/vaulted-agent.jpg" alt="vaulted-agent: terminal launching va claude with vault-resolved secrets" class="portfolio-image portfolio-image--contain">
+                        </button>
                         <div class="portfolio-content">
                             <h3 class="portfolio-title">vaulted-agent</h3>
                             <p class="portfolio-summary">An open-source Rust launcher (<code>va</code>) that resolves vault secrets into a coding agent's own process, so Claude Code, Codex, Grok, Kimi Code, Antigravity, and Muse Code get real credentials without a pile of <code>.env</code> files on disk.</p>

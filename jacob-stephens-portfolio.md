@@ -407,29 +407,6 @@ Brand Presence
 
 A curated set of personal builds, selected for relevance to platform and AI-infrastructure work. The full shelf of published apps lives at [stephens.page/apps](/apps.html).
 
-### Tracewake (v0 prototype)
-
-An earlier exploration of bounded coding-agent runs and proposal-only output. My current software-factory work is [thirdshift](https://thirdshift.app/).
-
-Turns a labeled GitHub issue into a reviewable draft pull request, unattended. A coding agent runs in a fresh microVM under a Termination Contract. The only output is a Proposal. Nothing merges itself.
-
-**Why it matters**
-An earlier exploration of bounded coding-agent runs and proposal-only output, with a human merge gate. My current software-factory work is [thirdshift](https://thirdshift.app/); Tracewake preserves a different set of design decisions for comparison.
-
-**What stands out**
-The operator hands over at a `ready-for-agent` label, not a workflow state. One Run at a time, a fresh microVM per Iteration, a Termination Contract of five declared bounds (the model's "I'm done" is advisory), proposal-only output, and configuration that lives entirely outside the target repo so the codebase never knows Tracewake exists. The public SPEC states those bets side by side with Symphony; 29 ADRs record why.
-
-Python
-FastAPI
-PostgreSQL
-systemd
-microVM
-AI Agents
-
-[SPEC](https://github.com/JacobStephens2/tracewake/blob/main/SPEC.md)
-[ADRs](https://github.com/JacobStephens2/tracewake/tree/main/docs/adr)
-[GitHub](https://github.com/JacobStephens2/tracewake)
-
 ### muxboard
 
 A Flask blueprint for managing long-running AI agents from a browser: it lists every tmux session across one host or a fleet, attaches live through xterm.js, and creates or kills sessions over SSH. It is built default-deny, with create-specific scopes, attach caps, and a documented threat model for handing out remote-shell access over the web.

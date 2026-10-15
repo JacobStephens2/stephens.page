@@ -12,15 +12,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ETA Platform - Case Study | Jacob Stephens</title>
-    <meta name="description" content="Case study: four years modernizing and extending the production reservations platform at Educational Travel Adventures - PHP 8, Docker, a Python agent-orchestration layer, and multi-tenant AI assistants.">
+    <meta name="description" content="Four years modernizing ETA's production travel platform, now led by a two-engineer team: PHP 8.4, manager sandboxes, branch previews, observability, and durable deployments.">
     <meta property="og:title" content="ETA Platform - Case Study | Jacob Stephens">
-    <meta property="og:description" content="Booking engines, payment systems, contractor tools, and infrastructure that runs in production.">
-    <meta property="og:type" content="website">
+    <meta property="og:description" content="From an inherited travel ERP to a platform for a two-engineer team: measured performance gains, manager sandboxes, branch previews, and recoverable deployments.">
+    <meta property="og:type" content="article">
+    <meta property="article:modified_time" content="2026-10-15">
     <meta property="og:url" content="https://stephens.page/blog/one-engineer-platform-production-systems/">
     <link rel="canonical" href="https://stephens.page/blog/one-engineer-platform-production-systems/">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Portfolio | Jacob Stephens">
-    <meta name="twitter:description" content="Selected systems and client work by Jacob Stephens.">
+    <meta name="twitter:title" content="ETA Platform - Case Study | Jacob Stephens">
+    <meta name="twitter:description" content="Modernizing a live travel ERP, then building the previews, observability, and deployment controls around it.">
     <!-- Umami (self-hosted) - analytics + session replay -->
     <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
     <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
@@ -218,6 +219,7 @@
                 <a href="/blog/" class="back-link">&larr; All posts</a>
                 <a href="https://stephens.page/" class="back-link">Home</a>
                 <a href="https://github.com/JacobStephens2/stephens.page/tree/main/blog/one-engineer-platform-production-systems/" class="back-link" rel="noopener">Source on GitHub</a>
+                <a href="agents.md" class="back-link">For agents</a>
             </span>
             <a href="mailto:jacob@stephens.page" class="contact-link">jacob@stephens.page</a>
         </div>
@@ -225,13 +227,13 @@
         <main>
             <section class="hero">
                 <div class="hero-card">
-                    <div class="eyebrow">Case Study &#183; Educational Travel Adventures &#183; June 2026</div>
-                    <h1>One engineer, a platform of production systems.</h1>
-                    <p class="hero-copy">Four-plus years as lead engineering owner for a multi-million-dollar specialty-travel operator - modernizing an inherited PHP&nbsp;5 / CentOS&nbsp;7 / MySQL&nbsp;5 monolith into a PHP&nbsp;8 / Rocky&nbsp;9 / MySQL&nbsp;8 platform with Docker, a Python agent-orchestration layer, and multi-tenant AI assistants.</p>
+                    <div class="eyebrow">Case Study &#183; Educational Travel Adventures &#183; June 2026 &#183; Updated October 15, 2026</div>
+                    <h1>From a legacy ERP to an engineering platform.</h1>
+                    <p class="hero-copy">Four-plus years modernizing the production platform of a multi-million-dollar specialty-travel operator: from PHP&nbsp;5 / CentOS&nbsp;7 / MySQL&nbsp;5 to PHP&nbsp;8.4 / Rocky&nbsp;9 / MySQL&nbsp;8.4. Today I lead a two-engineer team and remain hands-on with the reservations, payments, Linux fleet, and agent infrastructure - including the previews and deployment controls that let other people contribute.</p>
                 </div>
                 <aside class="hero-notes">
                     <ul>
-                        <li><strong>Role</strong> Lead engineer &amp; architect, 2022-present</li>
+                        <li><strong>Role</strong> Head of Engineering; lead engineering owner since 2022, now leading a two-engineer team</li>
                         <li><strong>Scope</strong> Reservations platform, payments, Linux fleet, CI/deploy, AI infrastructure</li>
                         <li><strong>Reach</strong> Four user-facing portals on one core; internal AI tooling for non-technical managers</li>
                     </ul>
@@ -243,7 +245,7 @@
                     <h2>System overview</h2>
                     <p>How the pieces connect. (Architecture shown at a deliberately high level; hostnames, addresses, and vendor specifics omitted.)</p>
                 </div>
-                <div class="cs-diagram"><svg viewBox="0 0 980 560" role="img" aria-label="ETA platform architecture overview">
+                <div class="cs-diagram"><svg viewBox="0 0 980 650" role="img" aria-label="ETA platform: four portals, production and sandbox databases, operations console, manager sandboxes, branch previews, and a durable deployment worker">
   <defs>
     <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L7,3 L0,6 Z" style="fill:var(--brand)"></path>
@@ -287,17 +289,19 @@
   <rect class="box" x="690" y="248" width="250" height="50" rx="10"></rect>
   <text x="706" y="272" class="tb">MySQL 8 - primary</text><text x="706" y="289" class="tm">reservations, payments, manifests</text>
   <rect class="box" x="690" y="308" width="250" height="50" rx="10"></rect>
-  <text x="706" y="332" class="tb">Periodic mirror</text><text x="706" y="349" class="tm">feeds Manager Sandboxes &amp; analytics</text>
+  <text x="706" y="332" class="tb">Sandbox datasets</text><text x="706" y="349" class="tm">daily manager / frozen preview data</text>
 
   <!-- ops / AI tier -->
   <text x="20" y="416" class="lbl">OPS &amp; AI INFRASTRUCTURE</text>
-  <rect class="grp" x="20" y="426" width="620" height="116" rx="12"></rect>
+  <rect class="grp" x="20" y="426" width="620" height="204" rx="12"></rect>
   <rect class="box" x="40" y="450" width="190" height="74" rx="10"></rect>
-  <text x="56" y="474" class="tb">Orchestration VM</text><text x="56" y="491" class="tm">fleet status dashboard;</text><text x="56" y="507" class="tm">scoped autonomous agent</text>
+  <text x="56" y="474" class="tb">Operations console</text><text x="56" y="491" class="tm">fleet health, deploy review,</text><text x="56" y="507" class="tm">permissions &amp; terminals</text>
   <rect class="box" x="245" y="450" width="190" height="74" rx="10"></rect>
   <text x="261" y="474" class="tb">Manager Sandboxes</text><text x="261" y="491" class="tm">role-specific Tourbots</text><text x="261" y="507" class="tm">Docker containers</text>
   <rect class="box" x="450" y="450" width="170" height="74" rx="10"></rect>
-  <text x="466" y="474" class="tb">ProspectForge</text><text x="466" y="491" class="tm">FastAPI / Next.js</text><text x="466" y="507" class="tm">contact sourcing</text>
+  <text x="466" y="474" class="tb">Branch previews</text><text x="466" y="491" class="tm">frozen or editable code;</text><text x="466" y="507" class="tm">test-mode integrations</text>
+  <rect class="box" x="40" y="544" width="580" height="66" rx="10"></rect>
+  <text x="56" y="568" class="tb">Durable deployment worker</text><text x="56" y="588" class="tm">reviewed commit → checks &amp; migrations → deploy → health &amp; recovery</text>
 
   <!-- external services -->
   <text x="670" y="416" class="lbl">EXTERNAL SERVICES</text>
@@ -311,18 +315,18 @@
   <path class="ln" d="M490,88 L490,134" marker-end="url(#arr)"></path>
   <path class="ln" d="M330,174 L330,224" marker-end="url(#arr)"></path>
   <path class="ln" d="M640,300 L690,290 690,273" marker-end="url(#arr)"></path>
-  <path class="ln" d="M815,358 L815,450" marker-end="url(#arr)"></path>
+  <path class="ln" d="M600,374 L600,390 L815,390 L815,450" marker-end="url(#arr)"></path>
   <path class="ln" d="M330,374 L330,426" marker-end="url(#arr)"></path>
-  <path class="ln" d="M620,488 L690,488" marker-end="url(#arr)"></path>
 </svg></div>
             </section>
 
             <section class="section cs-narrative">
                 <div class="section-heading">
                     <h2>The evidence boundary</h2>
-                    <p>Three environments do three different jobs.</p>
+                    <p>Production workflows, shared sandboxes, and a factory still under construction.</p>
                 </div>
-                <p>A <strong>Manager Sandbox</strong> is a role-specific Tourbot instance running in a Docker container. A <strong>Factory Worker</strong> is one ETA Factory agent attempt running inside a short-lived Firecracker microVM. The separate <strong>Kubernetes Demo</strong> is a single-node k3s learning and portfolio environment, not part of ETA production. Manager Sandboxes do not run on k3s, and Factory Workers are not Manager Sandboxes.</p>
+                <p>A <strong>Manager Sandbox</strong> is a role-specific Tourbot instance running in a Docker container. A <strong>branch preview</strong> gives a feature its own URL and code checkout, with a shared non-production database. Neither provides per-user data isolation.</p>
+                <p><strong>ETA Factory</strong> is a separate Rust system under construction on live infrastructure, with agent attempts isolated in short-lived Firecracker microVMs and draft pull requests held for human approval. It is not the production deployment path. The separate <strong>Kubernetes Demo</strong> is a single-node k3s learning and portfolio environment outside ETA production.</p>
             </section>
 
             <section class="section cs-narrative">
@@ -331,33 +335,35 @@
                     <p>Inherited legacy, modernized in production, then extended.</p>
                 </div>
                 <p>The business runs on Tourbot - a full-lifecycle group-travel ERP handling the sales pipeline, itinerary building, reservations, passenger logistics, payments, communications, and 70-plus reports, plus three customer- and contractor-facing portals on the same core. When I took ownership it was a PHP&nbsp;5.6 / CentOS&nbsp;7 / MySQL&nbsp;5.7 system whose support runway was running out, and every other part of the business depended on it staying up.</p>
-                <p>Over four years I led the modernization in production, without a freeze: an enterprise-wide migration to PHP&nbsp;8, MySQL&nbsp;8.4, and Rocky&nbsp;Linux&nbsp;9 across the codebase and server fleet, while still shipping features. That baseline unblocked a second wave that wasn't possible on the old stack - Docker-based Manager Sandboxes, a Python agent-orchestration VM, a fleet-wide Prometheus/Grafana/Alertmanager metrics stack, and ProspectForge (a built, review-ready in-house replacement for the CivicIQ prospecting SaaS, pending management approval) - alongside the unglamorous habits that keep a single-engineer platform safe: a guarded server-side deploy pipeline, a PHPUnit/CI suite across four PHP versions, and a file-based cron registry with a drift monitor watching 100-plus scheduled jobs.</p>
-                <p>The throughline is an engineer who inherited a legacy system and systematically turned it into a platform - more common and more credible than a string of greenfield builds.</p>
+                <p>Over four years I led the modernization in production, without a feature freeze: a codebase and fleet migration to PHP&nbsp;8.4, MySQL&nbsp;8.4, and Rocky&nbsp;Linux&nbsp;9 while the business kept running. That baseline supported Docker-based Manager Sandboxes, a Python operations console, fleet-wide metrics and logs, and per-branch previews. PHPUnit now runs on PHP&nbsp;8.4; CI also checks deployment shell behavior and migration placement.</p>
+                <p>The work now serves a two-engineer team and non-engineering managers. A manager can draft a workflow improvement, a stakeholder can inspect a stable preview, and engineering can review the exact production deployment, its schema changes, and its outcome. The platform includes the controls around the application as well as the application itself.</p>
+                <p>Not every experiment became a lasting service. ProspectForge, the contact-sourcing application described in the original case study, was retired in September&nbsp;2026. It is historical product work, rather than a current component of the architecture above.</p>
             </section>
 
             <section class="section">
                 <div class="section-heading">
                     <h2>By the numbers</h2>
-                    <p>Selected, verifiable outcomes from the work below.</p>
+                    <p>Measured outcomes, with their scope kept explicit.</p>
                 </div>
                 <div class="cs-metrics">
                     <div class="cs-metric"><span class="cs-num">2,650 &rarr; 183</span><span class="cs-cap">SQL statements per manifest render</span></div>
                     <div class="cs-metric"><span class="cs-num">~1s</span><span class="cs-cap">manifest load, down from 5-7s</span></div>
                     <div class="cs-metric"><span class="cs-num">4</span><span class="cs-cap">user-facing portals on one shared core</span></div>
                     <div class="cs-metric"><span class="cs-num">30+</span><span class="cs-cap">marketing-workflow pull requests merged by engineering</span></div>
-                    <div class="cs-metric"><span class="cs-num">77</span><span class="cs-cap">field guides on the guides PWA this season</span></div>
-                    <div class="cs-metric"><span class="cs-num">3,300+</span><span class="cs-cap">traveler SMS sent from the field</span></div>
-                    <div class="cs-metric"><span class="cs-num">~$154K</span><span class="cs-cap">guide expenses reconciled this season</span></div>
+                    <div class="cs-metric"><span class="cs-num">77</span><span class="cs-cap">field guides in the original usage snapshot</span></div>
+                    <div class="cs-metric"><span class="cs-num">3,300+</span><span class="cs-cap">field SMS in the original usage snapshot</span></div>
+                    <div class="cs-metric"><span class="cs-num">~$154K</span><span class="cs-cap">guide expenses reconciled in that snapshot</span></div>
                     <div class="cs-metric"><span class="cs-num">100+</span><span class="cs-cap">scheduled jobs under drift monitoring</span></div>
-                    <div class="cs-metric"><span class="cs-num">14</span><span class="cs-cap">hosts instrumented with Prometheus exporters</span></div>
+                    <div class="cs-metric"><span class="cs-num">14</span><span class="cs-cap">hosts instrumented in the initial metrics rollout</span></div>
                     <div class="cs-metric"><span class="cs-num">~80%</span><span class="cs-cap">of measured DB query time removed by three indexes</span></div>
                 </div>
+                <p class="cs-note">The guide-usage figures are retained from the original June&nbsp;2026 case study, not presented as current-season totals. Performance figures describe the workloads measured below. The marketing figure counts merged pull requests, not commits, distinct features, or formal review approvals; the public lower bound remains 30+ (32 matched the marketing account and production branch on October&nbsp;15).</p>
             </section>
 
             <section class="section">
                 <div class="section-heading">
                     <h2>Engineering highlights</h2>
-                    <p>Five representative pieces, each problem &rarr; approach &rarr; outcome.</p>
+                    <p>Representative work, each problem &rarr; approach &rarr; outcome.</p>
                 </div>
 
                 <div class="cs-highlight">
@@ -371,7 +377,7 @@
                     <h3>PCI-conscious payments</h3>
                     <span class="cs-line"><strong>Problem.</strong> Aging card integrations and bank-file workflows needed modernizing while customers kept paying daily.</span>
                     <span class="cs-line"><strong>Approach.</strong> Rebuilt the card flow across merchant processors with bank-account encryption, and modernized the ACH/NACHA bank-file pipeline over SFTP - kept steady through the platform migration.</span>
-                    <span class="cs-line"><strong>Outcome.</strong> Current PCI posture and reliable money movement, with continuity for in-flight registrations and payments.</span>
+                    <span class="cs-line"><strong>Outcome.</strong> Continuity for in-flight registrations and payments through the runtime and database migrations.</span>
                 </div>
 
                 <div class="cs-highlight">
@@ -382,9 +388,24 @@
                 </div>
 
                 <div class="cs-highlight">
+                    <h3>Branch previews for implementation and sign-off</h3>
+                    <span class="cs-line"><strong>Problem.</strong> A shared development host makes long-lived features compete for one environment; stakeholders need to see the code they are being asked to approve.</span>
+                    <span class="cs-line"><strong>Approach.</strong> A pool of up to 30 per-branch Docker previews, with frozen images pinned to a commit for review or editable checkouts for iteration. Outbound integrations are forced into test mode or disabled. Previews share a point-in-time dataset; schema migrations follow production, while row data stays frozen.</span>
+                    <span class="cs-line"><strong>Outcome.</strong> Features can be demonstrated and worked on side by side. Selected editable previews can track their branch automatically, but refuse to overwrite uncommitted work or divergent local commits. The trade-off is shared data: a database experiment in one preview can affect the others.</span>
+                </div>
+
+                <div class="cs-highlight">
+                    <h3>Deployments that survive a closed browser or a restarted worker</h3>
+                    <span class="cs-line"><strong>Problem.</strong> A deployment must ship the commit the operator reviewed, and a lost connection must not leave engineering guessing whether migrations or code reached production.</span>
+                    <span class="cs-line"><strong>Approach.</strong> The review page binds confirmation to an exact commit. A separate worker records the operation durably, serializes production work, checks CI and live state, applies pending migrations and verifies their ledger before the code checkout, and verifies health afterward. Duplicate delivery of the same confirmation creates one operation.</span>
+                    <span class="cs-line"><strong>Outcome.</strong> Closing the browser stops nothing; the operation remains visible in deployment history. After a restart, the worker reconciles its record with live production before finalizing or spending one bounded retry. Uncertain state is held for recovery; code rollback does not promise to reverse database effects.</span>
+                    <span class="cs-line"><strong>Rollout boundary.</strong> Automatic deployment intake from GitHub Actions is implemented but remains disabled pending cutover. The current production workflow is operator-confirmed.</span>
+                </div>
+
+                <div class="cs-highlight">
                     <h3>Observability first, then a measured 80% database win</h3>
                     <span class="cs-line"><strong>Problem.</strong> The bespoke status prober answered "is it up?" but not "why is database CPU at 65%?" - no metrics history, paging logic embedded in a dashboard, and performance work that was anecdotal rather than measured.</span>
-                    <span class="cs-line"><strong>Approach.</strong> Stood up Prometheus, Grafana, and Alertmanager on a Terraform-provisioned droplet - node, mysqld, and blackbox exporters across all 14 hosts (host metrics, replication health, uptime, TLS expiry), with the rule-to-SMS paging chain verified live before cutting over the old pager. Then used <code>performance_schema</code> to rank 27 days of production queries by total time: three full-table-scan hot queries dominated, fixed with three composite indexes applied as online DDL (INPLACE, LOCK=NONE), EXPLAIN-verified, rollback written first.</span>
+                    <span class="cs-line"><strong>Approach.</strong> Stood up Prometheus, Grafana, and Alertmanager on a Terraform-provisioned droplet - node, mysqld, and blackbox exporters across the initial 14-host rollout (host metrics, replication health, uptime, TLS expiry), with the rule-to-SMS paging chain verified live before cutting over the old pager. Then used <code>performance_schema</code> to rank 27 days of production queries by total time: three full-table-scan hot queries dominated, fixed with three composite indexes applied as online DDL (INPLACE, LOCK=NONE), EXPLAIN-verified, rollback written first.</span>
                     <span class="cs-line"><strong>Outcome.</strong> One paging pipeline, capacity questions answered from dashboards, and ~80% of measured query time (~404K of ~500K query-seconds) gone - with the remaining load diagnosed as application-level N+1 volume rather than papered over with hardware.</span>
                 </div>
 
@@ -405,14 +426,16 @@
                     <div class="cs-row"><b>PHP 8 / MySQL 8</b> - the platform's core; modernized in place rather than rewritten, because a rewrite would have frozen a business that can't stop.</div>
                     <div class="cs-row"><b>Docker + Traefik</b> - Separate application containers with a shared writable sandbox database: lower refresh cost, with data changes visible across managers.</div>
                     <div class="cs-row"><b>Python / Flask / SQLite</b> - an operations console for fleet health, deploy review, previews, and browser terminals, with passkeys and server-enforced permissions. Coding-agent credentials are resolved from a vault at launch.</div>
-                    <div class="cs-row"><b>FastAPI / Next.js / PostgreSQL</b> - ProspectForge is greenfield, so it uses a typed, modern stack independent of the legacy MySQL core.</div>
-                    <div class="cs-row"><b>Server-side deploy script + PHPUnit/CI</b> - for a single-server PHP app, a guarded shell pipeline (dirty-tree, flock, ancestor-only, healthcheck, one-command rollback) beats a hosted runner; CI runs the suite across PHP 8.1-8.4.</div>
+                    <div class="cs-row"><b>Branch previews</b> - frozen images make review reproducible; editable checkouts make iteration cheap. A shared database lowers operating cost while coupling data experiments.</div>
+                    <div class="cs-row"><b>Durable worker + server-side deploy script</b> - the console records intent and progress; the host script owns checkout and health checks. CI runs PHPUnit on PHP&nbsp;8.4 plus shell and migration-placement checks.</div>
                     <div class="cs-row"><b>Prometheus / Grafana / Alertmanager</b> - capacity questions ("why is DB CPU at 65%?") need metrics history, not a ping dashboard; a dedicated Terraform-provisioned droplet keeps paging out of the app as the single source of paging truth.</div>
                     <div class="cs-row"><b>File-based cron registry + drift monitor</b> - 100-plus scheduled jobs become legible and tamper-evident instead of a black box.</div>
+                    <div class="cs-row"><b>OpenTofu + Ansible</b> - versioned host provisioning and configuration make rebuilds repeatable; reviewed plans govern declarative DNS changes.</div>
                 </div>
                 <p class="cs-note">Open source: I upstreamed the MySQL&nbsp;8.4 <code>caching_sha2_password</code> auth-handshake fix this stack needed into <a href="https://github.com/krowinski/php-mysql-replication/pull/148" target="_blank" rel="noopener">php-mysql-replication</a> (PR&nbsp;#148).</p>
                     <p class="cs-note">Architecture decisions: the non-obvious trade-offs - tenant isolation, the data tier, the deploy pipeline, agent identity - are written up as sanitized ADRs in <a href="https://github.com/JacobStephens2/infrastructure-patterns" target="_blank" rel="noopener">infrastructure-patterns</a>.</p>
-                    <p class="cs-note">Confidentiality: the repositories are private per employer agreement. Architecture is described here at a high level and omits hostnames, network addresses, credential mechanisms, and vendor specifics.</p>
+                    <p class="cs-note">Verified October&nbsp;15,&nbsp;2026 against the current repository documentation, CI configuration, and read-only checks of the deployed operations console and deployment worker. Some capabilities in the repositories are still awaiting rollout; those are identified above.</p>
+                    <p class="cs-note">Confidentiality: employer repositories remain private. This account describes architecture at a high level and omits private endpoints, network addresses, credentials, and customer data.</p>
             </section>
 
             <section class="section">

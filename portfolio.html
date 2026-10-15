@@ -567,7 +567,7 @@
                                 <span>The results favored a second look after a whole feature was assembled over adding another review inside every run. Published the controls, model-based grading limitations, and the engineering decisions alongside the results.</span>
                             </div>
                             <div class="portfolio-tags"><span class="portfolio-tag">Agent evaluation</span><span class="portfolio-tag">Code review</span><span class="portfolio-tag">Experimental design</span></div>
-                            <div class="portfolio-links"><a href="/blog/fresh-eyes-beat-a-second-family/" class="portfolio-link">Read the study</a><a href="https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md" class="portfolio-link">Research notes</a></div>
+                            <div class="portfolio-links"><a href="/blog/fresh-eyes-beat-a-second-family/paper/" class="portfolio-link">Read the study</a><a href="https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md" class="portfolio-link">Research notes</a></div>
                         </div>
                     </article>
                     <article class="portfolio-item" id="vaulted-agent">
@@ -1124,6 +1124,43 @@
                     <p>A curated set of personal builds, selected for relevance to platform and AI-infrastructure work. The full shelf of published apps lives at <a href="/apps.html" class="portfolio-link">stephens.page/apps</a>.</p>
                 </div>
                 <div class="portfolio-grid">
+                    <article class="portfolio-item" id="voice-agent-scheduling">
+                        <div class="portfolio-content">
+                            <h3 class="portfolio-title">Voice Agent Scheduling</h3>
+                            <p class="portfolio-summary">A TypeScript telephone assistant that checks Google Calendar availability, reads appointment details back, and books a call only after explicit caller confirmation.</p>
+                            <div class="portfolio-block">
+                                <strong>What I built</strong>
+                                <span>Signed incoming-call webhooks, server-enforced booking rules, and a durable booking ledger keep the model&#x27;s conversation separate from permission to write to the calendar. Restart reconciliation resolves uncertain writes without creating duplicate events.</span>
+                            </div>
+                            <div class="portfolio-block">
+                                <strong>Operational boundaries</strong>
+                                <span>Call-duration, concurrency, and monthly-budget limits bound resource use. Callers hear available times rather than existing event details; the service retains no call audio or transcripts. Public admission is controlled separately from calendar-write authorization.</span>
+                            </div>
+                            <div class="portfolio-tags"><span class="portfolio-tag">TypeScript</span><span class="portfolio-tag">Realtime voice</span><span class="portfolio-tag">Google Calendar</span><span class="portfolio-tag">SQLite</span></div>
+                            <div class="portfolio-links"><a href="https://scheduler.stephens.page/" class="portfolio-link">Project</a><a href="https://github.com/JacobStephens2/voice-agent-scheduling" class="portfolio-link">Source</a></div>
+                        </div>
+                    </article>
+
+                    <article class="portfolio-item" id="drome">
+                        <button class="image-button" type="button" data-image="screenshots/Drome-iOS-app-screenshot.png" data-title="Drome">
+                            <img src="screenshots/Drome-iOS-app-screenshot.png" alt="Drome iOS challenge tracker with daily progress and water logging" class="portfolio-image">
+                        </button>
+                        <div class="portfolio-content">
+                            <h3 class="portfolio-title">Drome</h3>
+                            <p class="portfolio-summary">A local-first challenge tracker I built for my sister, who used it through her whole 75-day challenge. It brought her Google Sheet, separate water app, and workout screenshots into one place.</p>
+                            <div class="portfolio-block">
+                                <strong>What I built</strong>
+                                <span>An event-driven Rust rules engine powers a native SwiftUI app and an interactive WidgetKit water widget through UniFFI. Waking-hours day boundaries, water amounts and presets, and fast history backfill follow how she actually tracked her challenge; day-boundary math is property-tested.</span>
+                            </div>
+                            <div class="portfolio-block">
+                                <strong>Result</strong>
+                                <span>The iOS app and Rust core supported her full challenge. Accounts, sync, friend groups, and the Android and Wear OS clients remain more experimental.</span>
+                            </div>
+                            <div class="portfolio-tags"><span class="portfolio-tag">Rust</span><span class="portfolio-tag">SwiftUI</span><span class="portfolio-tag">WidgetKit</span><span class="portfolio-tag">UniFFI</span><span class="portfolio-tag">Local-first</span></div>
+                            <div class="portfolio-links"><a href="https://drome.day/" class="portfolio-link">Project</a><a href="https://github.com/JacobStephens2/drome" class="portfolio-link">Source</a></div>
+                        </div>
+                    </article>
+
                     <article class="portfolio-item" id="muxboard">
                         <button class="image-button" type="button" data-image="screenshots/muxboard.jpg" data-title="muxboard product page with live attach">
                             <img src="screenshots/muxboard.jpg" alt="muxboard product site: live browser attach to a chart35 coding-agent session on jacob@stephens droplet" class="portfolio-image">

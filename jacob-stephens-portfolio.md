@@ -32,7 +32,7 @@ An open-source Rust orchestrator that takes GitHub issues through implementation
 
 Designed an evaluation of 183 replayed code-review sessions across four checkpoints, comparing a second model family with fresh sessions of the same model. The results favored a second look after a whole feature was assembled over adding another review inside every run. Published controls, model-based grading limitations, and the resulting engineering decisions alongside the results.
 
-[Read the study](https://stephens.page/blog/fresh-eyes-beat-a-second-family/) · [Research notes](https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md)
+[Read the study](https://stephens.page/blog/fresh-eyes-beat-a-second-family/paper/) · [Research notes](https://github.com/JacobStephens2/thirdshift/blob/main/docs/research/second-opinion-replays.md)
 
 ### vaulted-agent
 
@@ -406,6 +406,34 @@ Brand Presence
 ## Personal Projects
 
 A curated set of personal builds, selected for relevance to platform and AI-infrastructure work. The full shelf of published apps lives at [stephens.page/apps](/apps.html).
+
+### Voice Agent Scheduling
+
+A TypeScript telephone assistant that checks Google Calendar availability, reads appointment details back, and books a call only after explicit caller confirmation.
+
+**What I built**
+Signed incoming-call webhooks, server-enforced booking rules, and a durable booking ledger keep the model's conversation separate from permission to write to the calendar. Restart reconciliation resolves uncertain writes without creating duplicate events.
+
+**Operational boundaries**
+Call-duration, concurrency, and monthly-budget limits bound resource use. Callers hear available times rather than existing event details; the service retains no call audio or transcripts. Public admission is controlled separately from calendar-write authorization.
+
+TypeScript · Realtime voice · Google Calendar · SQLite
+
+[Project](https://scheduler.stephens.page/) · [Source](https://github.com/JacobStephens2/voice-agent-scheduling)
+
+### Drome
+
+A local-first challenge tracker I built for my sister, who used it through her whole 75-day challenge. It brought her Google Sheet, separate water app, and workout screenshots into one place.
+
+**What I built**
+An event-driven Rust rules engine powers a native SwiftUI app and an interactive WidgetKit water widget through UniFFI. Waking-hours day boundaries, water amounts and presets, and fast history backfill follow how she actually tracked her challenge; day-boundary math is property-tested.
+
+**Result**
+The iOS app and Rust core supported her full challenge. Accounts, sync, friend groups, and the Android and Wear OS clients remain more experimental.
+
+Rust · SwiftUI · WidgetKit · UniFFI · Local-first
+
+[Project](https://drome.day/) · [Source](https://github.com/JacobStephens2/drome)
 
 ### muxboard
 

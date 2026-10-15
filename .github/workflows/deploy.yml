@@ -1,5 +1,8 @@
 name: Deploy
 
+# Every push to main fast-forwards /var/www/stephens.page through
+# `site-deploy stephens-page <sha>` on the droplet. workflow_dispatch reruns a
+# deploy by hand, for example after site-deploy refused a dirty live tree.
 on:
   push:
     branches:

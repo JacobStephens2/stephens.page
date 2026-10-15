@@ -96,7 +96,7 @@ Managers needed to answer complex business questions - revenue breakdowns, booki
 Role-specific Tourbot instances in separate Docker containers behind Traefik, with AI assistants and persistent coding-agent sessions. The three managers share a writable sandbox database refreshed daily from production, with per-manager credentials for attribution. Containers separate application files and processes; the database is shared. Managers can prototype code and data changes, while pull requests and engineering review control promotion to production.
 
 **Result**
-Managers in Sales, General Management, and Marketing explore business data and prototype workflow changes through conversation. Fourteen manager-prototyped features have shipped through engineering review and hardening. Shared sandbox data keeps the daily refresh affordable, with an explicit trade-off: a manager's database experiment can affect the other sandboxes until the next refresh.
+Managers in Sales, General Management, and Marketing explore business data and prototype workflow changes through conversation. The marketing workflow alone has produced 30+ pull requests merged by engineering after review and hardening. Shared sandbox data keeps the daily refresh affordable, with an explicit trade-off: a manager's database experiment can affect the other sandboxes until the next refresh.
 
 OpenClaw
 Claude

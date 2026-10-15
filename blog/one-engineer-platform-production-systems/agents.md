@@ -7,7 +7,7 @@ updated: 2026-10-15
 
 # ETA Platform: claims and evidence boundaries
 
-Jacob has led engineering ownership since 2022 and now leads a two-engineer
+Jacob has led engineering ownership since 2022 and now leads an engineering
 team while remaining hands-on. The historical URL is retained; the current
 article title is "From a legacy ERP to an engineering platform."
 

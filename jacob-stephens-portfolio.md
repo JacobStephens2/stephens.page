@@ -405,7 +405,7 @@ Brand Presence
 
 ## Personal Projects
 
-A curated set of personal builds, selected for relevance to platform and AI-infrastructure work. The full shelf of published apps lives at [stephens.page/apps](/apps.html).
+A curated set of personal builds, selected for relevance to platform and AI agent infrastructure work. The full shelf of published apps lives at [stephens.page/apps](/apps.html).
 
 ### Voice Agent Scheduling
 

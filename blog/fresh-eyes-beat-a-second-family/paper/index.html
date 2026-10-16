@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fresh Eyes Beat a Second Family: A Preregistered Replay Study of Cross-Family AI Code Review | Jacob Stephens</title>
@@ -27,32 +35,58 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/libertinus-serif@5/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/libertinus-serif@5/700.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/libertinus-serif@5/400-italic.css">
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/theme.js" defer></script>
     <style>
-        :root { --ink: #111; --muted: #555; --rule: #999; --shade: #f2f2f2; }
+        /* Paper palette. --pp-* tokens are the paper's own; .topnote-actions maps them onto the
+           tokens the shared theme toggle reads. Dark applies on screen only, so print stays black on white. */
+        :root {
+            --pp-ink: #111; --pp-muted: #555; --pp-rule: #999; --pp-shade: #f2f2f2;
+            --pp-desk: #e9e9e6; --pp-sheet: #fff; --pp-shadow: rgba(0,0,0,0.18);
+            --pp-link: #1a3d8f; --pp-note: #444; --pp-note-link: #333; --pp-fig-muted: #333;
+            --theme-toggle-size: 1.85rem;
+        }
+        @media screen {
+            html[data-theme="dark"] {
+                --pp-ink: #e4e0da; --pp-muted: #a7a098; --pp-rule: #6b655e; --pp-shade: #3a352f;
+                --pp-desk: #0e0c0b; --pp-sheet: #1b1815; --pp-shadow: rgba(0,0,0,0.6);
+                --pp-link: #9fb7ee; --pp-note: #b3ada5; --pp-note-link: #cfc9c1; --pp-fig-muted: #c4beb6;
+            }
+        }
+        @media screen and (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]):not([data-theme="dark"]) {
+                --pp-ink: #e4e0da; --pp-muted: #a7a098; --pp-rule: #6b655e; --pp-shade: #3a352f;
+                --pp-desk: #0e0c0b; --pp-sheet: #1b1815; --pp-shadow: rgba(0,0,0,0.6);
+                --pp-link: #9fb7ee; --pp-note: #b3ada5; --pp-note-link: #cfc9c1; --pp-fig-muted: #c4beb6;
+            }
+        }
         * { box-sizing: border-box; }
-        html { background: #e9e9e6; }
+        html { background: var(--pp-desk); }
         body {
-            margin: 0; padding: 2.5rem 1rem 4rem; color: var(--ink);
+            margin: 0; padding: 2.5rem 1rem 4rem; color: var(--pp-ink);
             font-family: 'Libertinus Serif', 'Linux Libertine O', 'Linux Libertine', 'Palatino Linotype', Palatino, Georgia, serif;
             font-size: 17px; line-height: 1.5; text-rendering: optimizeLegibility;
             font-variant-numeric: oldstyle-nums proportional-nums;
         }
-        .page { max-width: 46rem; margin: 0 auto; background: #fff; padding: 3.5rem 4rem 3rem; box-shadow: 0 1px 4px rgba(0,0,0,0.18); }
-        .topnote { max-width: 46rem; margin: 0 auto 0.8rem; font-size: 0.82rem; color: #444; font-family: 'Libertinus Serif', Georgia, serif; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-        .topnote a { color: #333; }
-        a { color: #1a3d8f; text-decoration: none; }
+        html.theme-ready .page { transition: background-color 0.18s ease; }
+        .page { max-width: 46rem; margin: 0 auto; background: var(--pp-sheet); padding: 3.5rem 4rem 3rem; box-shadow: 0 1px 4px var(--pp-shadow); }
+        .topnote { max-width: 46rem; margin: 0 auto 0.8rem; font-size: 0.82rem; color: var(--pp-note); font-family: 'Libertinus Serif', Georgia, serif; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+        .topnote a { color: var(--pp-note-link); }
+        .topnote-actions { --ink: var(--pp-ink); --rule: var(--pp-rule); --soft: var(--pp-shade); --brand: var(--pp-link); display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+        .topnote-actions [data-theme-toggle] { display: inline-flex; margin-left: 0.4rem; }
+        a { color: var(--pp-link); text-decoration: none; }
         a:hover { text-decoration: underline; }
         header.front { text-align: center; margin-bottom: 1.6rem; }
         header.front p { text-align: center; text-indent: 0; }
         h1.title { font-size: 1.62rem; line-height: 1.25; font-weight: 700; margin: 0 0 1rem; }
         .authors { font-size: 1.05rem; margin: 0; }
-        .affil { font-size: 0.9rem; color: var(--muted); margin: 0.15rem 0 0; }
-        .dates { font-size: 0.85rem; color: var(--muted); margin: 0.7rem 0 0; font-style: italic; }
+        .affil { font-size: 0.9rem; color: var(--pp-muted); margin: 0.15rem 0 0; }
+        .dates { font-size: 0.85rem; color: var(--pp-muted); margin: 0.7rem 0 0; font-style: italic; }
         .abstract { margin: 1.8rem 2rem 1.2rem; font-size: 0.93rem; text-align: justify; hyphens: auto; }
         .abstract h2 { text-align: center; font-size: 0.95rem; font-weight: 700; margin: 0 0 0.4rem; letter-spacing: 0.04em; font-variant: small-caps; }
         .keywords { margin: 0 2rem 2rem; font-size: 0.88rem; }
         .keywords b { font-variant: small-caps; letter-spacing: 0.03em; }
-        hr.sep { border: 0; border-top: 1px solid var(--rule); margin: 0 0 1.6rem; }
+        hr.sep { border: 0; border-top: 1px solid var(--pp-rule); margin: 0 0 1.6rem; }
         h2 { font-size: 1.12rem; font-weight: 700; margin: 2rem 0 0.6rem; }
         h3 { font-size: 1rem; font-weight: 700; font-style: italic; margin: 1.4rem 0 0.4rem; }
         h4 { font-size: 0.97rem; font-weight: 400; font-style: italic; margin: 1rem 0 0.3rem; display: inline; }
@@ -66,25 +100,28 @@
         .table .cap, figure figcaption { font-size: 0.86rem; margin-bottom: 0.45rem; text-align: left; line-height: 1.4; }
         .cap b, figcaption b { font-weight: 700; }
         table { border-collapse: collapse; width: 100%; font-size: 0.86rem; line-height: 1.35; font-variant-numeric: lining-nums tabular-nums; }
-        thead tr:first-child th { border-top: 1.5px solid var(--ink); }
-        thead th { border-bottom: 0.8px solid var(--ink); font-weight: 700; padding: 0.35rem 0.45rem; text-align: left; vertical-align: bottom; }
+        thead tr:first-child th { border-top: 1.5px solid var(--pp-ink); }
+        thead th { border-bottom: 0.8px solid var(--pp-ink); font-weight: 700; padding: 0.35rem 0.45rem; text-align: left; vertical-align: bottom; }
         tbody td { padding: 0.25rem 0.45rem; vertical-align: top; }
-        tbody tr:last-child td { border-bottom: 1.5px solid var(--ink); }
-        tr.total td { border-top: 0.8px solid var(--ink); font-weight: 700; }
+        tbody tr:last-child td { border-bottom: 1.5px solid var(--pp-ink); }
+        tr.total td { border-top: 0.8px solid var(--pp-ink); font-weight: 700; }
         td.n, th.n { text-align: right; }
         td.c, th.c { text-align: center; }
         .pass { font-weight: 700; }
         figure { margin: 1.5rem 0; }
-        figure svg { display: block; margin: 0 auto 0.5rem; max-width: 100%; height: auto; }
+        figure svg .fig-sheet { fill: var(--pp-sheet); }
+        figure svg .fig-shade { fill: var(--pp-shade); }
+        figure svg .fig-muted { fill: var(--pp-fig-muted); }
+        figure svg { display: block; margin: 0 auto 0.5rem; max-width: 100%; height: auto; color: var(--pp-ink); }
         figure figcaption { text-align: justify; }
-        .box { border: 0.8px solid var(--ink); padding: 0.7rem 0.9rem 0.3rem; margin: 1.2rem 0; font-size: 0.92rem; }
+        .box { border: 0.8px solid var(--pp-ink); padding: 0.7rem 0.9rem 0.3rem; margin: 1.2rem 0; font-size: 0.92rem; }
         .box p { text-indent: 0 !important; }
         .refs ol { padding-left: 2rem; font-size: 0.88rem; }
         .refs li { margin-bottom: 0.45rem; text-align: left; }
         .small { font-size: 0.88rem; }
         code { font-family: 'DejaVu Sans Mono', Menlo, Consolas, monospace; font-size: 0.8em; }
         sup.fn a { font-size: 0.75em; }
-        .footnotes { border-top: 0.8px solid var(--rule); margin-top: 2rem; padding-top: 0.6rem; font-size: 0.82rem; }
+        .footnotes { border-top: 0.8px solid var(--pp-rule); margin-top: 2rem; padding-top: 0.6rem; font-size: 0.82rem; }
         .footnotes p { text-indent: 0 !important; margin-bottom: 0.35rem; }
         details.sec { margin: 0; }
         details.sec > summary { list-style: none; cursor: pointer; border-radius: 2px; }
@@ -92,12 +129,12 @@
         details.sec > summary h2 { margin: 1.05rem 0 0.5rem; }
         details.sec > summary h2::before { content: ''; display: inline-block; border-left: 0.42em solid currentColor; border-top: 0.28em solid transparent; border-bottom: 0.28em solid transparent; margin-right: 0.6em; vertical-align: 0.1em; transition: transform 0.15s; }
         details.sec[open] > summary h2::before { transform: rotate(90deg); }
-        details.sec > summary:hover h2 { color: #1a3d8f; }
-        details.sec > summary:focus-visible { outline: 2px solid #1a3d8f; outline-offset: 3px; }
+        details.sec > summary:hover h2 { color: var(--pp-link); }
+        details.sec > summary:focus-visible { outline: 2px solid var(--pp-link); outline-offset: 3px; }
         details.sec[open] > .sec-body { padding-bottom: 0.6rem; }
         .sec-body > p:first-child { text-indent: 0; }
-        .fold-hint { font-size: 0.85rem; color: var(--muted); font-style: italic; text-align: left; margin-bottom: 0.4rem; }
-        button.linkish { background: none; border: 0; padding: 0; font: inherit; color: #1a3d8f; cursor: pointer; }
+        .fold-hint { font-size: 0.85rem; color: var(--pp-muted); font-style: italic; text-align: left; margin-bottom: 0.4rem; }
+        button.linkish { background: none; border: 0; padding: 0; font: inherit; color: var(--pp-link); cursor: pointer; }
         button.linkish:hover { text-decoration: underline; }
         .box { margin-top: 1.6rem; }
         @media (max-width: 640px) {
@@ -111,6 +148,8 @@
         }
         @media print {
             @page { size: letter; margin: 0.9in 0.85in; }
+            /* Matches theme.css's dark selectors so print always lays out on a light canvas. */
+            html, html[data-theme], html:not([data-theme="light"]):not([data-theme="dark"]) { color-scheme: light; }
             html, body { background: #fff; padding: 0; font-size: 10.5pt; }
             .page { box-shadow: none; padding: 0; max-width: none; }
             .topnote { display: none; }
@@ -127,7 +166,7 @@
 <body>
     <div class="topnote">
         <span><a href="/blog/fresh-eyes-beat-a-second-family/">&larr; Blog version, with live figures</a></span>
-        <span><button type="button" class="linkish" data-fold-all>expand all</button> &middot; <a href="fresh-eyes-beat-a-second-family.pdf">PDF</a> &middot; <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a></span>
+        <span class="topnote-actions"><button type="button" class="linkish" data-fold-all>expand all</button> &middot; <a href="fresh-eyes-beat-a-second-family.pdf">PDF</a> &middot; <a href="/blog/fresh-eyes-beat-a-second-family/agents.md">agents.md</a><span data-theme-toggle></span></span>
     </div>
     <main class="page">
         <header class="front">
@@ -185,8 +224,8 @@
 
         <figure>
             <svg viewBox="0 0 640 300" role="img" aria-label="Pipeline with the four tested checkpoints" font-family="Libertinus Serif, Georgia, serif" font-size="13">
-                <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111"/></marker></defs>
-                <g fill="none" stroke="#111" stroke-width="1">
+                <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+                <g fill="none" stroke="currentColor" stroke-width="1">
                     <rect x="10" y="20" width="120" height="44"/>
                     <rect x="180" y="20" width="120" height="44"/>
                     <rect x="350" y="20" width="120" height="44"/>
@@ -199,28 +238,28 @@
                     <line x1="390" y1="64" x2="390" y2="128" stroke-dasharray="3,3" marker-end="url(#ar)"/>
                     <line x1="440" y1="64" x2="530" y2="208" stroke-dasharray="3,3" marker-end="url(#ar)"/>
                 </g>
-                <g text-anchor="middle" fill="#111">
+                <g text-anchor="middle" fill="currentColor">
                     <text x="70" y="38">Architect run</text><text x="70" y="54">writes a plan</text>
                     <text x="240" y="38">Ticket Runs: build,</text><text x="240" y="54">in-session review</text>
                     <text x="410" y="38">Spec review of</text><text x="410" y="54">whole branch</text>
                     <text x="570" y="38">Pull request</text><text x="570" y="54">merges itself</text>
                 </g>
-                <g stroke="#111" stroke-width="1">
-                    <rect x="10" y="130" width="140" height="62" fill="#f2f2f2"/>
-                    <rect x="170" y="130" width="140" height="62" fill="#fff" stroke-dasharray="4,2"/>
-                    <rect x="330" y="130" width="140" height="62" fill="#fff" stroke-width="2"/>
-                    <rect x="470" y="210" width="160" height="62" fill="#fff" stroke-dasharray="4,2"/>
+                <g stroke="currentColor" stroke-width="1">
+                    <rect x="10" y="130" width="140" height="62" class="fig-shade"/>
+                    <rect x="170" y="130" width="140" height="62" class="fig-sheet" stroke-dasharray="4,2"/>
+                    <rect x="330" y="130" width="140" height="62" class="fig-sheet" stroke-width="2"/>
+                    <rect x="470" y="210" width="160" height="62" class="fig-sheet" stroke-dasharray="4,2"/>
                 </g>
-                <g text-anchor="middle" fill="#111">
+                <g text-anchor="middle" fill="currentColor">
                     <text x="80" y="150" font-weight="700">RQ2 Plan check</text><text x="80" y="167">passes only with</text><text x="80" y="183">Claude (max) checking</text>
                     <text x="240" y="150" font-weight="700">RQ1 Second opinion</text><text x="240" y="167">in a Run</text><text x="240" y="183">fails both directions</text>
                     <text x="400" y="150" font-weight="700">RQ3 Second opinion</text><text x="400" y="167">after the Spec review</text><text x="400" y="183">passes, either family</text>
                     <text x="550" y="230" font-weight="700">RQ4 Spec review on</text><text x="550" y="247">the other Harness</text><text x="550" y="263">fails (22 vs. 23)</text>
                 </g>
-                <g font-size="11.5" fill="#333">
-                    <rect x="12" y="232" width="18" height="12" fill="#fff" stroke="#111" stroke-width="2"/><text x="36" y="242">passes</text>
-                    <rect x="12" y="252" width="18" height="12" fill="#f2f2f2" stroke="#111"/><text x="36" y="262">passes only in one configuration</text>
-                    <rect x="12" y="272" width="18" height="12" fill="#fff" stroke="#111" stroke-dasharray="4,2"/><text x="36" y="282">fails its bar</text>
+                <g font-size="11.5" class="fig-muted">
+                    <rect x="12" y="232" width="18" height="12" class="fig-sheet" stroke="currentColor" stroke-width="2"/><text x="36" y="242">passes</text>
+                    <rect x="12" y="252" width="18" height="12" class="fig-shade" stroke="currentColor"/><text x="36" y="262">passes only in one configuration</text>
+                    <rect x="12" y="272" width="18" height="12" class="fig-sheet" stroke="currentColor" stroke-dasharray="4,2"/><text x="36" y="282">fails its bar</text>
                 </g>
             </svg>
             <figcaption><b>Figure 1.</b> The thirdshift pipeline (top row) and the four checkpoints tested (bottom), with their outcomes against preregistered bars. Dashed arrows mark where a second reviewer would attach.</figcaption>

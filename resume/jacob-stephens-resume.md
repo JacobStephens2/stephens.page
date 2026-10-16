@@ -4,7 +4,7 @@
 
 [stephens.page](https://stephens.page/) · [thirdshift](https://thirdshift.app/) · [GitHub](https://github.com/JacobStephens2) · [LinkedIn](https://www.linkedin.com/in/jacob-c-stephens)
 
-Platform and infrastructure engineer with 4+ years of production ownership. Lead an engineering team responsible for a specialty-travel company's reservations, payments, Linux fleet, backend services, and agent infrastructure. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery.
+Software engineer who builds AI agent infrastructure (agent sandboxes, orchestration, review gates, and evals) and runs the production platform a specialty-travel business depends on. 4+ years of production ownership of its reservations, payments, Linux fleet, and backend services; now lead its engineering team as Head of Engineering. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery.
 
 ## Experience
 

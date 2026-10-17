@@ -56,7 +56,7 @@ were active. This was a documentation and runtime-presence check, not a new
 production acceptance campaign or database benchmark.
 
 Public architecture decisions:
-https://github.com/JacobStephens2/infrastructure-patterns
+https://adr.stephens.page/
 
 Merged MySQL authentication contribution:
 https://github.com/krowinski/php-mysql-replication/pull/148

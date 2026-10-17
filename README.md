@@ -1,7 +1,8 @@
 # stephens.page
 
 Source for [stephens.page](https://stephens.page), my professional website:
-resume, portfolio, decision records, and interactive technical blog.
+resume, portfolio, and interactive technical blog, with links to the
+[architecture decision collection](https://adr.stephens.page/).
 
 Formerly two repos (`portfolio` and `resume`); both now live here so one
 document tree matches the live site.
@@ -23,7 +24,9 @@ to be executable.
   and project writeups.
 - **Technical blog** - teaching-first engineering posts with live figures,
   runnable models, visualizations, sources, and quizzes.
-- **Decision records** - public explanations of technical and product choices.
+- **Decision records** - published at [adr.stephens.page](https://adr.stephens.page/)
+  from the [infrastructure-patterns](https://github.com/JacobStephens2/infrastructure-patterns)
+  repository, with search and topic filters.
 - **Agent-oriented artifacts** - canonical blog posts include an `agents.md`
   companion with operational rules, schemas, verified numbers, checklists, and
   self-tests that do not require a browser.
@@ -53,7 +56,7 @@ salabim and Pillow in the browser to generate a genuine animation.
 | [`resume/`](https://stephens.page/resume/) | Resume HTML, Markdown, PDF, and tailored variants |
 | [`apps.html`](https://stephens.page/apps) | Software and application index |
 | [`blog/`](https://stephens.page/blog/) | Canonical human posts and their agent-oriented companions |
-| [`decisions/`](https://stephens.page/decisions/) | Public decision records |
+| [Architecture decisions](https://adr.stephens.page/) | Current collection, maintained in infrastructure-patterns |
 | `screenshots/` | Portfolio and project imagery |
 | [`theme.css`](https://stephens.page/theme.css), [`theme.js`](https://stephens.page/theme.js) | Shared light/dark theme and persistent theme control |
 | [`contact.html`](https://stephens.page/contact), `contact-submit.php` | Contact page and server-side form handler |
@@ -63,6 +66,10 @@ salabim and Pillow in the browser to generate a genuine animation.
 
 `resume.stephens.page` should redirect to `https://stephens.page/resume/` so old
 links keep working after the resume was folded into this tree.
+
+The old `decisions/` HTML mirror has been removed. Permanent redirects on the
+server preserve `/decisions/` and individual record URLs; their configuration
+lives in [infrastructure-patterns/ops/apache/legacy-decisions.conf](https://github.com/JacobStephens2/infrastructure-patterns/blob/main/ops/apache/legacy-decisions.conf).
 
 ## Architecture
 

@@ -287,7 +287,7 @@
 
             <p>Honesty about the price: generated config is verbose and machine-named. Importing 200-some records gives you 200-some resource blocks with generated identifiers, not the hand-curated names you would write greenfield. You can rename them in state afterward, but that is separate work I have not decided is worth doing for records I rarely touch by hand. The tidiness I gave up is real; the zero-downtime adoption I bought is worth more. Whether the rename cleanup earns its keep is a question I am leaving open until the verbosity gets in my way.</p>
 
-            <p>The full sanitized setup - Terraform, the import generator, the Ansible roles - is on <a href="https://github.com/JacobStephens2/terraform-cloudflare-dns">GitHub</a>, and the longer reasoning is written up as <a href="/decisions/0014-import-live-dns-over-recreating-it/">ADR 0014</a>, alongside the surrounding IaC decisions: <a href="/decisions/0013-staged-declarative-provisioning-over-imperative-bootstrap/">staged declarative provisioning (0013)</a> and <a href="/decisions/0015-state-off-the-provider-it-provisions/">keeping state off the provider it provisions (0015)</a>.</p>
+            <p>The full sanitized setup - Terraform, the import generator, the Ansible roles - is on <a href="https://github.com/JacobStephens2/terraform-cloudflare-dns">GitHub</a>, and the longer reasoning is written up as <a href="https://adr.stephens.page/decisions/0014-import-live-dns-over-recreating-it/">ADR 0014</a>, alongside <a href="https://adr.stephens.page/decisions/0015-state-off-the-provider-it-provisions/">the decision to keep state off the provider it provisions (0015)</a>.</p>
         </article>
 
         <footer class="footer">

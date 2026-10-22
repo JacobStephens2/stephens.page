@@ -137,6 +137,35 @@ function isRelativeUrl(string $url): bool
     return preg_match('#^[a-z][a-z0-9+.-]*:#i', $url) !== 1;
 }
 
+/** @return list<string> urls inside CSS url() tokens, quotes stripped */
+function cssUrls(string $css): array
+{
+    if (!preg_match_all('/url\(\s*(["\']?)([^"\')]+)\1\s*\)/i', $css, $matches)) {
+        return [];
+    }
+    $urls = [];
+    foreach ($matches[2] as $url) {
+        $urls[] = trim($url);
+    }
+
+    return $urls;
+}
+
+/** @return list<string> the image urls in a srcset, descriptors dropped */
+function srcsetUrls(string $srcset): array
+{
+    $urls = [];
+    foreach (explode(',', $srcset) as $candidate) {
+        $candidate = trim($candidate);
+        if ($candidate === '') {
+            continue;
+        }
+        $urls[] = preg_split('/\s+/', $candidate, 2)[0];
+    }
+
+    return $urls;
+}
+
 function resolveAgainstResume(string $root, string $url): string
 {
     $url = preg_replace('/[?#].*$/', '', $url) ?? $url;
@@ -268,8 +297,38 @@ if ($page === null) {
         }
     }
     foreach ($page->getElementsByTagName('img') as $img) {
-        if ($img instanceof DOMElement && !isRelativeUrl($img->getAttribute('src'))) {
+        if (!$img instanceof DOMElement) {
+            continue;
+        }
+        if (!isRelativeUrl($img->getAttribute('src'))) {
             $offenders[] = $img->getAttribute('src');
+        }
+        foreach (srcsetUrls($img->getAttribute('srcset')) as $url) {
+            if (!isRelativeUrl($url)) {
+                $offenders[] = $url;
+            }
+        }
+    }
+    foreach ($page->getElementsByTagName('source') as $source) {
+        if (!$source instanceof DOMElement) {
+            continue;
+        }
+        foreach (srcsetUrls($source->getAttribute('srcset')) as $url) {
+            if (!isRelativeUrl($url)) {
+                $offenders[] = $url;
+            }
+        }
+    }
+    // A <style> block is a stylesheet the page carries. A remote url() in it
+    // loads for Apache and fails under file://, same as one in a linked sheet.
+    foreach ($page->getElementsByTagName('style') as $style) {
+        if (!$style instanceof DOMElement) {
+            continue;
+        }
+        foreach (cssUrls($style->textContent) as $url) {
+            if (!isRelativeUrl($url)) {
+                $offenders[] = $url;
+            }
         }
     }
     foreach ($stylesheets as $href) {
@@ -279,12 +338,9 @@ if ($page === null) {
             $offenders[] = $href . ' (unreadable)';
             continue;
         }
-        if (preg_match_all('/url\(\s*(["\']?)([^"\')]+)\1\s*\)/i', $css, $matches)) {
-            foreach ($matches[2] as $url) {
-                $url = trim($url);
-                if (!isRelativeUrl($url)) {
-                    $offenders[] = $url;
-                }
+        foreach (cssUrls($css) as $url) {
+            if (!isRelativeUrl($url)) {
+                $offenders[] = $url;
             }
         }
     }

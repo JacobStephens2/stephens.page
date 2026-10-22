@@ -718,9 +718,10 @@ section.education {
         color: var(--brand-ink);
         font-size: 0.95rem;
         font-weight: 700;
-        /* The control was a button. Keep the button face so the bar does not reflow. */
+        /* The control was a button. Keep its face and centered label so the bar does not reflow. */
         font-family: -webkit-small-control, Arial, sans-serif;
         line-height: normal;
+        text-align: center;
         text-decoration: none
     }
 

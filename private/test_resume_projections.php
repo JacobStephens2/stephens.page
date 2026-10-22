@@ -226,6 +226,25 @@ test('resume check fails a stylesheet that is not relative', function () {
     expectSame(true, str_starts_with(lineStarting($result['lines'], 'relative inputs:'), 'relative inputs: fail'));
 });
 
+test('resume check fails a remote url() in an inline style', function () {
+    $root = resumeFixture(
+        '<h1>Ada Lovelace</h1><p>Note G.</p>',
+        '<style>@media print { body { background: url(https://example.com/a.png); } }</style>',
+    );
+    $result = runCheck($root);
+    expectSame(1, $result['code']);
+    expectSame(true, str_contains(lineStarting($result['lines'], 'relative inputs:'), 'https://example.com/a.png'));
+});
+
+test('resume check fails an image srcset that is not relative', function () {
+    $root = resumeFixture(
+        '<h1>Ada Lovelace</h1><p>Note G.</p><img alt="" src="pic.png" srcset="https://example.com/a.png 2x">',
+    );
+    $result = runCheck($root);
+    expectSame(1, $result['code']);
+    expectSame(true, str_contains(lineStarting($result['lines'], 'relative inputs:'), 'https://example.com/a.png'));
+});
+
 test('PDF projection kills Chrome after 20 seconds and reports its exit code', function () {
     $root = fixtureRoot([
         'resume/index.html' => '<!DOCTYPE html><html><head><link rel="stylesheet" href="../block.css"></head><body><main><h1>Hang</h1></main></body></html>',

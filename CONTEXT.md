@@ -17,3 +17,5 @@ Glossary for the stephens.page site source.
 **Live try** - one Inkvoke image generation requested from the public form.
 
 **Live-try admission** - the decision to record a live try, five an hour per connection and three a day per email, recorded only after the caller proves the try, under the hit-file lock. The contact form is not a live try and does not use this module.
+
+**Live-try spend** - the running estimated cost of successful live tries. One public tally beside the gallery and one durable copy, written when a live try's image is accepted. An empty tally is filled from the trial log once, under the public file's lock, and this try is added after that. The contact form does not write it.

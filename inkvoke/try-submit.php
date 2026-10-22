@@ -1072,10 +1072,6 @@ if ($decision === 'turnstile_missing') {
     log_trial($baseEvent + ['ok' => false, 'error' => 'turnstile_missing']);
     respond(false, 'Please complete the verification challenge and try again.');
 }
-if ($decision === 'turnstile_fail') {
-    log_trial($baseEvent + ['ok' => false, 'error' => 'turnstile_fail']);
-    respond(false, 'Verification failed. Please try the challenge again.');
-}
 if ($decision !== 'ok') {
     log_trial($baseEvent + ['ok' => false, 'error' => 'turnstile_fail']);
     respond(false, 'Verification failed. Please try the challenge again.');

@@ -1,7 +1,8 @@
 # stephens.page
 
 Source for [stephens.page](https://stephens.page), my professional website:
-resume, portfolio, decision records, and interactive technical blog.
+resume, portfolio, and interactive technical blog, with links to the
+[architecture decision collection](https://adr.stephens.page/).
 
 Formerly two repos (`portfolio` and `resume`); both now live here so one
 document tree matches the live site.
@@ -17,13 +18,15 @@ to be executable.
 
 - **Professional profile** - background, experience, technical focus, and ways
   to connect.
-- **Resume** - print-oriented HTML resume, Markdown source, PDF download, and
-  job-specific variants under `/resume/`.
+- **Resume** - print-oriented HTML resume under `/resume/`. The Markdown and PDF
+  downloads are projections of that page.
 - **Portfolio and applications** - selected software, experiments, screenshots,
   and project writeups.
 - **Technical blog** - teaching-first engineering posts with live figures,
   runnable models, visualizations, sources, and quizzes.
-- **Decision records** - public explanations of technical and product choices.
+- **Decision records** - published at [adr.stephens.page](https://adr.stephens.page/)
+  from the [infrastructure-patterns](https://github.com/JacobStephens2/infrastructure-patterns)
+  repository, with search and topic filters.
 - **Agent-oriented artifacts** - canonical blog posts include an `agents.md`
   companion with operational rules, schemas, verified numbers, checklists, and
   self-tests that do not require a browser.
@@ -50,19 +53,24 @@ salabim and Pillow in the browser to generate a genuine animation.
 | [`index.html`](https://stephens.page/) | Main professional landing page |
 | [`about.html`](https://stephens.page/about) | Background, experience, and technical profile |
 | [`portfolio.html`](https://stephens.page/portfolio) | Selected projects and case studies |
-| [`resume/`](https://stephens.page/resume/) | Resume HTML, Markdown, PDF, and tailored variants |
+| [`resume/`](https://stephens.page/resume/) | Resume page. Markdown and PDF downloads are projections of it |
 | [`apps.html`](https://stephens.page/apps) | Software and application index |
 | [`blog/`](https://stephens.page/blog/) | Canonical human posts and their agent-oriented companions |
-| [`decisions/`](https://stephens.page/decisions/) | Public decision records |
+| [Architecture decisions](https://adr.stephens.page/) | Current collection, maintained in infrastructure-patterns |
 | `screenshots/` | Portfolio and project imagery |
 | [`theme.css`](https://stephens.page/theme.css), [`theme.js`](https://stephens.page/theme.js) | Shared light/dark theme and persistent theme control |
 | [`contact.html`](https://stephens.page/contact), `contact-submit.php` | Contact page and server-side form handler |
-| `private/render_resume_pdf.sh` | Headless Chrome PDF render used by `resume/download-pdf.php` |
-| `private/check_theme_toggle.js` | Headless Playwright check of theme toggle placement, the theme cycle, and resume PDF download requests |
+| `private/resume_projections.php` | Projects the resume page to Markdown and PDF on request |
+| `private/check_resume.php` | Resume check: word parity, the two-page budget, and relative inputs |
+| `private/check_theme_toggle.js` | Headless Playwright check of theme toggle placement and the theme cycle |
 | `.htaccess` | Apache routing, redirects, and content-type configuration |
 
 `resume.stephens.page` should redirect to `https://stephens.page/resume/` so old
 links keep working after the resume was folded into this tree.
+
+The old `decisions/` HTML mirror has been removed. Permanent redirects on the
+server preserve `/decisions/` and individual record URLs; their configuration
+lives in [infrastructure-patterns/ops/apache/legacy-decisions.conf](https://github.com/JacobStephens2/infrastructure-patterns/blob/main/ops/apache/legacy-decisions.conf).
 
 ## Architecture
 
@@ -76,6 +84,9 @@ links keep working after the resume was folded into this tree.
   source and deployment files live beside the post they support.
 - The deployed document tree is intentionally close to the repository tree:
   inspect the page source and you are looking at the implementation.
+- Run `php private/check_resume.php` on the droplet before merging any resume
+  change. The droplet is where production renders, and its page count is the
+  one that counts.
 
 ## Local preview
 

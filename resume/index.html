@@ -18,22 +18,6 @@
     type="image/png">
   <meta name="theme-color" content="#9b4d24">
   <link rel="stylesheet" type="text/css" href="./files/styles.css">
-  <style>
-    @media print {
-      .work h3:first-of-type + p + ul { break-inside: auto; }
-      h2, h3 { break-after: avoid; }
-      .summary, p, li { font-size: 11.5pt; line-height: 1.4; }
-      .work li, .projects li { padding-top: 4pt; }
-      .work h3 + p { margin-bottom: 2pt; }
-      .work h3 + p + ul > li:first-child { padding-top: 0; }
-      .work ul + h3 { margin-top: 9pt; }
-      section.work, section.projects, section.skills, section.education { margin-top: 12pt; padding-top: 6pt; }
-      h2 { margin-bottom: 4pt; }
-      .skill-group { margin-bottom: 6pt; }
-      @page { margin: 0.45in 0.55in; }
-
-    }
-  </style>
   <link rel="canonical" href="https://stephens.page/resume/">
   <meta name="description" content="Resume of Jacob Stephens: AI agent infrastructure, production platform engineering, backend systems, and Rust coding-agent orchestration.">
   <meta name="image" content="https://stephens.page/resume/files/stewardgoods-icon.png">
@@ -48,13 +32,13 @@
   <meta name="twitter:description" content="Resume of Jacob Stephens: AI agent infrastructure, production platform engineering, backend systems, and Rust coding-agent orchestration.">
   <meta name="twitter:image" content="https://stephens.page/resume/files/stewardgoods-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="apple-touch-icon" href="/app-icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="../app-icons/apple-touch-icon.png">
 </head>
 
 <body>
   <a href="#main-content" class="skip-link">Skip to content</a>
   <div class="sticky-mobile-header" aria-hidden="true" data-theme-toggle>
-    <button class="sticky-download-btn" data-download-resume>Download PDF</button>
+    <a class="sticky-download-btn" href="Jacob-Stephens-Resume.pdf" download="Jacob-Stephens-Resume.pdf">Download PDF</a>
     <a class="sticky-download-md" href="jacob-stephens-resume.md" download="jacob-stephens-resume.md">Download Markdown</a>
   </div>
   <main id="main-content" class="content">
@@ -64,7 +48,7 @@
 
           <div class="header-actions" data-theme-toggle>
             <div class="dl-buttons">
-              <button id="download-pdf-btn" data-download-resume>Download PDF</button>
+              <a id="download-pdf-btn" href="Jacob-Stephens-Resume.pdf" download="Jacob-Stephens-Resume.pdf">Download PDF</a>
               <a id="download-md-btn" href="jacob-stephens-resume.md" download="jacob-stephens-resume.md">Download Markdown</a>
             </div>
           </div>
@@ -114,7 +98,7 @@
           <ul>
             <li><a href="https://thirdshift.app/">thirdshift</a> (<a href="https://github.com/JacobStephens2/thirdshift">source</a> | <a href="https://stephens.page/blog/fresh-eyes-beat-a-second-family/paper/">review evaluation</a>): A deterministic Rust orchestrator for unattended issue-to-PR delivery across six coding-agent harnesses, with dependency-aware parallel tickets in separate Git worktrees, standards and spec reviews, CI checks, bounded repair loops, and resumable runs. Designed an evaluation of 183 replayed code-review sessions with fresh-session controls and predefined acceptance bars, and published the results and limitations.</li>
             <li><a href="https://github.com/JacobStephens2/vaulted-agent">vaulted-agent</a>: Launches coding agents with vault-resolved secrets injected in-process, per-agent manifests, and vault-manager tokens removed from the child environment. Supports 1Password, Bitwarden Secrets Manager, pass, and SOPS.</li>
-            <li><a href="https://github.com/JacobStephens2/infrastructure-patterns">infrastructure-patterns</a>: Public, sanitized architecture decisions covering agent isolation, scoped credentials, human merge gates, audit trails, and rollback.</li>
+            <li><a href="https://adr.stephens.page/">infrastructure-patterns</a>: Public, sanitized architecture decisions covering agent isolation, scoped credentials, human merge gates, audit trails, and rollback.</li>
             <li><a href="https://github.com/JacobStephens2/voice-agent-scheduling">Voice Agent Scheduling</a>: TypeScript telephone assistant for Google Calendar booking, with signed webhooks, explicit caller confirmation, durable reconciliation to prevent duplicate events, and call-duration and cost limits.</li>
             <li><a href="https://github.com/JacobStephens2/cascade">Cascade</a>: A headless Rust audio core shared by four released shells (web PWA, Android, Windows, macOS) through a single JSON interface, with wasm-bindgen, UniFFI, and C ABI bindings; iOS and watchOS shells are in TestFlight.</li>
             <li><a href="https://stephens.page/chart35.html">Chart35</a>: A shipped fertility tracker with client-side AES-256-GCM encryption, offline-first storage, and expiring provider-share links.</li>
@@ -140,7 +124,6 @@
   <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
 
   <script src="/theme.js" defer></script>
-  <script src="/resume/files/app.js"></script>
 
 </body>
 

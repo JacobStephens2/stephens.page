@@ -2,7 +2,16 @@
 /**
  * Live-try hit admission. Five tries an hour per connection, three a day
  * per email, recorded only by rate_admit().
+ *
+ * CLI only. The deployed tree is the site document root, and this file
+ * must not include try-submit.php or record hits for a web request.
  */
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit;
+}
 
 if (($argv[1] ?? '') === 'admit') {
     require dirname(__DIR__) . '/inkvoke/try-submit.php';

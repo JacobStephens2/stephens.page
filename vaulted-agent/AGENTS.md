@@ -12,13 +12,13 @@ Also hosted: https://vaultedagent.com/AGENTS.md
 
 Glossary for domain terms (harness, manifest, backend, …): [CONTEXT.md](CONTEXT.md).
 
-Current release pin (product install): **v0.4.25**
+Current release pin (product install): **v0.4.26**
 
 ```bash
 curl -fsSL https://vaultedagent.com/install.sh | bash
 # pin:
-VAULTED_AGENT_VERSION=v0.4.25 curl -fsSL https://vaultedagent.com/install.sh | bash
-vaulted-agent version   # expect 0.4.25 (git stamp may appear in parentheses)
+VAULTED_AGENT_VERSION=v0.4.26 curl -fsSL https://vaultedagent.com/install.sh | bash
+vaulted-agent version   # expect 0.4.26 (git stamp may appear in parentheses)
 ```
 
 ## What you must not do
@@ -78,14 +78,18 @@ elevated launches always read the machine config dir).
 | Remove dangling refs / repair renamed refs | `va refresh --prune` (repair is bitwarden only) |
 | Edit a refs file (with checks) | `va edit-manifest` / `va edit-manifest name.env.tpl` |
 | Auth mode | `va auth-mode` / `va auth-mode prompt` / `va auth-mode file` |
-| Interactive install-time config | `va setup` |
+| Interactive install-time config | `va setup` (the installer asks its own questions, then calls `auth-mode`, `setup <backend> --wire-only` and `setup <backend> --set-token`) |
+| Wire day-one Harnesses to a Backend, no token | `sudo va setup bitwarden --wire-only` (also `onepassword`, `pass`; `sops` records `default_backend` only). Asks no questions and never touches the token |
 | Store / rotate the manager token | `printf %s "$TOKEN" \| sudo va setup bitwarden --set-token` |
-| Replace the installed launcher binary | `va update` (latest GitHub release) / `va update v0.4.25` |
+| Replace the installed launcher binary | `va update` (latest GitHub release) / `va update v0.4.26` |
 | Uninstall | `sudo va uninstall` |
 
 Launcher flags **before** the harness name: `-p` / `--prompt-auth`,
 `-m` / `--manifest`, `-H` / `--harness`. After the harness name, flags go to the
-agent (`va claude -p "…"` is agent `-p`, not launcher prompt-auth).
+agent (`va claude -p "…"` is agent `-p`, not launcher prompt-auth). `-p` before
+the command name applies to every command that loads a manager token, not only
+harness launches: `va -p secrets validate`, `va -p refresh`, `va -p setup …`,
+`va -p run …`.
 
 `va bash` is a harness whose command is always bash; extra argv is appended
 (`va bash ./script.sh`). It is not `va run` (any program) and not a retired
@@ -100,7 +104,26 @@ resolves secrets or runs `install.sh`. `--check` and `--dry-run` leave installed
 files and configuration unchanged. Root-owned machine configuration triggers a
 sudo retry; a custom config directory must be writable without that hop.
 
-`va update --sync-harnesses` performs only Harness discovery/setup. Updaters
+`install.sh` keeps its questions and flags but makes no vault-config write of
+its own: it runs `vaulted-agent auth-mode`, `setup <backend> --wire-only`, and,
+with `auth_mode = file`, pipes the token to `setup <backend> --set-token`.
+Install-time tokens are therefore **verified before they are stored**; a
+rejected one does not stop the install, which says the token was not stored.
+`--op-env PATH` is a token source: its `OP_SERVICE_ACCOUNT_TOKEN` is stored in
+`<config>/op.env`, the only file the launcher reads (it used to write PATH,
+which nothing read). A fresh Bitwarden install's starter Refs file is
+`openai.env.refs`, not `bitwarden.refs`. Skipping the backend leaves
+`default_backend` as it is.
+
+`va update --sync-harnesses` performs only Harness discovery/setup, and it is
+also the installer's detection: `install.sh` runs it (unless
+`--no-auto-harness`) with the install's service account as
+`VAULTED_AGENT_SERVICE_USER`, and keeps no detection of its own. Both entry
+points search the same directories for the launch account, write the same
+Harness conf, and report each agent as added, kept, found only for the invoking
+account (with the remedy), or not found. A re-install on a host whose Harnesses
+already agree on a Backend and Manifest gives new Harnesses that binding, not
+day-one. Updaters
 through v0.4.23 replace only the binary: after upgrading from one of those,
 run `va update --sync-harnesses` (or `va update` again) with the new binary.
 
@@ -108,7 +131,7 @@ run `va update --sync-harnesses` (or `va update` again) with the new binary.
 
 | Path | How to force prompt this launch |
 |------|----------------------------------|
-| `va …` | `va -p grok` or `va --prompt-auth claude` |
+| `va …` | `va -p grok` or `va --prompt-auth claude`; also `va -p secrets validate`, `va -p refresh`, `va -p setup …` |
 | `*-conductor` | `VAULTED_AGENT_PROMPT_AUTH=1 claude-conductor …` (`-p` is the agent’s) |
 
 ### Antigravity
@@ -142,7 +165,7 @@ precedence over Muse's account login (`muse login --help`).
 ### Kimi
 
 Shipped / auto harness defaults to `kimi --auto` (unattended). Day-one is
-`plainfile` + `empty.env`; vault setup rewires kimi like claude/codex/grok.
+`plainfile` + `empty.env`; `va setup <backend>` rewires kimi like claude/codex/grok.
 
 **Credentials (issue #70).** Kimi **does** read OpenAI-compatible provider keys
 from the process environment. Selection is by provider **type** (`openai` →
@@ -235,6 +258,8 @@ va -m readonly.env.tpl pick
 - **Refused** under `*-conductor`. Use direct `va` for `-m`.
 - With `service_user`, sudoers must match the line as typed (flags before harness
   name). Prefer conductor links for delegated grants, or extend sudoers.
+- `va -m x pick` hops after the menu as `va -m x <chosen>`, so sudoers needs
+  a rule for the Harness picked, never for `pick`.
 
 ### Diagnose before changing config
 
@@ -249,24 +274,29 @@ Interpret carefully:
 | Symptom | Meaning |
 |---------|---------|
 | `op.env: missing` | File really absent (or not a file) |
-| `op.env: unreadable (… as user)` | Present but EACCES - often need `service_user` or group/ACL, **not** a paste of the vault SA token |
+| `op.env: unreadable` (`… exists but cannot be read as …`) | Present but EACCES - often need `service_user` or group/ACL, **not** a paste of the vault SA token |
+| `op.env: malformed` / `… is malformed (line N: …)` | The token file is there but a line does not parse, so it holds no usable token. Launches fail closed (no paste prompt), `setup` refuses it and `doctor` counts it as an error. Not a permissions fault: rewrite it with `printf %s "$TOKEN" \| sudo va setup <backend> --set-token` |
 | `cannot enter /home/…` | `workdir=caller` + service account cannot traverse (often `setfacl -m u:<svc>:x /home/<op>`) |
 | `Failed to read project config … Permission denied` | `workdir=caller` in an operator home where agent config (e.g. `~/.codex/config.toml`) is mode 0600 — grant service account read: `setfacl -m u:<svc>:r ~/.codex/config.toml` && `setfacl -d -m u:<svc>:r ~/.codex` |
 | `op cannot parse N reference(s)` | Only **malformed `op://`** lines - plain literals (region, URL) are fine |
 | `could not resolve` / item named on validate or launch | Well-formed ref, vault item missing or renamed - fix the refs file or vault. Launch lists the variables implicated and suggests `secrets validate` |
-| `Dangling refs in <file>` on refresh | Mappings matching nothing the token can see - on 1Password, a missing item or field. Reported every run; exit stays 0. `--prune` removes them |
+| `Dangling refs in <file>` on refresh or `setup bitwarden` | Mappings matching nothing the token can see - on 1Password, a missing item or field. Reported every run; exit stays 0. `refresh --prune` removes them; `setup` reports the same Refresh report but never edits a line |
+| `Ambiguous refs in <file>` on refresh or `setup bitwarden` | Bitwarden `name:` / `project:` mappings matching more than one secret; the launch fails closed on them. Never pruned or repaired; exit stays 0. Qualify with `project:PROJECT/KEY` or pin `uuid:UUID` via `va edit-manifest` |
 | `Refs this run did not check` on refresh | 1Password mappings into items this run never expanded (not selected, or a read that failed). Never pruned; `refresh --all --prune` checks every item |
 | `Mapped but excluded in <file>` | 1Password mappings that resolve but match a recorded `# exclude:`. Kept on purpose (ADR-0005) - exclusion governs what refresh *adds*. Delete the line with `va edit-manifest` if you meant it to go |
-| `Renamed secrets in <file>` on refresh | Mappings whose `# uuid:…` recording names a secret now under a different key. `--prune` rewrites the reference and keeps the variable name |
-| `Refs refresh cannot judge (…)` | Shapes prune will not touch — an unreadable ref, a placeholder, a multi-line value. `secrets validate` owns those |
+| `Renamed secrets in <file>` on refresh or `setup bitwarden` | Mappings whose `# uuid:…` recording names a secret now under a different key. `refresh --prune` rewrites the reference and keeps the variable name |
+| `Refs refresh cannot judge (…)` on refresh or `setup bitwarden` | Shapes prune will not touch — an unreadable ref, a placeholder, a multi-line value. `secrets validate` owns those |
 | `no secret matched name:X (VAR in <file>)` | A dangling ref hit at launch. `va refresh --prune` removes the mapping — or repairs it, if the line records a `# uuid:…` and the secret was only renamed |
+| `secrets validate` prints `FAIL` for a Harness `.conf` or `extra_manifest` line | That file or line would not load; the error is named on the line. Every other Harness and Extra manifest is still checked and the run still exits non-zero. Fix the file, then re-run |
 | `secrets validate` needs token / fails without | Live gate by design; use `--offline` only for shape |
 | A manifest on a validate line you did not expect | An `extra_manifest` from `defaults.conf`: a file the machine reads that no harness launches from (ADR-0006). Fix it where it lives, not in `harnesses.d` |
 | Validate FAILs on a manifest that is not on disk | An `extra_manifest` path that no longer exists. Fail-closed on purpose: correct the path or drop the line |
+| `defaults.conf:<line>: …` / `<config dir>/defaults.conf: Permission denied` | `defaults.conf` has a value it does not recognise (or a line with no `=`), or exists but cannot be read by the launch account. Fails closed: nothing falls back to built-in values. Fix a typo'd `auth_mode` with `va auth-mode file\|prompt`; otherwise edit the named line, or fix the file's mode/owner. `va doctor` still runs and reports it |
 | Legacy `*_ADD_MORE_*` names | Old 1Password refresh naming; still works; next refresh renames - see MIGRATION.md |
 | `run is disabled while service_user=…` | Expected; set `allow_run = yes` only if you intend that grant |
 | `no manager token yet and no terminal to paste one` | `setup` with `auth_mode=file` and nothing to capture; pipe it with `--set-token`, export the token, or `va auth-mode prompt` |
 | `--set-token: … rejected by the vault` | Token verified live before write; nothing was stored. Check you pasted a Machine Account access token / service-account token |
+| `exported OP_SERVICE_ACCOUNT_TOKEN rejected by the vault` / `… in <file> rejected by the vault` on `setup` | `setup` verifies an exported or on-disk token too; nothing was written and the token file is unchanged. Unset or fix the export; rotate the file with `printf %s "$TOKEN" \| sudo va setup <backend> --set-token` |
 
 ## Launch path (invariants)
 
@@ -297,6 +327,7 @@ can still read its own env (and so can anything as that user). Manifests are
 | `VAULTED_AGENT_SERVICE_USER` | Override service account |
 | `VAULTED_AGENT_NO_REEXEC=1` | Skip sudo hop (debug / doctor as caller) |
 | `VAULTED_AGENT_HANDOFF=spawn` | Tests only: spawn instead of exec |
+| `VAULTED_AGENT_AUTO_HARNESSES` | Tests only: a file read as the auto-harness list in place of the built-in one |
 | `BWS_ACCESS_TOKEN` / `OP_SERVICE_ACCOUNT_TOKEN` | Manager token if already in env (wins over file) |
 | `KIMI_CODE_LEGACY_FLAG` | Optional; shipped on `kimi.conf` via `env=` until kimi-code#2746 is in a release (issue #70). Delete the harness line to drop it. |
 

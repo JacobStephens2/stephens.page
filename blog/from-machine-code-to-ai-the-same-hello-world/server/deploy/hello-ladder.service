@@ -7,8 +7,9 @@ Type=simple
 User=jacob
 Group=jacob
 WorkingDirectory=/var/www/stephens.page/blog/from-machine-code-to-ai-the-same-hello-world/server
-# SMTP_PASS (Resend) for $5 spend alert emails; OPENAI from private/.env
-EnvironmentFile=-/var/www/stephens.page/private/.env
+# SMTP_PASS (Resend) for $5 spend alert emails; OPENAI from the site
+# environment file, outside the document root.
+EnvironmentFile=-/etc/stephens.page/site.env
 Environment=PYTHONUNBUFFERED=1
 Environment=PYTHONDONTWRITEBYTECODE=1
 Environment=HELLO_LADDER_PATH=/opt/dart-sdk/bin:/opt/swift/usr/bin:/home/jacob/.elan/bin:/home/jacob/.cargo/bin:/usr/local/go/bin:/usr/bin:/bin
@@ -26,8 +27,9 @@ PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
 ReadWritePaths=/var/www/stephens.page/blog/from-machine-code-to-ai-the-same-hello-world/cache /var/lib/hello-ladder
-# Allow reading private/.env for OPENAI_API_KEY
-ReadOnlyPaths=/var/www/stephens.page/private
+# Allow reading the site environment file for OPENAI_API_KEY.
+# The dash skips this when the directory is not installed yet.
+ReadOnlyPaths=-/etc/stephens.page
 RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 # .NET VB warm build needs more headroom than the tiny native hellos
 MemoryMax=1024M

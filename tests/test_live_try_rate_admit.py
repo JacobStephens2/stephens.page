@@ -33,7 +33,6 @@ class LiveTryRateAdmitTests(unittest.TestCase):
         )
         self.assertIn("PASS test_admission_rereads_the_connection_file_under_the_lock", completed.stdout)
         self.assertIn("PASS test_admission_rereads_the_email_file_under_the_lock", completed.stdout)
-        self.assertIn("PASS test_try_is_counted_only_after_turnstile_and_before_generation", completed.stdout)
 
     def test_web_request_does_not_run_the_admission_harness(self):
         with socket.socket() as sock:

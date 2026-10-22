@@ -251,15 +251,18 @@ fi
 printf 'extracting…\n'
 # Own directory, not $workdir. The release binary is already staged there, and
 # a source archive extracted beside it can replace that binary or win the
-# install.sh search. GitHub names the top directory after the repo's *current*
-# name plus the tag with any leading "v" stripped: archive/refs/tags/v0.1.0
-# → vaulted-agent-0.1.0. Do not match on that name. A rename keeps the old URL
-# working by redirect while silently changing the directory inside the tarball,
-# and matching a hardcoded 'vaulted-agent-launcher-*' is what broke every
-# remote install when this repo became vaulted-agent. Identify the tree by
-# what it contains, then run install.sh with that tree as the working directory.
-src_root="$workdir/source"
-mkdir -p "$src_root"
+# install.sh search. mktemp, not a fixed name: try_asset has already extracted
+# the release asset into $workdir, so a fixed $workdir/source can already hold
+# a directory whose install.sh the glob below would run instead of the
+# archive's. GitHub names the top directory after the repo's *current* name
+# plus the tag with any leading "v" stripped: archive/refs/tags/v0.1.0 →
+# vaulted-agent-0.1.0. Do not match on that name.
+# A rename keeps the old URL working by redirect while silently changing the
+# directory inside the tarball, and matching a hardcoded
+# 'vaulted-agent-launcher-*' is what broke every remote install when this repo
+# became vaulted-agent. Identify the tree by what it contains, then run
+# install.sh with that tree as the working directory.
+src_root="$(mktemp -d "$workdir/src.XXXXXX")"
 tar -xzf "$tarball" -C "$src_root"
 src=""
 for d in "$src_root"/*/; do

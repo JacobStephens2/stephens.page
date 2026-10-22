@@ -261,6 +261,87 @@ write_sum() {
   FAKE_SUM_STATUS=200
 }
 
+# Checksummed asset that also carries install.sh under the installer's
+# fixed extract directory. The program stub only has to exit 0 so the
+# asset is accepted; the planted script is the payload.
+make_planting_asset() {
+  local root="$RUN_TMP/plant-src"
+  rm -rf "$root"
+  mkdir -p "$root/source/0-planted"
+  printf '#!/bin/sh\nexit 0\n' >"$root/vaulted-agent"
+  chmod +x "$root/vaulted-agent"
+  printf 'planted-marker\n' >"$root/source/0-planted/marker"
+  printf '#!/usr/bin/env bash\nprintf "planted install\\n"\n' \
+    >"$root/source/0-planted/install.sh"
+  chmod +x "$root/source/0-planted/install.sh"
+  FAKE_ASSET_BODY="$RUN_TMP/asset.tgz"
+  /bin/tar -C "$root" -czf "$FAKE_ASSET_BODY" vaulted-agent source
+  FAKE_ASSET_STATUS=200
+}
+
+# Stand in for a source archive that already matched the recorded digest,
+# so the fixture can take the default-tag path without fetching the
+# published tarball. Asset hashes still go to the real shasum.
+install_pinned_digest_shasum() {
+  local pin
+  pin="$(sed -n 's/^DEFAULT_ARCHIVE_SHA256="\([0-9a-f]\{64\}\)".*/\1/p' "$INSTALL_SH" | head -n 1)"
+  [[ -n "$pin" ]] || return 0
+  export PINNED_ARCHIVE_SHA256="$pin"
+  cat >"$STUB_BIN/shasum" <<'EOF'
+#!/bin/bash
+set -euo pipefail
+real=/usr/bin/shasum
+for a in "$@"; do
+  if [[ "$a" == "-c" ]]; then
+    exec "$real" "$@"
+  fi
+done
+file=""
+for a in "$@"; do
+  case "$a" in
+    -*) ;;
+    *) file="$a" ;;
+  esac
+done
+if [[ -n "${PINNED_ARCHIVE_SHA256:-}" && "$(basename -- "$file")" == "src.tar.gz" ]]; then
+  printf '%s  %s\n' "$PINNED_ARCHIVE_SHA256" "$file"
+  exit 0
+fi
+exec "$real" "$@"
+EOF
+  chmod +x "$STUB_BIN/shasum"
+}
+
+# Record the install.sh path bash was asked to run. The default spy reads
+# ./marker from the caller's cwd, which misses the script selected by the
+# pre-change installer.
+install_script_spy() {
+  cat >"$STUB_BIN/bash" <<'EOF'
+#!/bin/bash
+set -euo pipefail
+if [[ "${1:-}" == "-c" ]]; then
+  exec /bin/bash "$@"
+fi
+script="${1:-}"
+case "$script" in
+  /*) ;;
+  ./*) script="$(pwd)/${script#./}" ;;
+  *) script="$(pwd)/$script" ;;
+esac
+dir="$(dirname -- "$script")"
+{
+  printf 'SCRIPT=%s\n' "$script"
+  if [[ -f "$dir/marker" ]]; then
+    printf 'MARKER=%s\n' "$(cat "$dir/marker")"
+  else
+    printf 'MARKER=\n'
+  fi
+} >>"${INSTALL_SPY:?}"
+exit 0
+EOF
+  chmod +x "$STUB_BIN/bash"
+}
+
 invoke() {
   local version="" archive_url="" repo="" github=""
   while [[ $# -gt 0 ]]; do
@@ -430,6 +511,24 @@ test_release_asset_checksum_match_continues() {
     test "$(spy_value ANCESTOR_HAS_ARCHIVE)" = "1"
 }
 
+# Default tag path: the recorded digest has matched, and a checksummed
+# release asset has already been unpacked into the work directory. The
+# asset must not be able to choose which install.sh runs.
+test_release_asset_cannot_plant_source_install_sh() {
+  setup
+  make_fixture_archive
+  make_planting_asset
+  write_sum good
+  install_pinned_digest_shasum
+  install_script_spy
+  export LC_ALL=C
+  invoke
+  assert "planted asset still installs" test "$LAST_STATUS" -eq 0
+  assert "source archive install.sh ran" test "$(spy_value MARKER)" = "fixture-marker"
+  assert "planted install.sh was not selected" \
+    test "$(spy_value MARKER)" != "planted-marker"
+}
+
 run_test() {
   local name="$1"
   shift
@@ -465,6 +564,8 @@ run_test "release asset checksum mismatch stops" \
   test_release_asset_checksum_mismatch_stops
 run_test "release asset checksum match continues" \
   test_release_asset_checksum_match_continues
+run_test "release asset cannot plant source install.sh" \
+  test_release_asset_cannot_plant_source_install_sh
 
 if [[ "$FAILS" -ne 0 ]]; then
   printf '%s failed\n' "$FAILS" >&2

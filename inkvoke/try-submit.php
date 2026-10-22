@@ -257,20 +257,164 @@ function log_trial(array $event): void {
     @file_put_contents(TRIALS_PATH, $line . "\n", FILE_APPEND | LOCK_EX);
 }
 
+function rate_file(string $key): string {
+    return sys_get_temp_dir() . '/sp_gptimage_rl_' . md5($key) . '.json';
+}
+
+/**
+ * In-window integer timestamps. A hit at exactly $now - $window is outside,
+ * matching the cap the unlocked pre-check already applied.
+ *
+ * @param list<mixed> $hits
+ * @return list<int>
+ */
+function rate_filter(array $hits, int $now, int $window): array {
+    return array_values(array_filter(
+        $hits,
+        static fn($t) => is_int($t) && $t > $now - $window
+    ));
+}
+
 function rate_hits(string $key, int $window): array {
-    $file = sys_get_temp_dir() . '/sp_gptimage_rl_' . md5($key) . '.json';
+    $file = rate_file($key);
     $now = time();
     $hits = [];
     if (is_readable($file)) {
-        $hits = json_decode((string) file_get_contents($file), true) ?: [];
+        $decoded = json_decode((string) file_get_contents($file), true);
+        if (is_array($decoded)) {
+            $hits = $decoded;
+        }
     }
-    $hits = array_values(array_filter($hits, static fn($t) => is_int($t) && $t > $now - $window));
-    return [$file, $hits, $now];
+    return [$file, rate_filter($hits, $now, $window), $now];
 }
 
-function rate_record(string $file, array $hits, int $now): void {
-    $hits[] = $now;
-    @file_put_contents($file, json_encode($hits), LOCK_EX);
+/**
+ * Exclusive lock on one hit file. Null when the file cannot be opened or locked.
+ * Caller writes through this handle; a second LOCK_EX in-process would deadlock.
+ *
+ * @return resource|null
+ */
+function rate_lock(string $file) {
+    $fp = @fopen($file, 'c+');
+    if ($fp === false) {
+        return null;
+    }
+    if (!flock($fp, LOCK_EX)) {
+        fclose($fp);
+        return null;
+    }
+    return $fp;
+}
+
+/** @param resource|null $fp */
+function rate_unlock($fp): void {
+    if (!is_resource($fp)) {
+        return;
+    }
+    @flock($fp, LOCK_UN);
+    @fclose($fp);
+}
+
+/**
+ * @param resource $fp
+ * @return list<mixed>
+ */
+function rate_read_locked($fp): array {
+    rewind($fp);
+    $raw = stream_get_contents($fp);
+    $decoded = json_decode((string) $raw, true);
+    return is_array($decoded) ? $decoded : [];
+}
+
+/**
+ * @param resource $fp
+ * @param list<int> $hits
+ */
+function rate_write_locked($fp, array $hits): bool {
+    $json = json_encode(array_values($hits));
+    if ($json === false) {
+        return false;
+    }
+    $payload = $json . "\n";
+    if (ftruncate($fp, 0) === false) {
+        return false;
+    }
+    rewind($fp);
+    $written = fwrite($fp, $payload);
+    if ($written !== strlen($payload)) {
+        return false;
+    }
+    return fflush($fp);
+}
+
+/**
+ * Lock each hit file, re-read it, apply the cap, and append $now before
+ * unlocking. Same sequence as record_spend: flock, read, write, unlock
+ * on the one handle. Appends neither file when either cap is already full,
+ * so a refused try does not consume the other counter. $emailKey '' records
+ * only the connection (invite with no email).
+ *
+ * @return 'ok'|'rate_ip'|'rate_email'|'rate_lock'
+ */
+function rate_admit(string $ipKey, string $emailKey, int $now): string {
+    $ipFp = rate_lock(rate_file($ipKey));
+    if ($ipFp === null) {
+        return 'rate_lock';
+    }
+    $emailFp = null;
+    try {
+        $ipHits = rate_filter(rate_read_locked($ipFp), $now, IP_WINDOW);
+        if (count($ipHits) >= IP_LIMIT) {
+            return 'rate_ip';
+        }
+        $emailHits = [];
+        if ($emailKey !== '') {
+            $emailFp = rate_lock(rate_file($emailKey));
+            if ($emailFp === null) {
+                return 'rate_lock';
+            }
+            $emailHits = rate_filter(rate_read_locked($emailFp), $now, EMAIL_WINDOW);
+            if (count($emailHits) >= EMAIL_LIMIT) {
+                return 'rate_email';
+            }
+        }
+        if ($emailFp !== null) {
+            $emailHits[] = $now;
+            if (!rate_write_locked($emailFp, $emailHits)) {
+                return 'rate_lock';
+            }
+        }
+        $ipHits[] = $now;
+        if (!rate_write_locked($ipFp, $ipHits)) {
+            return 'rate_lock';
+        }
+        return 'ok';
+    } catch (Throwable $e) {
+        error_log('inkvoke try: rate admit error: ' . $e->getMessage());
+        return 'rate_lock';
+    } finally {
+        rate_unlock($emailFp);
+        rate_unlock($ipFp);
+    }
+}
+
+/**
+ * Refuse the try. rate_ip and rate_email are the caps. rate_lock means the
+ * hit file could not be locked or written. Does not return.
+ *
+ * @param 'rate_ip'|'rate_email'|'rate_lock' $decision
+ */
+function reject_rate(string $decision, array $baseEvent): void {
+    if ($decision === 'rate_ip') {
+        log_trial($baseEvent + ['ok' => false, 'error' => 'rate_ip']);
+        respond(false, 'Too many tries from this connection. Please wait an hour and try again.', [], 429);
+    }
+    if ($decision === 'rate_email') {
+        log_trial($baseEvent + ['ok' => false, 'error' => 'rate_email']);
+        respond(false, 'This email has reached the free trial limit for today (3 images). Try again tomorrow.', [], 429);
+    }
+    log_trial($baseEvent + ['ok' => false, 'error' => 'rate_lock']);
+    respond(false, 'Could not record this try. Please try again in a moment.', [], 503);
 }
 
 function turnstile_ok(string $secret, string $token, string $ip): bool {
@@ -930,7 +1074,28 @@ function estimate_cost_from_usage(?array $usage): array {
     ];
 }
 
+/**
+ * True when this file is the request being executed, not a test include.
+ * An empty SCRIPT_FILENAME still runs the handler so a misconfigured SAPI
+ * cannot skip the live-try entry point.
+ */
+function try_submit_is_direct_request(): bool {
+    $script = $_SERVER['SCRIPT_FILENAME'] ?? '';
+    if ($script === '') {
+        return true;
+    }
+    $scriptReal = realpath($script);
+    $selfReal = realpath(__FILE__);
+    return $scriptReal !== false && $selfReal !== false && $scriptReal === $selfReal;
+}
+
 // --- Entry -------------------------------------------------------------------
+
+// Included by tests: a top-level return hands control back to the caller.
+// A direct request falls through into the handler.
+if (!try_submit_is_direct_request()) {
+    return;
+}
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     respond(false, 'Method not allowed.', [], 405);
@@ -1014,18 +1179,14 @@ if ($promptErr === 'empty' || $prompt === '') {
     respond(false, 'Enter an image description to continue.');
 }
 
-[$ipFile, $ipHits, $now] = rate_hits('ip:' . $ip, IP_WINDOW);
+[, $ipHits, $now] = rate_hits('ip:' . $ip, IP_WINDOW);
 if (count($ipHits) >= IP_LIMIT) {
-    log_trial($baseEvent + ['ok' => false, 'error' => 'rate_ip']);
-    respond(false, 'Too many tries from this connection. Please wait an hour and try again.', [], 429);
+    reject_rate('rate_ip', $baseEvent);
 }
-$emFile = '';
-$emHits = [];
 if ($email !== '') {
-    [$emFile, $emHits] = rate_hits('email:' . $email, EMAIL_WINDOW);
+    [, $emHits] = rate_hits('email:' . $email, EMAIL_WINDOW);
     if (count($emHits) >= EMAIL_LIMIT) {
-        log_trial($baseEvent + ['ok' => false, 'error' => 'rate_email']);
-        respond(false, 'This email has reached the free trial limit for today (3 images). Try again tomorrow.', [], 429);
+        reject_rate('rate_email', $baseEvent);
     }
 }
 
@@ -1045,10 +1206,11 @@ if (!turnstile_ok($tsSecret, $tsToken, $tsIp)) {
     respond(false, 'Verification failed. Please try the challenge again.');
 }
 
-// Record attempt against rate limits only after Turnstile (blocks pure spam burn).
-rate_record($ipFile, $ipHits, $now);
-if ($email !== '' && $emFile !== '') {
-    rate_record($emFile, $emHits, $now);
+// Count this try only after Turnstile, and before newsletter signup or image generation.
+// Lock, re-read, apply the cap, and append before the lock is released.
+$decision = rate_admit('ip:' . $ip, $email !== '' ? 'email:' . $email : '', $now);
+if ($decision !== 'ok') {
+    reject_rate($decision, $baseEvent);
 }
 
 $already = false;

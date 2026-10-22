@@ -14,7 +14,6 @@ const META_LIGHT = '#9b4d24';
 const META_DARK = '#141210';
 
 // toggleParents: one selector per expected toggle, matched against each toggle's parent in DOM order.
-// checksPdfDownload: resume pages; pdfVariant is the expected ?variant= value (null for none).
 const pages = [
     {
         name: 'home',
@@ -42,8 +41,6 @@ const pages = [
             'header > .header-actions[data-theme-toggle]',
         ],
         hasThemeColor: true,
-        checksPdfDownload: true,
-        pdfVariant: null,
     },
 ];
 
@@ -98,11 +95,6 @@ async function readThemeState(page) {
 
 async function checkPage(context, baseUrl, spec) {
     const page = await context.newPage();
-    const pdfRequests = [];
-    await page.route('**/download-pdf.php*', (route) => {
-        pdfRequests.push(route.request().url());
-        route.fulfill({ status: 204, body: '' });
-    });
 
     await page.goto(baseUrl + spec.path, { waitUntil: 'load' });
     await page.evaluate(() => localStorage.removeItem('theme'));
@@ -127,17 +119,6 @@ async function checkPage(context, baseUrl, spec) {
     for (const expected of steps) {
         await visibleToggle.click();
         check(spec.name, `click → ${expected.dataTheme || 'system'}`, await readThemeState(page), expected);
-    }
-
-    if (spec.checksPdfDownload) {
-        await page.locator('[data-download-resume]:visible').first().click();
-        await page.waitForTimeout(300);
-        const variants = pdfRequests.map((u) => new URL(u).searchParams.get('variant'));
-        const paths = pdfRequests.map((u) => new URL(u).pathname);
-        check(spec.name, 'Download PDF requests', { paths, variants }, {
-            paths: ['/resume/download-pdf.php'],
-            variants: [spec.pdfVariant],
-        });
     }
 
     await page.close();

@@ -2,7 +2,8 @@
 /**
  * Contact form handler for stephens.page/contact.html
  * Verifies a Cloudflare Turnstile token, then sends the message via the Resend
- * HTTP API. Secrets are read from private/.env (gitignored). Returns JSON.
+ * HTTP API. Secrets are read from the site environment file
+ * /etc/stephens.page/site.env, outside the document root. Returns JSON.
  */
 
 header('Content-Type: application/json');
@@ -17,9 +18,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     respond(false, 'Method not allowed.', 405);
 }
 
-// --- Load secrets from private/.env -----------------------------------------
+// --- Load secrets from the site environment file (outside the document root)
 $env = [];
-$envFile = __DIR__ . '/private/.env';
+$envFile = '/etc/stephens.page/site.env';
 if (is_readable($envFile)) {
     foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
         $line = trim($line);

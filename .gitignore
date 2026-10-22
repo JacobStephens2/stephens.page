@@ -1,6 +1,8 @@
 private/reports/*.md
 node_modules/
 stack/
+# Live site secrets are /etc/stephens.page/site.env, outside the document root.
+# Keep ignoring a leftover copy dropped under private/.
 private/.env
 
 # Runtime community gallery (images + manifest written by try-submit.php)

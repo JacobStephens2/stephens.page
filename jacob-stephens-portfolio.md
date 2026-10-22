@@ -53,7 +53,7 @@ Production systems with operational and revenue impact.
 A connected case study tying these systems together - architecture, the legacy→modern arc, and engineering highlights - plus the sanitized architecture decisions behind them.
 
 [Read the ETA Platform case study →](/blog/one-engineer-platform-production-systems/)
-[Architecture decisions (ADRs) →](https://github.com/JacobStephens2/infrastructure-patterns)
+[Architecture decisions (ADRs) →](https://adr.stephens.page/)
 
 [Seven-boundary agent-safety checklist →](/blog/human-in-the-loop-ai-agents-for-legacy-business-systems/)
 
@@ -313,7 +313,7 @@ Terraform
 MySQL
 performance\_schema
 
-[ADR 0011: why a metrics stack →](https://github.com/JacobStephens2/infrastructure-patterns/blob/main/adr/0011-instrumented-metrics-stack-over-bespoke-prober.md)
+[ADR 0011: why a metrics stack →](https://adr.stephens.page/decisions/0011-instrumented-metrics-stack-over-bespoke-prober/)
 
 ### Legacy Modernization: PHP 5 → 8, MySQL 5.7 → 8.4, CentOS → Rocky
 
@@ -495,7 +495,7 @@ DNS
 IaC
 
 [Public repo](https://github.com/JacobStephens2/terraform-cloudflare-dns)
-[Decision records](https://github.com/JacobStephens2/infrastructure-patterns/blob/main/adr/0014-import-live-dns-over-recreating-it.md)
+[ADR 0014: importing live DNS →](https://adr.stephens.page/decisions/0014-import-live-dns-over-recreating-it/)
 
 ### Kubernetes Demo: single-node k3s
 

@@ -67,7 +67,7 @@ def complete(
     if not OPENAI_API_KEY:
         raise LLMConfigError(
             "OPENAI_API_KEY is not set on the hello-ladder service. "
-            "Load /var/www/stephens.page/private/.env via EnvironmentFile."
+            "Load /etc/stephens.page/site.env via EnvironmentFile."
         )
 
     body = {

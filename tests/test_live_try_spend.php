@@ -334,7 +334,8 @@ function test_corrupt_public_file_plus_trials_records_the_trial_sum_plus_this_tr
     $now = 1700000000;
     write_file($paths['public'], "not-json\n");
     write_file($paths['durable'], '{"total_usd":0,"image_count":0,"updated_at":5}');
-    // Counted: 0.25, 0.5, 0.25, and 0. The other lines are not a successful try with a finite numeric cost.
+    // Counted dollars: 0.25, 0.5, 0.25, and 0. The 1e309 line counts one image and no dollars.
+    // The other lines are not a successful try with a numeric cost.
     $lines = [
         '{"event":"try","ok":true,"cost_usd":0.25}',
         '{"event":"try","ok":true,"cost_usd":0.5}',
@@ -352,13 +353,39 @@ function test_corrupt_public_file_plus_trials_records_the_trial_sum_plus_this_tr
     write_trials($paths['trials'], $lines);
     $trialsBefore = file_bytes($paths['trials']);
     $got = LiveTrySpend::record(0.5, $now, $paths['public'], $paths['durable'], $paths['trials']);
-    expect_tally($got, 1.5, 5, $now, 'a trial backfill');
-    expect_copies($paths['public'], $paths['durable'], 1.5, 5, $now, 'a trial backfill');
+    expect_tally($got, 1.5, 6, $now, 'a trial backfill');
+    expect_copies($paths['public'], $paths['durable'], 1.5, 6, $now, 'a trial backfill');
     expect(file_bytes($paths['trials']) === $trialsBefore, 'a trial backfill should not append to the trial log');
 
     $again = LiveTrySpend::record(0.5, $now + 6, $paths['public'], $paths['durable'], $paths['trials']);
-    expect_tally($again, 2.0, 6, $now + 6, 'the record after a backfill');
-    expect_copies($paths['public'], $paths['durable'], 2.0, 6, $now + 6, 'the record after a backfill');
+    expect_tally($again, 2.0, 7, $now + 6, 'the record after a backfill');
+    expect_copies($paths['public'], $paths['durable'], 2.0, 7, $now + 6, 'the record after a backfill');
+}
+
+function test_non_finite_trial_cost_counts_one_image_and_adds_no_dollars(): void
+{
+    $paths = spend_paths();
+    $now = 1700000000;
+    write_file($paths['public'], "not-json\n");
+    write_file($paths['durable'], "{\"total_usd\":0,\"image_count\":0,\"updated_at\":0}\n");
+    write_trials($paths['trials'], ['{"event":"try","ok":true,"cost_usd":1e309}']);
+    $got = LiveTrySpend::record(0.5, $now, $paths['public'], $paths['durable'], $paths['trials']);
+    expect_tally($got, 0.5, 2, $now, 'a non-finite trial cost');
+    expect_copies($paths['public'], $paths['durable'], 0.5, 2, $now, 'a non-finite trial cost');
+}
+
+function test_non_finite_durable_total_is_positive_and_trials_are_not_read(): void
+{
+    $paths = spend_paths();
+    $now = 1700000000;
+    write_file($paths['public'], "not-json\n");
+    write_file($paths['durable'], "{\"total_usd\":1e309,\"image_count\":0,\"updated_at\":9}\n");
+    write_trials($paths['trials'], ['{"event":"try","ok":true,"cost_usd":2}']);
+    $trialsBefore = file_bytes($paths['trials']);
+    $got = LiveTrySpend::record(0.5, $now, $paths['public'], $paths['durable'], $paths['trials']);
+    expect_tally($got, 0.5, 1, $now, 'a non-finite durable total');
+    expect_copies($paths['public'], $paths['durable'], 0.5, 1, $now, 'a non-finite durable total');
+    expect(file_bytes($paths['trials']) === $trialsBefore, 'a non-finite durable total should leave the trial log unchanged');
 }
 
 function test_stale_durable_copy_is_rewritten_from_the_public_file(): void
@@ -529,6 +556,8 @@ $tests = [
     'test_json_list_is_a_tally_and_its_missing_keys_are_zero',
     'test_corrupt_public_file_uses_a_positive_durable_copy',
     'test_corrupt_public_file_plus_trials_records_the_trial_sum_plus_this_try',
+    'test_non_finite_trial_cost_counts_one_image_and_adds_no_dollars',
+    'test_non_finite_durable_total_is_positive_and_trials_are_not_read',
     'test_stale_durable_copy_is_rewritten_from_the_public_file',
     'test_unlockable_public_tally_returns_zeros_and_writes_nothing',
     'test_missing_public_file_that_cannot_be_opened_returns_the_durable_copy',

@@ -18,9 +18,9 @@ final class LiveTrySpend
      */
     public static function record(?float $costUsd, int $now, string $publicPath, string $durablePath, string $trialsPath): array
     {
-        $fp = self::lockPublic($publicPath);
+        $fp = self::openLocked($publicPath);
         if (!is_resource($fp)) {
-            return self::priorWhenPublicUnheld($publicPath, $durablePath);
+            return self::priorTally($publicPath, $durablePath);
         }
 
         $original = '';
@@ -32,7 +32,7 @@ final class LiveTrySpend
             rewind($fp);
             $read = stream_get_contents($fp);
             if ($read === false) {
-                return self::priorWhenPublicUnheld($publicPath, $durablePath);
+                return self::priorTally($publicPath, $durablePath);
             }
             $original = $read;
             $base = self::base($original, $durablePath, $trialsPath);
@@ -40,7 +40,7 @@ final class LiveTrySpend
             $encoded = self::encode($next);
             if ($encoded === null || !self::replace($fp, $encoded) || !@chmod($publicPath, 0664)) {
                 self::replace($fp, $original);
-                return self::fields($base);
+                return $base;
             }
             $bytes = $encoded;
             $published = true;
@@ -54,14 +54,14 @@ final class LiveTrySpend
         }
 
         if (!$published) {
-            return self::fields($base);
+            return $base;
         }
         self::mirror($durablePath, $bytes);
-        return self::fields($next);
+        return $next;
     }
 
     /** @return resource|null */
-    private static function lockPublic(string $path)
+    private static function openLocked(string $path)
     {
         if (!self::ensureDir($path)) {
             return null;
@@ -100,8 +100,8 @@ final class LiveTrySpend
         if ($public !== null) {
             return $public;
         }
-        $durable = self::readTally($durablePath);
-        if ($durable !== null && ($durable['image_count'] > 0 || $durable['total_usd'] > 0)) {
+        $durable = self::positiveDurable($durablePath);
+        if ($durable !== null) {
             return $durable;
         }
         return self::fromTrials($trialsPath);
@@ -135,10 +135,9 @@ final class LiveTrySpend
                     continue;
                 }
                 $cost = (float) $event['cost_usd'];
-                if (!is_finite($cost)) {
-                    continue;
+                if (is_finite($cost)) {
+                    $total += $cost;
                 }
-                $total += $cost;
                 $count++;
             }
         } finally {
@@ -162,8 +161,8 @@ final class LiveTrySpend
         }
         return [
             'total_usd' => self::dollarsOf($data['total_usd'] ?? 0),
-            'image_count' => self::countOf($data['image_count'] ?? 0),
-            'updated_at' => self::instantOf($data['updated_at'] ?? 0),
+            'image_count' => self::wholeNumber($data['image_count'] ?? 0),
+            'updated_at' => self::wholeNumber($data['updated_at'] ?? 0),
         ];
     }
 
@@ -175,6 +174,33 @@ final class LiveTrySpend
         }
         $raw = @file_get_contents($path);
         if ($raw === false) {
+            return null;
+        }
+        return self::tallyFromBytes($raw);
+    }
+
+    /**
+     * A durable JSON array whose image count or total is already positive.
+     * A non-finite total is positive when it is greater than zero, and the
+     * dollars copied forward are zero so the public file stays a number.
+     *
+     * @return array{total_usd: float, image_count: int, updated_at: int}|null
+     */
+    private static function positiveDurable(string $path): ?array
+    {
+        if (!is_file($path) || !is_readable($path)) {
+            return null;
+        }
+        $raw = @file_get_contents($path);
+        if (!is_string($raw)) {
+            return null;
+        }
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            return null;
+        }
+        $count = self::wholeNumber($data['image_count'] ?? 0);
+        if ($count <= 0 && !self::amountIsPositive($data['total_usd'] ?? null)) {
             return null;
         }
         return self::tallyFromBytes($raw);
@@ -195,7 +221,7 @@ final class LiveTrySpend
         return 0.0;
     }
 
-    private static function countOf(mixed $value): int
+    private static function wholeNumber(mixed $value): int
     {
         if (is_int($value)) {
             return $value;
@@ -206,15 +232,18 @@ final class LiveTrySpend
         return 0;
     }
 
-    private static function instantOf(mixed $value): int
+    private static function amountIsPositive(mixed $value): bool
     {
         if (is_int($value)) {
-            return $value;
+            return $value > 0;
         }
-        if ((is_float($value) && is_finite($value)) || (is_string($value) && is_numeric($value))) {
-            return (int) $value;
+        if (is_float($value)) {
+            return $value > 0;
         }
-        return 0;
+        if (is_string($value) && is_numeric($value)) {
+            return (float) $value > 0;
+        }
+        return false;
     }
 
     private static function added(?float $cost): float
@@ -254,19 +283,6 @@ final class LiveTrySpend
         return $json . "\n";
     }
 
-    /**
-     * @param array{total_usd: float, image_count: int, updated_at: int} $tally
-     * @return array{total_usd: float, image_count: int, updated_at: int}
-     */
-    private static function fields(array $tally): array
-    {
-        return [
-            'total_usd' => $tally['total_usd'],
-            'image_count' => $tally['image_count'],
-            'updated_at' => $tally['updated_at'],
-        ];
-    }
-
     /** @return array{total_usd: float, image_count: int, updated_at: int} */
     private static function zeros(): array
     {
@@ -292,49 +308,41 @@ final class LiveTrySpend
 
     private static function mirror(string $path, string $bytes): void
     {
+        $fp = self::openLocked($path);
+        if (!is_resource($fp)) {
+            return;
+        }
         try {
-            if (!self::ensureDir($path)) {
+            rewind($fp);
+            $original = stream_get_contents($fp);
+            if (!is_string($original)) {
+                $original = '';
+            }
+            if (!self::replace($fp, $bytes)) {
+                self::replace($fp, $original);
                 return;
             }
-            $fp = @fopen($path, 'c+');
-            if ($fp === false) {
-                return;
-            }
-            try {
-                if (!flock($fp, LOCK_EX)) {
-                    return;
-                }
-                rewind($fp);
-                $original = stream_get_contents($fp);
-                if (!is_string($original)) {
-                    $original = '';
-                }
-                if (!self::replace($fp, $bytes)) {
-                    self::replace($fp, $original);
-                    return;
-                }
-                @chmod($path, 0664);
-            } finally {
-                self::unlock($fp);
-            }
+            @chmod($path, 0664);
         } catch (Throwable $e) {
             error_log('inkvoke try: spend tally error: ' . $e->getMessage());
+        } finally {
+            self::unlock($fp);
         }
     }
 
     /**
-     * The public file could not be opened or locked. Write nothing.
+     * Durable array when the public file has no tally, otherwise zeros.
      *
      * @return array{total_usd: float, image_count: int, updated_at: int}
      */
-    private static function priorWhenPublicUnheld(string $publicPath, string $durablePath): array
+    private static function priorTally(string $publicPath, string $durablePath): array
     {
         if (self::readTally($publicPath) !== null) {
             return self::zeros();
         }
         $durable = self::readTally($durablePath);
         if ($durable !== null) {
-            return self::fields($durable);
+            return $durable;
         }
         return self::zeros();
     }

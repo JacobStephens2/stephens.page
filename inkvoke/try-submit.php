@@ -354,12 +354,12 @@ function rate_write_locked($fp, array $hits): bool {
  * so a refused try does not consume the other counter. $emailKey '' records
  * only the connection (invite with no email).
  *
- * @return 'ok'|'rate_ip'|'rate_email'|'unavailable'
+ * @return 'ok'|'rate_ip'|'rate_email'|'rate_lock'
  */
 function rate_admit(string $ipKey, string $emailKey, int $now): string {
     $ipFp = rate_lock(rate_file($ipKey));
     if ($ipFp === null) {
-        return 'unavailable';
+        return 'rate_lock';
     }
     $emailFp = null;
     try {
@@ -371,7 +371,7 @@ function rate_admit(string $ipKey, string $emailKey, int $now): string {
         if ($emailKey !== '') {
             $emailFp = rate_lock(rate_file($emailKey));
             if ($emailFp === null) {
-                return 'unavailable';
+                return 'rate_lock';
             }
             $emailHits = rate_filter(rate_read_locked($emailFp), $now, EMAIL_WINDOW);
             if (count($emailHits) >= EMAIL_LIMIT) {
@@ -381,17 +381,17 @@ function rate_admit(string $ipKey, string $emailKey, int $now): string {
         if ($emailFp !== null) {
             $emailHits[] = $now;
             if (!rate_write_locked($emailFp, $emailHits)) {
-                return 'unavailable';
+                return 'rate_lock';
             }
         }
         $ipHits[] = $now;
         if (!rate_write_locked($ipFp, $ipHits)) {
-            return 'unavailable';
+            return 'rate_lock';
         }
         return 'ok';
     } catch (Throwable $e) {
         error_log('inkvoke try: rate admit error: ' . $e->getMessage());
-        return 'unavailable';
+        return 'rate_lock';
     } finally {
         rate_unlock($emailFp);
         rate_unlock($ipFp);
@@ -399,11 +399,12 @@ function rate_admit(string $ipKey, string $emailKey, int $now): string {
 }
 
 /**
- * Fast-path and locked-path refusals share one response. Does not return.
+ * Refuse the try. rate_ip and rate_email are the caps. rate_lock means the
+ * hit file could not be locked or written. Does not return.
  *
- * @param 'rate_ip'|'rate_email'|'unavailable' $decision
+ * @param 'rate_ip'|'rate_email'|'rate_lock' $decision
  */
-function respond_rate_limited(string $decision, array $baseEvent): void {
+function reject_rate(string $decision, array $baseEvent): void {
     if ($decision === 'rate_ip') {
         log_trial($baseEvent + ['ok' => false, 'error' => 'rate_ip']);
         respond(false, 'Too many tries from this connection. Please wait an hour and try again.', [], 429);
@@ -1180,12 +1181,12 @@ if ($promptErr === 'empty' || $prompt === '') {
 
 [, $ipHits, $now] = rate_hits('ip:' . $ip, IP_WINDOW);
 if (count($ipHits) >= IP_LIMIT) {
-    respond_rate_limited('rate_ip', $baseEvent);
+    reject_rate('rate_ip', $baseEvent);
 }
 if ($email !== '') {
     [, $emHits] = rate_hits('email:' . $email, EMAIL_WINDOW);
     if (count($emHits) >= EMAIL_LIMIT) {
-        respond_rate_limited('rate_email', $baseEvent);
+        reject_rate('rate_email', $baseEvent);
     }
 }
 
@@ -1209,7 +1210,7 @@ if (!turnstile_ok($tsSecret, $tsToken, $tsIp)) {
 // Lock, re-read, apply the cap, and append before the lock is released.
 $decision = rate_admit('ip:' . $ip, $email !== '' ? 'email:' . $email : '', $now);
 if ($decision !== 'ok') {
-    respond_rate_limited($decision, $baseEvent);
+    reject_rate($decision, $baseEvent);
 }
 
 $already = false;

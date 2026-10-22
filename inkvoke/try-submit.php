@@ -1,6 +1,7 @@
 <?php
 /**
- * Live try for inkvoke: Turnstile → newsletter subscribe → OpenAI generate → metrics log.
+ * Live try for inkvoke: admit the try (cap, then Turnstile), then newsletter
+ * subscribe, OpenAI generate, and the metrics log.
  *
  * Deep public module: one POST interface. Secrets from the site environment
  * file /etc/stephens.page/site.env, outside the document root.
@@ -9,6 +10,8 @@
  * Invite bypass: POST invite= matching GPT_IMAGE_INVITE_TOKEN makes email/newsletter optional
  * (Turnstile + IP rate limits still apply). Shareable URL: /inkvoke/?invite=<token>
  */
+
+require_once __DIR__ . '/live_try_admission.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -30,10 +33,6 @@ const MAX_EMAIL = 254;
 const MAX_NAME = 40;
 const MAX_TURNSTILE = 2048;
 const MAX_POST_FIELDS = 20;
-const IP_LIMIT = 5;
-const IP_WINDOW = 3600;
-const EMAIL_LIMIT = 3;
-const EMAIL_WINDOW = 86400;
 
 function respond(bool $ok, string $message, array $extra = [], int $code = 200): void {
     http_response_code($code);
@@ -255,147 +254,6 @@ function log_trial(array $event): void {
         return;
     }
     @file_put_contents(TRIALS_PATH, $line . "\n", FILE_APPEND | LOCK_EX);
-}
-
-function rate_file(string $key): string {
-    return sys_get_temp_dir() . '/sp_gptimage_rl_' . md5($key) . '.json';
-}
-
-/**
- * In-window integer timestamps. A hit at exactly $now - $window is outside,
- * matching the cap the unlocked pre-check already applied.
- *
- * @param list<mixed> $hits
- * @return list<int>
- */
-function rate_filter(array $hits, int $now, int $window): array {
-    return array_values(array_filter(
-        $hits,
-        static fn($t) => is_int($t) && $t > $now - $window
-    ));
-}
-
-function rate_hits(string $key, int $window): array {
-    $file = rate_file($key);
-    $now = time();
-    $hits = [];
-    if (is_readable($file)) {
-        $decoded = json_decode((string) file_get_contents($file), true);
-        if (is_array($decoded)) {
-            $hits = $decoded;
-        }
-    }
-    return [$file, rate_filter($hits, $now, $window), $now];
-}
-
-/**
- * Exclusive lock on one hit file. Null when the file cannot be opened or locked.
- * Caller writes through this handle; a second LOCK_EX in-process would deadlock.
- *
- * @return resource|null
- */
-function rate_lock(string $file) {
-    $fp = @fopen($file, 'c+');
-    if ($fp === false) {
-        return null;
-    }
-    if (!flock($fp, LOCK_EX)) {
-        fclose($fp);
-        return null;
-    }
-    return $fp;
-}
-
-/** @param resource|null $fp */
-function rate_unlock($fp): void {
-    if (!is_resource($fp)) {
-        return;
-    }
-    @flock($fp, LOCK_UN);
-    @fclose($fp);
-}
-
-/**
- * @param resource $fp
- * @return list<mixed>
- */
-function rate_read_locked($fp): array {
-    rewind($fp);
-    $raw = stream_get_contents($fp);
-    $decoded = json_decode((string) $raw, true);
-    return is_array($decoded) ? $decoded : [];
-}
-
-/**
- * @param resource $fp
- * @param list<int> $hits
- */
-function rate_write_locked($fp, array $hits): bool {
-    $json = json_encode(array_values($hits));
-    if ($json === false) {
-        return false;
-    }
-    $payload = $json . "\n";
-    if (ftruncate($fp, 0) === false) {
-        return false;
-    }
-    rewind($fp);
-    $written = fwrite($fp, $payload);
-    if ($written !== strlen($payload)) {
-        return false;
-    }
-    return fflush($fp);
-}
-
-/**
- * Lock each hit file, re-read it, apply the cap, and append $now before
- * unlocking. Same sequence as record_spend: flock, read, write, unlock
- * on the one handle. Appends neither file when either cap is already full,
- * so a refused try does not consume the other counter. $emailKey '' records
- * only the connection (invite with no email).
- *
- * @return 'ok'|'rate_ip'|'rate_email'|'rate_lock'
- */
-function rate_admit(string $ipKey, string $emailKey, int $now): string {
-    $ipFp = rate_lock(rate_file($ipKey));
-    if ($ipFp === null) {
-        return 'rate_lock';
-    }
-    $emailFp = null;
-    try {
-        $ipHits = rate_filter(rate_read_locked($ipFp), $now, IP_WINDOW);
-        if (count($ipHits) >= IP_LIMIT) {
-            return 'rate_ip';
-        }
-        $emailHits = [];
-        if ($emailKey !== '') {
-            $emailFp = rate_lock(rate_file($emailKey));
-            if ($emailFp === null) {
-                return 'rate_lock';
-            }
-            $emailHits = rate_filter(rate_read_locked($emailFp), $now, EMAIL_WINDOW);
-            if (count($emailHits) >= EMAIL_LIMIT) {
-                return 'rate_email';
-            }
-        }
-        if ($emailFp !== null) {
-            $emailHits[] = $now;
-            if (!rate_write_locked($emailFp, $emailHits)) {
-                return 'rate_lock';
-            }
-        }
-        $ipHits[] = $now;
-        if (!rate_write_locked($ipFp, $ipHits)) {
-            return 'rate_lock';
-        }
-        return 'ok';
-    } catch (Throwable $e) {
-        error_log('inkvoke try: rate admit error: ' . $e->getMessage());
-        return 'rate_lock';
-    } finally {
-        rate_unlock($emailFp);
-        rate_unlock($ipFp);
-    }
 }
 
 /**
@@ -1179,38 +1037,44 @@ if ($promptErr === 'empty' || $prompt === '') {
     respond(false, 'Enter an image description to continue.');
 }
 
-[, $ipHits, $now] = rate_hits('ip:' . $ip, IP_WINDOW);
-if (count($ipHits) >= IP_LIMIT) {
-    reject_rate('rate_ip', $baseEvent);
-}
-if ($email !== '') {
-    [, $emHits] = rate_hits('email:' . $email, EMAIL_WINDOW);
-    if (count($emHits) >= EMAIL_LIMIT) {
-        reject_rate('rate_email', $baseEvent);
+// The proof is the missing-secret, missing-token, and Turnstile checks.
+// Admission runs it only when the unlocked cap has room, and records the hit
+// before newsletter signup or image generation.
+$now = time();
+$decision = LiveTryAdmission::admit(
+    $ip,
+    $email,
+    $now,
+    static function () use ($env, $tsToken, $ip): string {
+        $secret = (string) ($env['TURNSTILE_SECRET'] ?? '');
+        if ($secret === '') {
+            return 'config_turnstile';
+        }
+        if ($tsToken === '') {
+            return 'turnstile_missing';
+        }
+        // Only pass a validated IP to Turnstile; unknown skips remoteip.
+        $remoteIp = $ip !== 'unknown' ? $ip : '';
+        if (!turnstile_ok($secret, $tsToken, $remoteIp)) {
+            return 'turnstile_fail';
+        }
+        return 'ok';
     }
+);
+if ($decision === 'rate_ip' || $decision === 'rate_email' || $decision === 'rate_lock') {
+    reject_rate($decision, $baseEvent);
 }
-
-$tsSecret = $env['TURNSTILE_SECRET'] ?? '';
-if ($tsSecret === '') {
+if ($decision === 'config_turnstile') {
     log_trial($baseEvent + ['ok' => false, 'error' => 'config_turnstile']);
     respond(false, 'The form is not fully configured yet. Please email jacob@stephens.page.', [], 500);
 }
-if ($tsToken === '') {
+if ($decision === 'turnstile_missing') {
     log_trial($baseEvent + ['ok' => false, 'error' => 'turnstile_missing']);
     respond(false, 'Please complete the verification challenge and try again.');
 }
-// Only pass a validated IP to Turnstile; unknown skips remoteip.
-$tsIp = $ip !== 'unknown' ? $ip : '';
-if (!turnstile_ok($tsSecret, $tsToken, $tsIp)) {
+if ($decision !== 'ok') {
     log_trial($baseEvent + ['ok' => false, 'error' => 'turnstile_fail']);
     respond(false, 'Verification failed. Please try the challenge again.');
-}
-
-// Count this try only after Turnstile, and before newsletter signup or image generation.
-// Lock, re-read, apply the cap, and append before the lock is released.
-$decision = rate_admit('ip:' . $ip, $email !== '' ? 'email:' . $email : '', $now);
-if ($decision !== 'ok') {
-    reject_rate($decision, $baseEvent);
 }
 
 $already = false;

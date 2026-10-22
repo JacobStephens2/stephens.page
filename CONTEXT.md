@@ -13,3 +13,7 @@ Glossary for the stephens.page site source.
 **Resume projection** - a form of the resume computed from the resume source on request, never edited by hand or committed: the Markdown at `/resume/jacob-stephens-resume.md` and the PDF at `/resume/Jacob-Stephens-Resume.pdf`.
 
 **Page budget** - the most pages the PDF projection may take: two. The resume check fails a resume source whose PDF exceeds it.
+
+**Live try** - one Inkvoke image generation requested from the public form.
+
+**Live-try admission** - the decision to record a live try, five an hour per connection and three a day per email, recorded only after the caller proves the try, under the hit-file lock. The contact form is not a live try and does not use this module.

@@ -2,7 +2,8 @@
 /**
  * Live try for inkvoke: Turnstile → newsletter subscribe → OpenAI generate → metrics log.
  *
- * Deep public module: one POST interface. Secrets from /private/.env (gitignored).
+ * Deep public module: one POST interface. Secrets from the site environment
+ * file /etc/stephens.page/site.env, outside the document root.
  * Trial log: /var/lib/gpt-image/trials.jsonl
  *
  * Invite bypass: POST invite= matching GPT_IMAGE_INVITE_TOKEN makes email/newsletter optional
@@ -944,7 +945,7 @@ if (!is_array($_POST) || count($_POST) > MAX_POST_FIELDS) {
     respond(false, 'Invalid form submission.', [], 400);
 }
 
-$env = load_env(dirname(__DIR__) . '/private/.env');
+$env = load_env('/etc/stephens.page/site.env');
 $ip = client_ip();
 $started = microtime(true);
 

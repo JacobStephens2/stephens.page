@@ -1,13 +1,17 @@
 <?php
 /**
- * Live try for inkvoke: Turnstile → newsletter subscribe → OpenAI generate → metrics log.
+ * Live try for inkvoke: admit the try (cap, then Turnstile), then newsletter
+ * subscribe, OpenAI generate, and the metrics log.
  *
- * Deep public module: one POST interface. Secrets from /private/.env (gitignored).
+ * Deep public module: one POST interface. Secrets from the site environment
+ * file /etc/stephens.page/site.env, outside the document root.
  * Trial log: /var/lib/gpt-image/trials.jsonl
  *
  * Invite bypass: POST invite= matching GPT_IMAGE_INVITE_TOKEN makes email/newsletter optional
  * (Turnstile + IP rate limits still apply). Shareable URL: /inkvoke/?invite=<token>
  */
+
+require_once __DIR__ . '/live_try_admission.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -29,10 +33,6 @@ const MAX_EMAIL = 254;
 const MAX_NAME = 40;
 const MAX_TURNSTILE = 2048;
 const MAX_POST_FIELDS = 20;
-const IP_LIMIT = 5;
-const IP_WINDOW = 3600;
-const EMAIL_LIMIT = 3;
-const EMAIL_WINDOW = 86400;
 
 function respond(bool $ok, string $message, array $extra = [], int $code = 200): void {
     http_response_code($code);
@@ -256,20 +256,23 @@ function log_trial(array $event): void {
     @file_put_contents(TRIALS_PATH, $line . "\n", FILE_APPEND | LOCK_EX);
 }
 
-function rate_hits(string $key, int $window): array {
-    $file = sys_get_temp_dir() . '/sp_gptimage_rl_' . md5($key) . '.json';
-    $now = time();
-    $hits = [];
-    if (is_readable($file)) {
-        $hits = json_decode((string) file_get_contents($file), true) ?: [];
+/**
+ * Refuse the try. rate_ip and rate_email are the caps. rate_lock means the
+ * hit file could not be locked or written. Does not return.
+ *
+ * @param 'rate_ip'|'rate_email'|'rate_lock' $decision
+ */
+function reject_rate(string $decision, array $baseEvent): void {
+    if ($decision === 'rate_ip') {
+        log_trial($baseEvent + ['ok' => false, 'error' => 'rate_ip']);
+        respond(false, 'Too many tries from this connection. Please wait an hour and try again.', [], 429);
     }
-    $hits = array_values(array_filter($hits, static fn($t) => is_int($t) && $t > $now - $window));
-    return [$file, $hits, $now];
-}
-
-function rate_record(string $file, array $hits, int $now): void {
-    $hits[] = $now;
-    @file_put_contents($file, json_encode($hits), LOCK_EX);
+    if ($decision === 'rate_email') {
+        log_trial($baseEvent + ['ok' => false, 'error' => 'rate_email']);
+        respond(false, 'This email has reached the free trial limit for today (3 images). Try again tomorrow.', [], 429);
+    }
+    log_trial($baseEvent + ['ok' => false, 'error' => 'rate_lock']);
+    respond(false, 'Could not record this try. Please try again in a moment.', [], 503);
 }
 
 function turnstile_ok(string $secret, string $token, string $ip): bool {
@@ -929,7 +932,28 @@ function estimate_cost_from_usage(?array $usage): array {
     ];
 }
 
+/**
+ * True when this file is the request being executed, not a test include.
+ * An empty SCRIPT_FILENAME still runs the handler so a misconfigured SAPI
+ * cannot skip the live-try entry point.
+ */
+function try_submit_is_direct_request(): bool {
+    $script = $_SERVER['SCRIPT_FILENAME'] ?? '';
+    if ($script === '') {
+        return true;
+    }
+    $scriptReal = realpath($script);
+    $selfReal = realpath(__FILE__);
+    return $scriptReal !== false && $selfReal !== false && $scriptReal === $selfReal;
+}
+
 // --- Entry -------------------------------------------------------------------
+
+// Included by tests: a top-level return hands control back to the caller.
+// A direct request falls through into the handler.
+if (!try_submit_is_direct_request()) {
+    return;
+}
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     respond(false, 'Method not allowed.', [], 405);
@@ -944,7 +968,7 @@ if (!is_array($_POST) || count($_POST) > MAX_POST_FIELDS) {
     respond(false, 'Invalid form submission.', [], 400);
 }
 
-$env = load_env(dirname(__DIR__) . '/private/.env');
+$env = load_env('/etc/stephens.page/site.env');
 $ip = client_ip();
 $started = microtime(true);
 
@@ -1013,41 +1037,44 @@ if ($promptErr === 'empty' || $prompt === '') {
     respond(false, 'Enter an image description to continue.');
 }
 
-[$ipFile, $ipHits, $now] = rate_hits('ip:' . $ip, IP_WINDOW);
-if (count($ipHits) >= IP_LIMIT) {
-    log_trial($baseEvent + ['ok' => false, 'error' => 'rate_ip']);
-    respond(false, 'Too many tries from this connection. Please wait an hour and try again.', [], 429);
-}
-$emFile = '';
-$emHits = [];
-if ($email !== '') {
-    [$emFile, $emHits] = rate_hits('email:' . $email, EMAIL_WINDOW);
-    if (count($emHits) >= EMAIL_LIMIT) {
-        log_trial($baseEvent + ['ok' => false, 'error' => 'rate_email']);
-        respond(false, 'This email has reached the free trial limit for today (3 images). Try again tomorrow.', [], 429);
+// The proof is the missing-secret, missing-token, and Turnstile checks.
+// Admission runs it only when the unlocked cap has room, and records the hit
+// before newsletter signup or image generation.
+$now = time();
+$decision = LiveTryAdmission::admit(
+    $ip,
+    $email,
+    $now,
+    static function () use ($env, $tsToken, $ip): string {
+        $secret = (string) ($env['TURNSTILE_SECRET'] ?? '');
+        if ($secret === '') {
+            return 'config_turnstile';
+        }
+        if ($tsToken === '') {
+            return 'turnstile_missing';
+        }
+        // Only pass a validated IP to Turnstile; unknown skips remoteip.
+        $remoteIp = $ip !== 'unknown' ? $ip : '';
+        if (!turnstile_ok($secret, $tsToken, $remoteIp)) {
+            return 'turnstile_fail';
+        }
+        return 'ok';
     }
+);
+if ($decision === 'rate_ip' || $decision === 'rate_email' || $decision === 'rate_lock') {
+    reject_rate($decision, $baseEvent);
 }
-
-$tsSecret = $env['TURNSTILE_SECRET'] ?? '';
-if ($tsSecret === '') {
+if ($decision === 'config_turnstile') {
     log_trial($baseEvent + ['ok' => false, 'error' => 'config_turnstile']);
     respond(false, 'The form is not fully configured yet. Please email jacob@stephens.page.', [], 500);
 }
-if ($tsToken === '') {
+if ($decision === 'turnstile_missing') {
     log_trial($baseEvent + ['ok' => false, 'error' => 'turnstile_missing']);
     respond(false, 'Please complete the verification challenge and try again.');
 }
-// Only pass a validated IP to Turnstile; unknown skips remoteip.
-$tsIp = $ip !== 'unknown' ? $ip : '';
-if (!turnstile_ok($tsSecret, $tsToken, $tsIp)) {
+if ($decision !== 'ok') {
     log_trial($baseEvent + ['ok' => false, 'error' => 'turnstile_fail']);
     respond(false, 'Verification failed. Please try the challenge again.');
-}
-
-// Record attempt against rate limits only after Turnstile (blocks pure spam burn).
-rate_record($ipFile, $ipHits, $now);
-if ($email !== '' && $emFile !== '') {
-    rate_record($emFile, $emHits, $now);
 }
 
 $already = false;

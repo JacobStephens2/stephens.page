@@ -1142,7 +1142,7 @@ sudo inkvoke --uninstall</pre>
     // Invite mode (?invite=<token>): newsletter optional; Turnstile still required.
     (function () {
       var TURNSTILE_SITE_KEY = '0x4AAAAAADk4Vi9kg773i1pu';
-      // Must match GPT_IMAGE_INVITE_TOKEN in private/.env (shareable link token).
+      // Must match GPT_IMAGE_INVITE_TOKEN in the site environment file.
       var INVITE_TOKEN = 'bf8b6c15b67108d745557f63';
       var promptEl = document.getElementById('try-prompt');
       var openBtn = document.getElementById('try-open-gate');

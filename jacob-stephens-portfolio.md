@@ -2,7 +2,7 @@ Portfolio
 
 # Software factories, backed by production engineering.
 
-My current focus is thirdshift, an open-source software factory in Rust, and the evaluations that guide its design. As Head of Engineering at Educational Travel Adventures, I also lead an engineering team running reservations, payments, a Linux fleet, and AI-agent infrastructure for a multi-million-dollar travel business.
+My current focus is thirdshift, an open-source software factory in Rust, and the evaluations that guide its design. As Head of Engineering at Educational Travel Adventures, I also lead a two-person engineering team running reservations, payments, a Linux fleet, and AI-agent infrastructure for a multi-million-dollar travel business.
 
 * **Professional**
   Production systems built over years at Educational Travel Adventures.

@@ -4,16 +4,16 @@
 
 [stephens.page](https://stephens.page/) · [thirdshift](https://thirdshift.app/) · [GitHub](https://github.com/JacobStephens2) · [LinkedIn](https://www.linkedin.com/in/jacob-c-stephens)
 
-Software engineer who builds AI agent infrastructure (agent sandboxes, orchestration, review gates, and evals) and runs the production platform a specialty-travel business depends on. 4+ years of production ownership of its reservations, payments, Linux fleet, and backend services; now lead its engineering team as Head of Engineering. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery.
+Software engineer who builds AI agent infrastructure (agent sandboxes, orchestration, review gates, and evals) and runs the production platform a specialty-travel business depends on. 4+ years of production ownership of its reservations, payments, Linux fleet, and backend services, now as Head of Engineering with one engineer reporting to me. Built thirdshift, an open-source Rust orchestrator for unattended issue-to-PR delivery.
 
 ## Experience
 
 ### Head of Engineering
 Educational Travel Adventures | Feb 2022 - Present | Remote
 
-- Lead an engineering team with end-to-end responsibility for architecture, operations, deployment, and on-call response across the production stack of a multi-million-dollar travel business.
+- Lead engineering (one direct report) with end-to-end responsibility for architecture, operations, deployment, and on-call response across the production stack of a multi-million-dollar travel business.
 - Built three Docker/Traefik Manager Sandboxes with separate application containers, a shared writable database refreshed daily, and per-manager credentials. The marketing workflow alone has produced 30+ pull requests merged by engineering.
-- Built an operations console (Python, Flask, SQLite) for fleet health, deploy review, branch previews, and browser terminals, with Google sign-in, passkeys, and per-permission access. Deployed Prometheus, Grafana, and Alertmanager across 14 hosts.
+- Built an operations console (Python, Flask, SQLite) for fleet health, deploy review, branch previews, and browser terminals, with Google sign-in, passkeys, and per-permission access. Deployed Prometheus, Grafana, and Alertmanager across 14 of the 16 hosts in the fleet.
 - Reduced group-manifest SQL statements per request from about 2,650 to 183 with byte-identical output. A separate measurement-led index pass eliminated about 80% of measured query time on the live primary using online DDL.
 - Shipped a mobile-first guide PWA with offline support and receipt-attached expenses: 77 guides filed 410 tour reports and 1,800+ expense reports (about $154K) over a 12-month period.
 - Led PHP 5-to-8, MySQL 5-to-8, and CentOS-to-Rocky Linux migrations. Modernized payment integrations and ACH/NACHA workflows, including bank-account encryption, as part of a PCI compliance initiative.

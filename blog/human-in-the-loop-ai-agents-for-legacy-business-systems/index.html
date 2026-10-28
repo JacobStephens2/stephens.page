@@ -314,6 +314,8 @@
 
             <p>One rule survives every iteration, and I would adopt it before any of the technology: <strong>no agent approves, merges, deploys, pays, hires, fires, disciplines, denies service, or materially alters revenue-critical data without a named human gate.</strong> Write the list down and publish it where the people affected can read it. It converts "we use AI responsibly" from a slogan into a checkable claim: anyone can ask "who was the named human on this change?" and the audit boundary means there is always an answer.</p>
 
+            <p><em><strong>Update, October 27, 2026:</strong> The rules above describe the Manager Sandboxes, and they still hold there. For engineering&rsquo;s own coding agents I&rsquo;ve started to relax the merge gate, beginning with thirdshift&rsquo;s Architect runs, which run Matt Pocock&rsquo;s improve-codebase-architecture skill. Their pull requests now merge themselves once CI passes on the exact commit that was checked, unless a security finding or a protected path holds them for a human.</em></p>
+
             <h2>What this actually shipped</h2>
 
             <p>Managers who used to queue feature requests through me now prototype directly: they describe what they want, the agent builds it against their sandbox, they iterate until it behaves, and I review a working pull request instead of a wish-list email. Fourteen of those features have shipped, and the quality of my review queue went <em>up</em> - a PR already exercised against realistic data beats a spec written from memory.</p>

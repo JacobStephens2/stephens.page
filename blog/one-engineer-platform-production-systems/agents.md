@@ -34,6 +34,7 @@ article title is "From a legacy ERP to an engineering platform."
   infrastructure. Its agent attempts use Firecracker microVMs and produce
   draft pull requests for human approval. It does not deploy Tourbot production.
 - ProspectForge was retired in September 2026; it is historical product work.
+  Its source is archived at https://github.com/JacobStephens2/prospectforge.
 - The separate single-node k3s portfolio demo is outside ETA production.
 - Current PHPUnit CI targets PHP 8.4. The former four-version matrix is historical.
 

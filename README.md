@@ -103,6 +103,29 @@ post-specific native API services. Service setup instructions live with the
 relevant post, for example
 [`blog/the-animation-is-a-replay/server/`](blog/the-animation-is-a-replay/server/).
 
+### Social preview images
+
+The `og-<sha256-prefix>.jpg` files are real 1200 × 630 screenshots of their
+pages, including the paper's own typography. About and Contact use
+`og-about-<sha256-prefix>.jpg` and `og-contact-<sha256-prefix>.jpg` in `media/`.
+The HTML pages and shared theme are the source of truth. After a visual change:
+
+```bash
+npm ci --prefix private
+cd private && npx playwright install chromium && cd ..
+node private/og_previews.js --capture
+node private/og_previews.js
+```
+
+The capture command serves this checkout on loopback, uses a fresh light-theme
+Chromium context, waits for webfonts and visible images, updates both social
+image tags, and removes the previous JPEGs. Fonts require network access during
+capture; the check runs offline. Review the resulting images visually as well.
+Never replace bytes at an existing JPEG URL: Apache serves them as immutable
+for a year. The check verifies matching tags, HTTP 200 responses from the local
+preview server, content fingerprints, dimensions, and retired palette colors.
+Production URLs become available when the branch is deployed.
+
 ## Content conventions
 
 - A human blog post lives at `blog/<slug>/index.html`.

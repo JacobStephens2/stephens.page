@@ -33,13 +33,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ink: #181512; --brand: #9b4d24; --brand-ink: #ffffff; --muted: #625a52;
-            --surface: #ffffff; --soft: #efe9df; --rule: #d6d1c9; --code-bg: #efe9df; --bar-bg: #ece6dc;
-            --yes: #2f7d4f; --no: #9a5b3f; --tint: rgba(155, 77, 36, 0.07);
+            --ink: #111714; --brand: #215239; --brand-ink: #ffffff; --muted: #4a5750;
+            --surface: #fcfdfc; --soft: #eef2ef; --rule: #cfd8d3; --code-bg: #eef2ef; --bar-bg: #e6ece8;
+            --yes: #2f7d4f; --no: #9a5b3f; --tint: rgba(33, 82, 57, 0.07);
         }
-        html[data-theme="dark"] { --yes: #7fbf95; --no: #d99a7a; --tint: rgba(212, 160, 122, 0.10); }
+        html[data-theme="dark"] { --yes: #7fbf95; --no: #d99a7a; --tint: rgba(126, 196, 155, 0.10); }
         @media (prefers-color-scheme: dark) {
-            html:not([data-theme="light"]):not([data-theme="dark"]) { --yes: #7fbf95; --no: #d99a7a; --tint: rgba(212, 160, 122, 0.10); }
+            html:not([data-theme="light"]):not([data-theme="dark"]) { --yes: #7fbf95; --no: #d99a7a; --tint: rgba(126, 196, 155, 0.10); }
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; background: var(--surface); color: var(--ink); line-height: 1.7; min-height: 100vh;
@@ -314,8 +314,8 @@
         .lb-cap { color: #c9bfb4; }
         .lb-nav { display: flex; align-items: center; gap: 0.35rem; }
         .lb-count { font-variant-numeric: tabular-nums; color: #c9bfb4; min-width: 3.4rem; text-align: center; }
-        dialog.lightbox .btn { background: transparent; color: #f0ebe4; border-color: #574d45; }
-        dialog.lightbox .btn:hover, dialog.lightbox .btn:focus-visible { border-color: #f0ebe4; }
+        dialog.lightbox .btn { background: transparent; color: #e8efec; border-color: #574d45; }
+        dialog.lightbox .btn:hover, dialog.lightbox .btn:focus-visible { border-color: #e8efec; }
         dialog.nonmodal { position: fixed; top: auto; bottom: 5.5rem; right: 1rem; left: auto; margin: 0; width: min(19rem, 88vw); }
         .toast { position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 70; display: none; align-items: center; gap: 0.8rem; padding: 0.55rem 0.9rem; font-size: 0.86rem; background: var(--ink); color: var(--surface); border: 0; border-radius: 8px; box-shadow: 0 8px 26px rgba(0,0,0,0.3); }
         .toast.show { display: flex; animation: toastIn 0.24s ease-out; }
@@ -897,7 +897,7 @@
                             <p class="demo-note">The <code>multiple</code> attribute is the whole difference from the file input beside it. Note the trap: choosing again <em>replaces</em> the selection. Appending means rebuilding a <code>DataTransfer</code>, which is what dropping onto the zone does here.</p>
                         </div>
                         <div class="spec spec-box" data-el="Color picker" data-fam="input" data-also="colour input, swatch picker">
-                            <label for="i-color">Brand</label> <input type="color" id="i-color" value="#9b4d24" style="width:2.4rem;height:1.7rem;padding:0;border:1px solid var(--rule);background:none">
+                            <label for="i-color">Brand</label> <input type="color" id="i-color" value="#215239" style="width:2.4rem;height:1.7rem;padding:0;border:1px solid var(--rule);background:none">
                         </div>
                         <div class="spec spec-box" data-el="Transfer list" data-fam="input" data-also="dual listbox, shuttle, pick list">
                             <div class="stackh" style="align-items:center;gap:0.35rem">
@@ -1887,7 +1887,7 @@
             { cap: 'Harbour, long exposure',
               svg: '<rect width="480" height="260" fill="#1e2529"/><rect y="150" width="480" height="110" fill="#2c3a42"/><circle cx="380" cy="70" r="22" fill="#e8dcc8"/><rect x="60" y="90" width="16" height="60" fill="#485a63"/><rect x="110" y="60" width="16" height="90" fill="#485a63"/><rect x="160" y="105" width="16" height="45" fill="#485a63"/>' },
             { cap: 'Studio wall',
-              svg: '<rect width="480" height="260" fill="#efe9df"/><rect x="60" y="40" width="150" height="180" fill="#9b4d24"/><rect x="240" y="40" width="180" height="85" fill="#625a52"/><rect x="240" y="140" width="180" height="80" fill="#c9bfb4"/>' }
+              svg: '<rect width="480" height="260" fill="#eef2ef"/><rect x="60" y="40" width="150" height="180" fill="#215239"/><rect x="240" y="40" width="180" height="85" fill="#4a5750"/><rect x="240" y="140" width="180" height="80" fill="#c9bfb4"/>' }
         ];
         var lbIdx = 0,
             lbStage = document.getElementById('lbStage'),

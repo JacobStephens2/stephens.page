@@ -32,17 +32,17 @@ def render_salabim(seed: int, theme: str = "light") -> str:
     rng = random.Random(seed)
     dark = theme == "dark"
     palette = {
-        "background": "#141210" if dark else "#efe9df",
-        "surface": "#252019" if dark else "#ffffff",
-        "ink": "#f0ebe4" if dark else "#181512",
-        "muted": "#a89f94" if dark else "#625a52",
-        "rule": "#3a342e" if dark else "#d6d1c9",
-        "brand": "#e6a270" if dark else "#9b4d24",
+        "background": "#0e1311" if dark else "#eef2ef",
+        "surface": "#1b2520" if dark else "#fcfdfc",
+        "ink": "#e8efec" if dark else "#111714",
+        "muted": "#95a69e" if dark else "#4a5750",
+        "rule": "#28362f" if dark else "#cfd8d3",
+        "brand": "#7ec49b" if dark else "#215239",
         "coding": "#8fb9ff" if dark else "#315f9b",
         "ci": "#d5a0f0" if dark else "#7a3e9d",
         "review": "#72d1c2" if dark else "#0b6b61",
         "deployed": "#9fd7a5" if dark else "#1d6b3a",
-        "token_text": "#141210" if dark else "#ffffff",
+        "token_text": "#0e1311" if dark else "#ffffff",
     }
     output = Path(f"/tmp/salabim-factory-{seed}-{theme}.webp")
     output.unlink(missing_ok=True)

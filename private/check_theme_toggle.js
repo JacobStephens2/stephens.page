@@ -3,7 +3,8 @@
 // Without BASE_URL it serves the repo root with `python3 -m http.server` on a free port.
 
 const { chromium } = require('playwright');
-const { spawn } = require('child_process');
+const { spawn, execFileSync } = require('child_process');
+const fs = require('fs');
 const net = require('net');
 const path = require('path');
 
@@ -209,6 +210,59 @@ async function checkSharedStyles(context, baseUrl) {
     await page.close();
 }
 
+async function checkAllPagePalettes(context, baseUrl) {
+    const paths = execFileSync('git', ['ls-files', '*.html'], { cwd: repoRoot, encoding: 'utf8' })
+        .trim().split('\n')
+        .filter((file) => !file.startsWith('skills/') && fs.readFileSync(path.join(repoRoot, file), 'utf8').includes('href="/theme.css"'));
+    const page = await context.newPage();
+    for (const file of paths) {
+        await page.goto(`${baseUrl}/${file}`, { waitUntil: 'load' });
+        for (const [system, preference] of [['light', null], ['light', 'dark'], ['dark', 'light'], ['dark', null]]) {
+            await page.evaluate((theme) => {
+                if (theme) localStorage.setItem('theme', theme);
+                else localStorage.removeItem('theme');
+            }, preference);
+            await page.emulateMedia({ colorScheme: system });
+            await page.reload({ waitUntil: 'load' });
+            const theme = preference || system;
+            await checkPalette(page, `${file} (${preference || 'system'} on ${system})`, theme);
+            const state = await readThemeState(page);
+            if (state.themeColor !== null) {
+                check(file, `${theme} theme-color`, state.themeColor, theme === 'light' ? META_LIGHT : META_DARK);
+            }
+            const group = page.locator('.cs-diagram .grp').first();
+            if (await group.count()) {
+                const colors = await group.evaluate((node) => {
+                    const style = getComputedStyle(node);
+                    return [style.fill, style.stroke];
+                });
+                check(file, `${theme} SVG group tint`, colors, theme === 'light'
+                    ? ['rgba(33, 82, 57, 0.07)', 'rgba(33, 82, 57, 0.38)']
+                    : ['rgba(126, 196, 155, 0.08)', 'rgba(126, 196, 155, 0.4)']);
+                check(file, `${theme} SVG box stroke`, await page.locator('.cs-diagram .box').first()
+                    .evaluate((node) => getComputedStyle(node).stroke), theme === 'light' ? 'rgb(33, 82, 57)' : 'rgb(126, 196, 155)');
+            }
+        }
+        // Shared CSS must not conceal stale page-local fallback tokens.
+        await page.emulateMedia({ colorScheme: 'light' });
+        const inline = await page.evaluate((expected) => {
+            document.documentElement.removeAttribute('data-theme');
+            document.querySelector('link[href="/theme.css"]').sheet.disabled = true;
+            const declared = [...document.querySelectorAll('style')].flatMap((style) => [...style.sheet.cssRules])
+                .filter((rule) => rule.selectorText === ':root')
+                .flatMap((rule) => [...rule.style]);
+            const tokens = Object.keys(expected).filter((token) => declared.includes(`--${token}`));
+            const computed = getComputedStyle(document.documentElement);
+            return {
+                actual: Object.fromEntries(tokens.map((token) => [token, computed.getPropertyValue(`--${token}`).trim()])),
+                expected: Object.fromEntries(tokens.map((token) => [token, expected[token]])),
+            };
+        }, { ...palettes.light, bg: '#fcfdfc', panel: '#fcfdfc', text: '#111714' });
+        check(file, 'inline light fallback palette', inline.actual, inline.expected);
+    }
+    await page.close();
+}
+
 async function main() {
     let server = null;
     let baseUrl = process.argv[2];
@@ -233,6 +287,7 @@ async function main() {
                 await checkPage(context, baseUrl, spec, systemTheme);
             }
             if (systemTheme === 'light') {
+                await checkAllPagePalettes(context, baseUrl);
                 await checkSharedStyles(context, baseUrl);
                 const manifest = await (await context.request.get(baseUrl + '/manifest.webmanifest')).json();
                 check('manifest', 'install colors', [manifest.theme_color, manifest.background_color], ['#215239', '#fcfdfc']);

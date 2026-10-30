@@ -28,58 +28,11 @@
     box-sizing: border-box
 }
 
+/* Resume vocabulary backed by the shared screen palette in ../../theme.css. */
 :root {
-    color-scheme: light dark;
-    --primary-black: #181512;
-    --brand-blue: #9b4d24;
-    --accent-orange: #9b4d24;
-    --brand-ink: #ffffff;
-    --secondary-gray: #625a52;
-    --surface: #ffffff;
-    --surface-soft: #efe9df;
-    --rule: #d6d1c9;
-    --theme-toggle-size: 2.25rem;
-}
-
-/* Explicit light (overrides a dark system preference). */
-html[data-theme="light"] {
-    color-scheme: light;
-    --primary-black: #181512;
-    --brand-blue: #9b4d24;
-    --accent-orange: #9b4d24;
-    --brand-ink: #ffffff;
-    --secondary-gray: #625a52;
-    --surface: #ffffff;
-    --surface-soft: #efe9df;
-    --rule: #d6d1c9;
-}
-
-/* Explicit dark (overrides a light system preference). */
-html[data-theme="dark"] {
-    color-scheme: dark;
-    --primary-black: #f0ebe4;
-    --brand-blue: #d4a07a;
-    --accent-orange: #d4a07a;
-    --brand-ink: #141210;
-    --secondary-gray: #a89f94;
-    --surface: #141210;
-    --surface-soft: #1e1a16;
-    --rule: #3a342e;
-}
-
-/* System dark when the user has not pinned a theme. */
-@media (prefers-color-scheme: dark) {
-    html:not([data-theme="light"]):not([data-theme="dark"]) {
-        color-scheme: dark;
-        --primary-black: #f0ebe4;
-        --brand-blue: #d4a07a;
-        --accent-orange: #d4a07a;
-        --brand-ink: #141210;
-        --secondary-gray: #a89f94;
-        --surface: #141210;
-        --surface-soft: #1e1a16;
-        --rule: #3a342e;
-    }
+    --primary-black: var(--ink);
+    --secondary-gray: var(--muted);
+    --surface-soft: var(--soft);
 }
 
 html.theme-ready,
@@ -550,19 +503,24 @@ section.education {
 @media print {
     /* Always print light - ink on paper, not the dark screen palette. */
     html,
+    html:not([data-theme="light"]):not([data-theme="dark"]),
     html[data-theme="dark"],
     html[data-theme="light"] {
         color-scheme: light;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
-        --primary-black: #181512;
-        --brand-blue: #9b4d24;
-        --accent-orange: #9b4d24;
+        --ink: #111714;
+        --brand: #215239;
+        --brand-hover: #173d2a;
+        --brand-accent: #488264;
         --brand-ink: #ffffff;
-        --secondary-gray: #625a52;
+        --muted: #4a5750;
         --surface: #ffffff;
-        --surface-soft: #efe9df;
-        --rule: #d6d1c9
+        --soft: #eef2ef;
+        --rule: #cfd8d3;
+        --code-bg: #eef2ef;
+        --bar-bg: #e6ece8;
+        --line: #cfd8d3
     }
 
     .theme-toggle {
@@ -572,7 +530,7 @@ section.education {
     body {
         font-size: 14px;
         line-height: 1.2;
-        color: #181512;
+        color: var(--primary-black);
         background: #fff
     }
 

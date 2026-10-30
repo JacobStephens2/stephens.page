@@ -9,8 +9,8 @@
   var STORAGE_KEY = 'theme';
   var THEME_LIGHT = 'light';
   var THEME_DARK = 'dark';
-  var META_LIGHT = '#9b4d24';
-  var META_DARK = '#141210';
+  var META_LIGHT = '#215239';
+  var META_DARK = '#0e1311';
 
   function systemPrefersDark() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;

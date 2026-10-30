@@ -3,54 +3,64 @@
    has explicitly chosen light or dark (see theme.js). */
 
 :root {
-    color-scheme: light dark;
     --theme-toggle-size: 2.25rem;
+    --brand-blue: var(--brand);
+    --accent-orange: var(--brand);
+    --accent: var(--brand);
+    --syntax-keyword: var(--brand);
 }
 
-/* Explicit light (overrides a dark system preference). */
+/* Default light; explicit light overrides a dark system preference. */
+:root,
 html[data-theme="light"] {
     color-scheme: light;
-    --ink: #181512;
-    --brand: #9b4d24;
+    --ink: #111714;
+    --brand: #215239;
+    --brand-hover: #173d2a;
+    --brand-accent: #488264;
     --brand-ink: #ffffff;
-    --muted: #625a52;
-    --surface: #ffffff;
-    --soft: #efe9df;
-    --rule: #d6d1c9;
-    --code-bg: #efe9df;
-    --bar-bg: #ece6dc;
-    --line: #d6d1c9;
+    --muted: #4a5750;
+    --surface: #fcfdfc;
+    --soft: #eef2ef;
+    --rule: #cfd8d3;
+    --code-bg: #eef2ef;
+    --bar-bg: #e6ece8;
+    --line: #cfd8d3;
 }
 
 /* Explicit dark (overrides a light system preference). */
 html[data-theme="dark"] {
     color-scheme: dark;
-    --ink: #f0ebe4;
-    --brand: #d4a07a;
-    --brand-ink: #141210;
-    --muted: #a89f94;
-    --surface: #141210;
-    --soft: #1e1a16;
-    --rule: #3a342e;
-    --code-bg: #252019;
-    --bar-bg: #2a2520;
-    --line: #3a342e;
+    --ink: #e8efec;
+    --brand: #7ec49b;
+    --brand-hover: #96d3af;
+    --brand-accent: #488264;
+    --brand-ink: #0e1311;
+    --muted: #95a69e;
+    --surface: #0e1311;
+    --soft: #161e1a;
+    --rule: #28362f;
+    --code-bg: #1b2520;
+    --bar-bg: #212d27;
+    --line: #28362f;
 }
 
 /* System dark when the user has not pinned a theme. */
 @media (prefers-color-scheme: dark) {
     html:not([data-theme="light"]):not([data-theme="dark"]) {
         color-scheme: dark;
-        --ink: #f0ebe4;
-        --brand: #d4a07a;
-        --brand-ink: #141210;
-        --muted: #a89f94;
-        --surface: #141210;
-        --soft: #1e1a16;
-        --rule: #3a342e;
-        --code-bg: #252019;
-        --bar-bg: #2a2520;
-        --line: #3a342e;
+        --ink: #e8efec;
+        --brand: #7ec49b;
+        --brand-hover: #96d3af;
+        --brand-accent: #488264;
+        --brand-ink: #0e1311;
+        --muted: #95a69e;
+        --surface: #0e1311;
+        --soft: #161e1a;
+        --rule: #28362f;
+        --code-bg: #1b2520;
+        --bar-bg: #212d27;
+        --line: #28362f;
     }
 }
 
@@ -92,14 +102,14 @@ html[data-theme="dark"] h2.sec-h:hover {
 }
 
 html[data-theme="dark"] .chip.plat {
-    background: #2a221c;
-    border-color: #4a3a2e;
-    color: #d4a07a;
+    background: #13221a;
+    border-color: #264234;
+    color: var(--brand);
 }
 
 html[data-theme="dark"] .row .fill.alt,
 html[data-theme="dark"] .stack-row .stack-track .fill {
-    background: #b9805f;
+    background: var(--brand-accent);
 }
 
 html[data-theme="dark"] .row .fill.rec {
@@ -131,8 +141,8 @@ html[data-theme="dark"] .cs-diagram .ln {
     stroke: var(--brand);
 }
 html[data-theme="dark"] .cs-diagram .grp {
-    fill: rgba(212, 160, 122, 0.08);
-    stroke: rgba(212, 160, 122, 0.4);
+    fill: rgba(126, 196, 155, 0.08);
+    stroke: rgba(126, 196, 155, 0.4);
 }
 html[data-theme="dark"] .cs-diagram marker path {
     fill: var(--brand);
@@ -166,14 +176,14 @@ html[data-theme="dark"] .cs-diagram marker path {
     }
 
     html:not([data-theme="light"]) .chip.plat {
-        background: #2a221c;
-        border-color: #4a3a2e;
-        color: #d4a07a;
+        background: #13221a;
+        border-color: #264234;
+        color: var(--brand);
     }
 
     html:not([data-theme="light"]) .row .fill.alt,
     html:not([data-theme="light"]) .stack-row .stack-track .fill {
-        background: #b9805f;
+        background: var(--brand-accent);
     }
 
     html:not([data-theme="light"]) .row .fill.rec {
@@ -203,8 +213,8 @@ html[data-theme="dark"] .cs-diagram marker path {
         stroke: var(--brand);
     }
     html:not([data-theme="light"]) .cs-diagram .grp {
-        fill: rgba(212, 160, 122, 0.08);
-        stroke: rgba(212, 160, 122, 0.4);
+        fill: rgba(126, 196, 155, 0.08);
+        stroke: rgba(126, 196, 155, 0.4);
     }
     html:not([data-theme="light"]) .cs-diagram marker path {
         fill: var(--brand);

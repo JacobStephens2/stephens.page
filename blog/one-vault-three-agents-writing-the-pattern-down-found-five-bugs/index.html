@@ -29,13 +29,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ink: #181512;
-            --brand: #9b4d24;
-            --muted: #625a52;
-            --surface: #ffffff;
-            --soft: #efe9df;
-            --rule: #d6d1c9;
-            --code-bg: #efe9df;
+            --ink: #111714;
+            --brand: #215239;
+            --muted: #4a5750;
+            --surface: #fcfdfc;
+            --soft: #eef2ef;
+            --rule: #cfd8d3;
+            --code-bg: #eef2ef;
         }
 
         * {
@@ -214,8 +214,8 @@
             border: 1px solid var(--rule);
             border-radius: 10px;
             overflow: hidden;
-            background: #1a1714;
-            color: #e8e2d9;
+            background: #0e1311;
+            color: #e8efec;
             box-shadow: 0 1px 0 rgba(0,0,0,0.04);
         }
 
@@ -224,8 +224,8 @@
             align-items: center;
             gap: 0.65rem;
             padding: 0.45rem 0.7rem;
-            background: #252019;
-            border-bottom: 1px solid #3a342e;
+            background: #1b2520;
+            border-bottom: 1px solid #28362f;
         }
 
         .cli-dots {
@@ -239,7 +239,7 @@
             width: 0.55rem;
             height: 0.55rem;
             border-radius: 50%;
-            background: #5a5248;
+            background: #28362f;
         }
 
         .cli-dots i:nth-child(1) { background: #c45c4a; }
@@ -252,7 +252,7 @@
             font-size: 0.78rem;
             font-weight: 600;
             letter-spacing: 0.02em;
-            color: #a89f94;
+            color: #95a69e;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -261,9 +261,9 @@
         .cli-run,
         .cli-go {
             appearance: none;
-            border: 1px solid #4a423a;
-            background: #2a2520;
-            color: #e8e2d9;
+            border: 1px solid #28362f;
+            background: #212d27;
+            color: #e8efec;
             font-family: inherit;
             font-size: 0.78rem;
             font-weight: 700;
@@ -278,7 +278,7 @@
         .cli-go:hover,
         .cli-go:focus-visible {
             border-color: var(--brand);
-            color: #f0ebe4;
+            color: #e8efec;
             outline: none;
         }
 
@@ -299,11 +299,11 @@
 
         .cli-line { white-space: pre-wrap; word-break: break-word; }
         .cli-blank { height: 0.55rem; }
-        .cli-cmd { color: #f0ebe4; }
-        .cli-out { color: #cfc6ba; }
-        .cli-dim { color: #7a7168; }
+        .cli-cmd { color: #e8efec; }
+        .cli-out { color: #e8efec; }
+        .cli-dim { color: #95a69e; }
         .cli-err { color: #e08a7a; }
-        .cli-prompt { color: #d4a07a; font-weight: 600; }
+        .cli-prompt { color: #7ec49b; font-weight: 600; }
 
         .cli-cursor {
             display: inline-block;
@@ -311,7 +311,7 @@
             height: 1em;
             margin-left: 1px;
             vertical-align: text-bottom;
-            background: #d4a07a;
+            background: #7ec49b;
             animation: cli-blink 1s step-end infinite;
         }
 
@@ -324,8 +324,8 @@
             align-items: center;
             gap: 0.4rem;
             padding: 0.45rem 0.7rem 0.55rem;
-            border-top: 1px solid #3a342e;
-            background: #1f1b17;
+            border-top: 1px solid #28362f;
+            background: #161e1a;
         }
 
         .cli-input-row .cli-prompt {
@@ -339,7 +339,7 @@
             min-width: 0;
             border: 0;
             background: transparent;
-            color: #f0ebe4;
+            color: #e8efec;
             font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
             font-size: 0.78rem;
             padding: 0.25rem 0;
@@ -347,21 +347,21 @@
         }
 
         .cli-input::placeholder {
-            color: #6a625a;
+            color: #95a69e;
         }
 
         .cli-caption {
             margin: 0;
             padding: 0.45rem 0.8rem 0.55rem;
-            background: #252019;
-            border-top: 1px solid #3a342e;
-            color: #8a8278;
+            background: #1b2520;
+            border-top: 1px solid #28362f;
+            color: #95a69e;
             font-size: 0.78rem;
             line-height: 1.4;
         }
 
         .cli-caption strong {
-            color: #b0a89e;
+            color: #95a69e;
             font-weight: 600;
         }
 

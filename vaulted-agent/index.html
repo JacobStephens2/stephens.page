@@ -12,7 +12,7 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="/bee-favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#9b4d24">
+    <meta name="theme-color" content="#215239">
     <title>vaulted-agent | vaultedagent.com</title>
     <meta name="description" content="vaulted-agent is a launcher. It resolves secret values from a vault backend into the child environment, then execs Claude Code, Codex, Grok, Kimi, Antigravity, or Muse Code. v0.4.26.">
     <meta property="og:title" content="vaulted-agent - launcher for agents with vault-backed secrets">
@@ -34,14 +34,14 @@
     <script src="/theme.js" defer></script>
     <style>
         :root {
-            --ink: #181512;
-            --brand: #9b4d24;
+            --ink: #111714;
+            --brand: #215239;
             --brand-ink: #ffffff;
-            --muted: #625a52;
-            --surface: #ffffff;
-            --soft: #efe9df;
-            --rule: #d6d1c9;
-            --code-bg: #efe9df;
+            --muted: #4a5750;
+            --surface: #fcfdfc;
+            --soft: #eef2ef;
+            --rule: #cfd8d3;
+            --code-bg: #eef2ef;
         }
 
         * { box-sizing: border-box; }
@@ -582,8 +582,8 @@
             font-family: 'Source Code Pro', ui-monospace, Menlo, Consolas, monospace;
             font-size: 0.78rem;
             line-height: 1.5;
-            background: #181512;
-            color: #efe9df;
+            background: #111714;
+            color: #eef2ef;
             border: 1px solid var(--rule);
             border-radius: 10px;
             padding: 1rem 1.05rem;
@@ -593,14 +593,14 @@
         }
 
         [data-theme="light"] .term-session {
-            background: #1c1916;
-            color: #f3efe7;
+            background: #0e1311;
+            color: #e8efec;
         }
 
-        .term-session .cmt { color: #9a9086; }
-        .term-session .cmd { color: #e8c4a0; font-weight: 600; }
+        .term-session .cmt { color: #95a69e; }
+        .term-session .cmd { color: #7ec49b; font-weight: 600; }
         .term-session .in  { color: #8fd4a0; }
-        .term-session .out { color: #d7d1c7; }
+        .term-session .out { color: #e8efec; }
         .term-session .ok  { color: #6fdc8c; }
 
         /* Product illustration (inkvoke) */

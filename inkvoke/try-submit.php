@@ -793,7 +793,7 @@ function notify_admin_new_image(array $env, array $info): void {
         ? '<p style="margin:0 0 8px"><strong>User email:</strong> <a href="mailto:' . htmlspecialchars($rawEmail, ENT_QUOTES, 'UTF-8') . '">' . $userEmail . '</a></p>'
         : '<p style="margin:0 0 8px"><strong>User email:</strong> ' . $userEmail . '</p>';
 
-    $html = '<div style="font-family:Arial,Helvetica,sans-serif;line-height:1.6;color:#181512">'
+    $html = '<div style="font-family:Arial,Helvetica,sans-serif;line-height:1.6;color:#111714">'
         . '<h2 style="color:#0e0f12;margin:0 0 12px">New inkvoke live try' . htmlspecialchars($inviteTag, ENT_QUOTES, 'UTF-8') . '</h2>'
         . '<p style="margin:0 0 8px"><strong>Display name:</strong> ' . $byName . '</p>'
         . $emailHtml

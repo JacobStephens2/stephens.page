@@ -20,11 +20,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://stephens.page/">
     <meta property="og:site_name" content="Jacob Stephens">
-    <meta property="og:image" content="https://stephens.page/media/og-b2745a5cc56c.jpg">
+    <meta property="og:image" content="https://stephens.page/media/og-f17eb89fa132.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Jacob Stephens | AI Agent Infrastructure & Production Platforms">
     <meta name="twitter:description" content="AI agent infrastructure and production platform engineering. Explore the production work and thirdshift, an open-source Rust orchestrator.">
-    <meta name="twitter:image" content="https://stephens.page/media/og-b2745a5cc56c.jpg">
+    <meta name="twitter:image" content="https://stephens.page/media/og-f17eb89fa132.jpg">
     <!-- Umami (self-hosted) - analytics + session replay -->
     <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
     <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
@@ -164,6 +164,7 @@
         .impact-pill {
             font-size: 0.76rem;
             font-weight: 600;
+            letter-spacing: -0.01em;
             color: var(--ink);
             background: color-mix(in srgb, var(--brand) 4%, var(--soft));
             border: 1px solid var(--rule);
@@ -206,7 +207,7 @@
         .metrics-grid {
             display: grid;
             gap: 1.2rem;
-            padding: 1.35rem;
+            padding: 1.15rem 1.35rem 1.25rem;
         }
 
         .hero-metrics {
@@ -214,6 +215,7 @@
             border: 1px solid color-mix(in srgb, var(--brand-accent) 45%, var(--rule));
             border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 4px 18px rgba(17, 23, 20, 0.04);
         }
 
         .metrics-title {
@@ -252,12 +254,13 @@
             display: block;
             font-weight: 700;
             font-size: 1.22rem;
+            letter-spacing: -0.02em;
             line-height: 1;
             color: var(--brand);
             margin-bottom: 0.35rem;
         }
 
-        .metric-label { font-size: 0.9rem; color: var(--muted); text-wrap: pretty; }
+        .metric-label { display: block; font-size: 0.9rem; color: var(--muted); text-wrap: pretty; }
 
         .navigation { display: grid; gap: 0.85rem 1.25rem; }
         .nav-group-header {
@@ -286,6 +289,7 @@
             text-decoration: none;
             background: color-mix(in srgb, var(--brand) 3.5%, var(--soft));
             border-color: var(--brand);
+            transform: translateY(-1px);
         }
 
         .nav-main { flex: 1; }
@@ -326,6 +330,14 @@
         @media (min-width: 740px) {
             .hero { grid-template-columns: 1.25fr 1fr; }
             .navigation { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (min-width: 740px) and (max-width: 899px) {
+            .hero-panel h1 { font-size: 1.8rem; }
+            .hero-intro { font-size: 0.95rem; }
+            .impact-strip { margin-bottom: 1rem; }
+            .metrics-grid { gap: 0.8rem; }
+            .hero-panel .cta { padding-inline: 0.65rem; }
         }
 
         @media (max-width: 739px) {
@@ -496,9 +508,9 @@
 
         <footer class="footer">
             <p><strong>Jacob Stephens</strong> &middot; Head of Engineering &amp; Staff Systems Engineer &middot; Philadelphia, PA</p>
-            <p>Open to Senior/Staff Platform, Infrastructure, AI Agent Systems, and Engineering Leadership roles.</p>
+            <p>Open to conversations about Senior/Staff Platform, Infrastructure &amp; AI Agent Systems roles, as well as Engineering Leadership positions.</p>
             <p><a href="/resume/">Resume</a> &middot; <a href="/portfolio.html">Portfolio</a> &middot; <a href="https://adr.stephens.page/">Architecture Decisions</a> &middot; <a href="https://github.com/JacobStephens2" rel="me">GitHub</a> &middot; <a href="https://www.linkedin.com/in/jacob-c-stephens/" rel="me">LinkedIn</a> &middot; <a href="/contact.html">Contact</a> &middot; <a href="mailto:jacob@stephens.page">jacob@stephens.page</a></p>
-            <p>&copy; <span id="current-year"></span> Jacob Stephens &middot; Independent apps published via Stephens Page LLC</p>
+            <p>&copy; <span id="current-year"></span> Jacob Stephens &middot; Independent apps published via <a href="/apps.html">Stephens Page LLC</a></p>
         </footer>
     </div>
 

@@ -63,6 +63,7 @@ salabim and Pillow in the browser to generate a genuine animation.
 | `private/resume_projections.php` | Projects the resume page to Markdown and PDF on request |
 | `private/check_resume.php` | Resume check: word parity, the two-page budget, and relative inputs |
 | `private/check_theme_toggle.js` | Headless Playwright check of theme toggle placement and the theme cycle |
+| `private/check_dossier.js` | Profile layout, typography, hiring links, and candidate footer assertions, using the theme check's browser/server |
 | `.htaccess` | Apache routing, redirects, and content-type configuration |
 
 `resume.stephens.page` should redirect to `https://stephens.page/resume/` so old
@@ -102,6 +103,13 @@ This preview does not reproduce Apache rewrites, PHP form handling, or
 post-specific native API services. Service setup instructions live with the
 relevant post, for example
 [`blog/the-animation-is-a-replay/server/`](blog/the-animation-is-a-replay/server/).
+
+After installing the Playwright dependencies below, run `node private/check_theme_toggle.js`
+for the offline theme and profile checks. Use `node private/check_theme_toggle.js --dossier`
+to check only the professional profile. Add `--webfonts` to load the production Google
+Fonts and verify their layout, including the Outcomes and Current work headings at
+desktop widths from 740 to 1280px in a 900px-high viewport. Font checks require network
+access; the default check also covers the fallback fonts offline.
 
 ### Social preview images
 

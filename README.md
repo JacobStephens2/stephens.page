@@ -63,6 +63,7 @@ salabim and Pillow in the browser to generate a genuine animation.
 | `private/resume_projections.php` | Projects the resume page to Markdown and PDF on request |
 | `private/check_resume.php` | Resume check: word parity, the two-page budget, and relative inputs |
 | `private/check_theme_toggle.js` | Headless Playwright check of theme toggle placement and the theme cycle |
+| `private/check_dossier.js` | Profile layout, typography, hiring links, and candidate footer assertions, using the theme check's browser/server |
 | `.htaccess` | Apache routing, redirects, and content-type configuration |
 
 `resume.stephens.page` should redirect to `https://stephens.page/resume/` so old
@@ -102,6 +103,36 @@ This preview does not reproduce Apache rewrites, PHP form handling, or
 post-specific native API services. Service setup instructions live with the
 relevant post, for example
 [`blog/the-animation-is-a-replay/server/`](blog/the-animation-is-a-replay/server/).
+
+After installing the Playwright dependencies below, run `node private/check_theme_toggle.js`
+for the offline theme and profile checks. Use `node private/check_theme_toggle.js --dossier`
+to check only the professional profile. Add `--webfonts` to load the production Google
+Fonts and verify their layout, including the Outcomes and Current work headings at
+desktop widths from 740 to 1280px in a 900px-high viewport. Font checks require network
+access; the default check also covers the fallback fonts offline.
+
+### Social preview images
+
+The `og-<sha256-prefix>.jpg` files are real 1200 × 630 screenshots of their
+pages, including the paper's own typography. About and Contact use
+`og-about-<sha256-prefix>.jpg` and `og-contact-<sha256-prefix>.jpg` in `media/`.
+The HTML pages and shared theme are the source of truth. After a visual change:
+
+```bash
+npm ci --prefix private
+cd private && npx playwright install chromium && cd ..
+node private/og_previews.js --capture
+node private/og_previews.js
+```
+
+The capture command serves this checkout on loopback, uses a fresh light-theme
+Chromium context, waits for webfonts and visible images, updates both social
+image tags, and removes the previous JPEGs. Fonts require network access during
+capture; the check runs offline. Review the resulting images visually as well.
+Never replace bytes at an existing JPEG URL: Apache serves them as immutable
+for a year. The check verifies matching tags, HTTP 200 responses from the local
+preview server, content fingerprints, dimensions, and retired palette colors.
+Production URLs become available when the branch is deployed.
 
 ## Content conventions
 

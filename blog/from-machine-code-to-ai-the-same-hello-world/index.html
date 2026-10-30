@@ -23,26 +23,26 @@
     <meta property="og:description" content="Side-by-side source comparison across nine abstraction bands: capability vs the Hello World convention, optional allowlisted runs on Linux x86_64.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://stephens.page/blog/from-machine-code-to-ai-the-same-hello-world/">
-    <meta property="og:image" content="https://stephens.page/blog/from-machine-code-to-ai-the-same-hello-world/media/og.jpg">
+    <meta property="og:image" content="https://stephens.page/blog/from-machine-code-to-ai-the-same-hello-world/media/og-2fb4873d1a2e.jpg">
     <meta property="article:author" content="Jacob Stephens">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="From Machine Code to AI: the Same Hello World">
     <meta name="twitter:description" content="Side-by-side Hello World sources from absolute machine words to vibe coding. Run is optional verification.">
-    <meta name="twitter:image" content="https://stephens.page/blog/from-machine-code-to-ai-the-same-hello-world/media/og.jpg">
+    <meta name="twitter:image" content="https://stephens.page/blog/from-machine-code-to-ai-the-same-hello-world/media/og-2fb4873d1a2e.jpg">
     <!-- Umami (self-hosted) - analytics + session replay -->
     <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
     <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ink: #181512; --brand: #9b4d24; --brand-ink: #ffffff; --muted: #625a52;
-            --surface: #ffffff; --soft: #efe9df; --rule: #d6d1c9; --code-bg: #efe9df; --bar-bg: #ece6dc;
-            --ok: #1b5e20; --bad: #8b1a1a; --term: #1a1814; --term-fg: #e8e2d6;
-            --syntax-comment: #6d655c; --syntax-keyword: #9b4d24; --syntax-type: #0b5f4a;
+            --ink: #111714; --brand: #215239; --brand-ink: #ffffff; --muted: #4a5750;
+            --surface: #fcfdfc; --soft: #eef2ef; --rule: #cfd8d3; --code-bg: #eef2ef; --bar-bg: #e6ece8;
+            --ok: #1b5e20; --bad: #8b1a1a; --term: #0e1311; --term-fg: #e8efec;
+            --syntax-comment: #4a5750; --syntax-keyword: #215239; --syntax-type: #0b5f4a;
             --syntax-function: #1f4e79; --syntax-literal: #6b3fa0; --syntax-string: #2f6b3a;
         }
         html[data-theme="dark"] {
-            --syntax-comment: #9a9286; --syntax-keyword: #e0a070; --syntax-type: #7dcea0;
+            --syntax-comment: #95a69e; --syntax-keyword: #7ec49b; --syntax-type: #7dcea0;
             --syntax-function: #85c1e9; --syntax-literal: #c39bd3; --syntax-string: #82e0aa;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -126,10 +126,10 @@
         .fig-head { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--rule); background: var(--soft); }
         .fig-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brand); }
         .fig-body { padding: 0.9rem; }
-        .fig-body.fig-photo { padding: 0; background: #1a1814; }
+        .fig-body.fig-photo { padding: 0; background: #0e1311; }
         .fig-body.fig-photo img {
             display: block; width: 100%; height: auto; max-height: 22rem; object-fit: contain;
-            margin: 0 auto; background: #1a1814;
+            margin: 0 auto; background: #0e1311;
         }
         .fig-caption { padding: 0.65rem 0.9rem 0.75rem; color: var(--muted); font-size: 0.88rem; border-top: 1px dashed var(--rule); line-height: 1.55; }
 
@@ -410,8 +410,8 @@
             padding: 0.45rem 0.75rem 0.55rem;
             font-size: 0.78rem;
             line-height: 1.45;
-            background: #1a1814;
-            color: #c8bfb0;
+            background: #0e1311;
+            color: #95a69e;
             border-top: 1px solid color-mix(in srgb, var(--rule) 70%, #000);
             overflow-x: auto;
         }
@@ -422,7 +422,7 @@
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            color: #9a9286;
+            color: #95a69e;
         }
         .cli-line code {
             background: transparent;
@@ -824,7 +824,7 @@
             min-height: 8rem; max-height: 28rem; overflow: auto;
             white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;
         }
-        .term .dim { color: #9a9286; }
+        .term .dim { color: #95a69e; }
         .term .ok { color: #9ccc65; }
         .term .bad { color: #ef9a9a; }
         .term .line { display: block; }

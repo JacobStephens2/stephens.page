@@ -120,8 +120,8 @@ $safeName  = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 $safeEmail = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
 $safeMsg   = nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
 
-$html = '<div style="font-family:Arial,Helvetica,sans-serif;line-height:1.6;color:#181512">'
-    . '<h2 style="color:#9b4d24;margin:0 0 12px">New message from the stephens.page contact form</h2>'
+$html = '<div style="font-family:Arial,Helvetica,sans-serif;line-height:1.6;color:#111714">'
+    . '<h2 style="color:#215239;margin:0 0 12px">New message from the stephens.page contact form</h2>'
     . '<p style="margin:0 0 8px"><strong>Name:</strong> ' . $safeName . '</p>'
     . '<p style="margin:0 0 8px"><strong>Email:</strong> <a href="mailto:' . $safeEmail . '">' . $safeEmail . '</a></p>'
     . '<p style="margin:16px 0 4px"><strong>Message:</strong></p>'

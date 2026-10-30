@@ -2,8 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" font-family="system-ui,-apple-system,sans-serif">
   <defs>
     <linearGradient id="brand" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#9b4d24"/>
-      <stop offset="1" stop-color="#6e3416"/>
+      <stop offset="0" stop-color="#215239"/>
+      <stop offset="1" stop-color="#173d2a"/>
     </linearGradient>
     <linearGradient id="safe" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#2d8059"/>
@@ -17,49 +17,49 @@
       <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.30"/>
     </filter>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#f6f1e8"/>
+      <path d="M0 0 L10 5 L0 10 z" fill="#e8efec"/>
     </marker>
   </defs>
-  <rect width="1200" height="760" fill="#181512"/>
+  <rect width="1200" height="760" fill="#0e1311"/>
 
-  <text x="600" y="48" font-size="22" font-weight="700" fill="#f6f1e8" text-anchor="middle">ETA Software Factory · staff request in, evidenced draft PR out</text>
-  <text x="600" y="74" font-size="13" fill="#a3958a" text-anchor="middle">Rust control plane · Factory Worker · PostgreSQL ledger · human merge gate only</text>
+  <text x="600" y="48" font-size="22" font-weight="700" fill="#e8efec" text-anchor="middle">ETA Software Factory · staff request in, evidenced draft PR out</text>
+  <text x="600" y="74" font-size="13" fill="#95a69e" text-anchor="middle">Rust control plane · Factory Worker · PostgreSQL ledger · human merge gate only</text>
 
   <!-- flow row -->
   <g filter="url(#sh)">
-    <rect x="40" y="110" width="200" height="150" rx="12" fill="#241a12" stroke="#5b3a23"/>
-    <text x="60" y="142" font-size="12" font-weight="700" fill="#c8956a" letter-spacing="1.5">1 · INTAKE</text>
-    <text x="60" y="172" font-size="14" fill="#f6f1e8">Self-describing staff</text>
-    <text x="60" y="192" font-size="14" fill="#f6f1e8">request (form / skill)</text>
-    <text x="60" y="222" font-size="12" fill="#a3958a">Dashboard · factoryctl</text>
-    <text x="60" y="240" font-size="12" fill="#a3958a">append-only ledger row</text>
+    <rect x="40" y="110" width="200" height="150" rx="12" fill="#161e1a" stroke="#28362f"/>
+    <text x="60" y="142" font-size="12" font-weight="700" fill="#7ec49b" letter-spacing="1.5">1 · INTAKE</text>
+    <text x="60" y="172" font-size="14" fill="#e8efec">Self-describing staff</text>
+    <text x="60" y="192" font-size="14" fill="#e8efec">request (form / skill)</text>
+    <text x="60" y="222" font-size="12" fill="#95a69e">Dashboard · factoryctl</text>
+    <text x="60" y="240" font-size="12" fill="#95a69e">append-only ledger row</text>
   </g>
 
   <g filter="url(#sh)">
-    <rect x="270" y="110" width="200" height="150" rx="12" fill="#241a12" stroke="#5b3a23"/>
-    <text x="290" y="142" font-size="12" font-weight="700" fill="#c8956a" letter-spacing="1.5">2 · SUPERVISE</text>
-    <text x="290" y="172" font-size="14" fill="#f6f1e8">factory-supervisor</text>
-    <text x="290" y="192" font-size="14" fill="#f6f1e8">claims + routes seats</text>
-    <text x="290" y="222" font-size="12" fill="#a3958a">plan → implement →</text>
-    <text x="290" y="240" font-size="12" fill="#a3958a">verify stages</text>
+    <rect x="270" y="110" width="200" height="150" rx="12" fill="#161e1a" stroke="#28362f"/>
+    <text x="290" y="142" font-size="12" font-weight="700" fill="#7ec49b" letter-spacing="1.5">2 · SUPERVISE</text>
+    <text x="290" y="172" font-size="14" fill="#e8efec">factory-supervisor</text>
+    <text x="290" y="192" font-size="14" fill="#e8efec">claims + routes seats</text>
+    <text x="290" y="222" font-size="12" fill="#95a69e">plan → implement →</text>
+    <text x="290" y="240" font-size="12" fill="#95a69e">verify stages</text>
   </g>
 
   <g filter="url(#sh)">
     <rect x="500" y="110" width="220" height="150" rx="12" fill="url(#worker)" stroke="#4a5f8a"/>
     <text x="520" y="142" font-size="12" font-weight="700" fill="#b8c8e8" letter-spacing="1.5">3 · FACTORY WORKER</text>
-    <text x="520" y="172" font-size="14" fill="#f6f1e8">Firecracker microVM</text>
-    <text x="520" y="192" font-size="14" fill="#f6f1e8">secret-free worker host</text>
+    <text x="520" y="172" font-size="14" fill="#e8efec">Firecracker microVM</text>
+    <text x="520" y="192" font-size="14" fill="#e8efec">secret-free worker host</text>
     <text x="520" y="222" font-size="12" fill="#a8b8d4">no vault · no fleet · no DB</text>
     <text x="520" y="240" font-size="12" fill="#a8b8d4">model egress only · spend-capped</text>
   </g>
 
   <g filter="url(#sh)">
-    <rect x="750" y="110" width="200" height="150" rx="12" fill="#241a12" stroke="#5b3a23"/>
-    <text x="770" y="142" font-size="12" font-weight="700" fill="#c8956a" letter-spacing="1.5">4 · VERIFY</text>
-    <text x="770" y="172" font-size="14" fill="#f6f1e8">Parity environment</text>
-    <text x="770" y="192" font-size="14" fill="#f6f1e8">+ evidence capture</text>
-    <text x="770" y="222" font-size="12" fill="#a3958a">screenshots · DOM · hashes</text>
-    <text x="770" y="240" font-size="12" fill="#a3958a">adversarial review stage</text>
+    <rect x="750" y="110" width="200" height="150" rx="12" fill="#161e1a" stroke="#28362f"/>
+    <text x="770" y="142" font-size="12" font-weight="700" fill="#7ec49b" letter-spacing="1.5">4 · VERIFY</text>
+    <text x="770" y="172" font-size="14" fill="#e8efec">Parity environment</text>
+    <text x="770" y="192" font-size="14" fill="#e8efec">+ evidence capture</text>
+    <text x="770" y="222" font-size="12" fill="#95a69e">screenshots · DOM · hashes</text>
+    <text x="770" y="240" font-size="12" fill="#95a69e">adversarial review stage</text>
   </g>
 
   <g filter="url(#sh)">
@@ -71,38 +71,38 @@
     <text x="1000" y="240" font-size="12" fill="#bcd4c5">merge — never auto-deploy</text>
   </g>
 
-  <line x1="240" y1="185" x2="266" y2="185" stroke="#f6f1e8" stroke-width="2.5" marker-end="url(#arr)"/>
-  <line x1="470" y1="185" x2="496" y2="185" stroke="#f6f1e8" stroke-width="2.5" marker-end="url(#arr)"/>
-  <line x1="720" y1="185" x2="746" y2="185" stroke="#f6f1e8" stroke-width="2.5" marker-end="url(#arr)"/>
-  <line x1="950" y1="185" x2="976" y2="185" stroke="#f6f1e8" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="240" y1="185" x2="266" y2="185" stroke="#e8efec" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="470" y1="185" x2="496" y2="185" stroke="#e8efec" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="720" y1="185" x2="746" y2="185" stroke="#e8efec" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="950" y1="185" x2="976" y2="185" stroke="#e8efec" stroke-width="2.5" marker-end="url(#arr)"/>
 
   <!-- topology -->
-  <text x="600" y="320" font-size="13" font-weight="700" fill="#a3958a" text-anchor="middle" letter-spacing="2">TRUST ARCHITECTURE</text>
+  <text x="600" y="320" font-size="13" font-weight="700" fill="#95a69e" text-anchor="middle" letter-spacing="2">TRUST ARCHITECTURE</text>
 
   <g filter="url(#sh)">
-    <rect x="40" y="350" width="540" height="280" rx="14" fill="#1f1c18" stroke="#3a342c"/>
-    <text x="60" y="386" font-size="15" font-weight="700" fill="#f6f1e8">Control plane VM</text>
-    <text x="60" y="412" font-size="13" fill="#c8b6aa">supervisor · Axum dashboard · PostgreSQL</text>
-    <text x="60" y="432" font-size="13" fill="#c8b6aa">artifact store · publisher · Caddy</text>
-    <text x="60" y="468" font-size="13" fill="#e9ddd2">• Socket-only Postgres, peer auth, role-enforced grants</text>
-    <text x="60" y="492" font-size="13" fill="#e9ddd2">• GitHub App mints factory-only tokens (not a human PAT)</text>
-    <text x="60" y="516" font-size="13" fill="#e9ddd2">• Prometheus /metrics; OTLP fail-open when wired</text>
-    <text x="60" y="540" font-size="13" fill="#e9ddd2">• Constitution (AGENTS.md) SHA-pinned in CI</text>
+    <rect x="40" y="350" width="540" height="280" rx="14" fill="#161e1a" stroke="#28362f"/>
+    <text x="60" y="386" font-size="15" font-weight="700" fill="#e8efec">Control plane VM</text>
+    <text x="60" y="412" font-size="13" fill="#95a69e">supervisor · Axum dashboard · PostgreSQL</text>
+    <text x="60" y="432" font-size="13" fill="#95a69e">artifact store · publisher · Caddy</text>
+    <text x="60" y="468" font-size="13" fill="#e8efec">• Socket-only Postgres, peer auth, role-enforced grants</text>
+    <text x="60" y="492" font-size="13" fill="#e8efec">• GitHub App mints factory-only tokens (not a human PAT)</text>
+    <text x="60" y="516" font-size="13" fill="#e8efec">• Prometheus /metrics; OTLP fail-open when wired</text>
+    <text x="60" y="540" font-size="13" fill="#e8efec">• Constitution (AGENTS.md) SHA-pinned in CI</text>
     <text x="60" y="580" font-size="13" fill="#7fb79a" font-weight="700">Holds keys · never runs untrusted code</text>
   </g>
 
   <g filter="url(#sh)">
-    <rect x="620" y="350" width="540" height="280" rx="14" fill="#1f1c18" stroke="#3a342c"/>
-    <text x="640" y="386" font-size="15" font-weight="700" fill="#f6f1e8">Secret-free worker droplet</text>
-    <text x="640" y="412" font-size="13" fill="#c8b6aa">OpenTofu + Ansible desired state · replaceable</text>
-    <text x="640" y="432" font-size="13" fill="#c8b6aa">Firecracker implement / verify plane</text>
-    <text x="640" y="468" font-size="13" fill="#e9ddd2">• No 1Password, GitHub, fleet SSH, or Tourbot DB</text>
-    <text x="640" y="492" font-size="13" fill="#e9ddd2">• Exact-SHA source bundle + read-only request inputs</text>
-    <text x="640" y="516" font-size="13" fill="#e9ddd2">• Per-run spend-capped model capability in memory only</text>
-    <text x="640" y="540" font-size="13" fill="#e9ddd2">• Returns patch + rationale + verification evidence</text>
+    <rect x="620" y="350" width="540" height="280" rx="14" fill="#161e1a" stroke="#28362f"/>
+    <text x="640" y="386" font-size="15" font-weight="700" fill="#e8efec">Secret-free worker droplet</text>
+    <text x="640" y="412" font-size="13" fill="#95a69e">OpenTofu + Ansible desired state · replaceable</text>
+    <text x="640" y="432" font-size="13" fill="#95a69e">Firecracker implement / verify plane</text>
+    <text x="640" y="468" font-size="13" fill="#e8efec">• No 1Password, GitHub, fleet SSH, or Tourbot DB</text>
+    <text x="640" y="492" font-size="13" fill="#e8efec">• Exact-SHA source bundle + read-only request inputs</text>
+    <text x="640" y="516" font-size="13" fill="#e8efec">• Per-run spend-capped model capability in memory only</text>
+    <text x="640" y="540" font-size="13" fill="#e8efec">• Returns patch + rationale + verification evidence</text>
     <text x="640" y="580" font-size="13" fill="#7fb79a" font-weight="700">Escape lands on a disposable host with nothing to steal</text>
   </g>
 
-  <text x="600" y="700" font-size="12" fill="#a3958a" text-anchor="middle">Phase 1 live on factory.etadventures.com · production deploy path never touched by the factory</text>
-  <text x="600" y="728" font-size="12" fill="#7a6f66" text-anchor="middle">Interactive model write-ups: stephens.page/blog · the diagram is not the model · the animation is a replay</text>
+  <text x="600" y="700" font-size="12" fill="#95a69e" text-anchor="middle">Phase 1 live on factory.etadventures.com · production deploy path never touched by the factory</text>
+  <text x="600" y="728" font-size="12" fill="#95a69e" text-anchor="middle">Interactive model write-ups: stephens.page/blog · the diagram is not the model · the animation is a replay</text>
 </svg>

@@ -6,26 +6,26 @@
       <stop offset="1" stop-color="#244e9c"/>
     </linearGradient>
     <linearGradient id="node" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2a2620"/>
-      <stop offset="1" stop-color="#211d18"/>
+      <stop offset="0" stop-color="#1b2520"/>
+      <stop offset="1" stop-color="#161e1a"/>
     </linearGradient>
     <filter id="sh">
       <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.30"/>
     </filter>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#f6f1e8"/>
+      <path d="M0 0 L10 5 L0 10 z" fill="#e8efec"/>
     </marker>
   </defs>
-  <rect width="1200" height="760" fill="#181512"/>
+  <rect width="1200" height="760" fill="#0e1311"/>
 
-  <text x="600" y="54" font-size="22" font-weight="700" fill="#f6f1e8" text-anchor="middle">Kubernetes on k3s - a two-tier app with TLS</text>
-  <text x="600" y="80" font-size="13" fill="#a3958a" text-anchor="middle">Terraform + cloud-init provision an AWS EC2 node; cert-manager + Let's Encrypt for HTTPS · github.com/JacobStephens2/k3s-demo</text>
+  <text x="600" y="54" font-size="22" font-weight="700" fill="#e8efec" text-anchor="middle">Kubernetes on k3s - a two-tier app with TLS</text>
+  <text x="600" y="80" font-size="13" fill="#95a69e" text-anchor="middle">Terraform + cloud-init provision an AWS EC2 node; cert-manager + Let's Encrypt for HTTPS · github.com/JacobStephens2/k3s-demo</text>
 
   <!-- edge: browser -> cloudflare -->
   <g filter="url(#sh)">
-    <rect x="50" y="150" width="160" height="92" rx="12" fill="#241a12" stroke="#5b3a23"/>
-    <text x="70" y="182" font-size="14" font-weight="700" fill="#f6f1e8">Browser</text>
-    <text x="70" y="206" font-size="12" fill="#c8b6aa">HTTPS</text>
+    <rect x="50" y="150" width="160" height="92" rx="12" fill="#161e1a" stroke="#28362f"/>
+    <text x="70" y="182" font-size="14" font-weight="700" fill="#e8efec">Browser</text>
+    <text x="70" y="206" font-size="12" fill="#95a69e">HTTPS</text>
     <text x="70" y="224" font-size="12" fill="#7fb79a">valid LE cert</text>
   </g>
   <g filter="url(#sh)">
@@ -37,8 +37,8 @@
 
   <!-- EC2 node container -->
   <g filter="url(#sh)">
-    <rect x="500" y="118" width="650" height="200" rx="14" fill="url(#node)" stroke="#4a4036"/>
-    <text x="520" y="146" font-size="13" font-weight="700" fill="#cdbfae" letter-spacing="1">AWS EC2 · single k3s node (t3.small)</text>
+    <rect x="500" y="118" width="650" height="200" rx="14" fill="url(#node)" stroke="#28362f"/>
+    <text x="520" y="146" font-size="13" font-weight="700" fill="#95a69e" letter-spacing="1">AWS EC2 · single k3s node (t3.small)</text>
 
     <rect x="520" y="160" width="150" height="130" rx="10" fill="#16243f" stroke="#326ce5"/>
     <text x="535" y="186" font-size="13" font-weight="700" fill="#cfe0ff">Traefik</text>
@@ -63,51 +63,51 @@
     <line x1="890" y1="225" x2="916" y2="225" stroke="#cdaedb" stroke-width="2.5" marker-end="url(#arr)"/>
   </g>
 
-  <line x1="210" y1="196" x2="246" y2="196" stroke="#f6f1e8" stroke-width="3" marker-end="url(#arr)"/>
-  <line x1="440" y1="196" x2="496" y2="196" stroke="#f6f1e8" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="210" y1="196" x2="246" y2="196" stroke="#e8efec" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="440" y1="196" x2="496" y2="196" stroke="#e8efec" stroke-width="3" marker-end="url(#arr)"/>
 
   <!-- concept cards -->
-  <text x="600" y="372" font-size="13" font-weight="700" fill="#a3958a" text-anchor="middle" letter-spacing="2">WHAT THE MANIFESTS DEMONSTRATE</text>
+  <text x="600" y="372" font-size="13" font-weight="700" fill="#95a69e" text-anchor="middle" letter-spacing="2">WHAT THE MANIFESTS DEMONSTRATE</text>
 
   <g font-size="13">
     <g filter="url(#sh)">
-      <rect x="60" y="400" width="255" height="210" rx="12" fill="#1f1c18" stroke="#3a342c"/>
-      <text x="80" y="434" font-size="15" font-weight="700" fill="#f6f1e8">Workload + health</text>
-      <text x="80" y="462" fill="#c8b6aa">Deployment, rolling update</text>
-      <text x="80" y="482" fill="#c8b6aa">(maxUnavailable 0)</text>
-      <text x="80" y="508" fill="#c8b6aa">liveness vs readiness probes</text>
-      <text x="80" y="534" fill="#c8b6aa">CPU/memory requests + limits</text>
+      <rect x="60" y="400" width="255" height="210" rx="12" fill="#161e1a" stroke="#28362f"/>
+      <text x="80" y="434" font-size="15" font-weight="700" fill="#e8efec">Workload + health</text>
+      <text x="80" y="462" fill="#95a69e">Deployment, rolling update</text>
+      <text x="80" y="482" fill="#95a69e">(maxUnavailable 0)</text>
+      <text x="80" y="508" fill="#95a69e">liveness vs readiness probes</text>
+      <text x="80" y="534" fill="#95a69e">CPU/memory requests + limits</text>
       <text x="80" y="566" fill="#7fb79a" font-weight="700">zero-downtime rollouts</text>
     </g>
     <g filter="url(#sh)">
-      <rect x="333" y="400" width="255" height="210" rx="12" fill="#1f1c18" stroke="#3a342c"/>
-      <text x="353" y="434" font-size="15" font-weight="700" fill="#f6f1e8">Hardening + config</text>
-      <text x="353" y="462" fill="#c8b6aa">non-root, read-only rootfs,</text>
-      <text x="353" y="480" fill="#c8b6aa">drop all caps, seccomp</text>
-      <text x="353" y="506" fill="#c8b6aa">ConfigMap + Secret via envFrom</text>
-      <text x="353" y="532" fill="#c8b6aa">HPA v2 on CPU (2→6)</text>
+      <rect x="333" y="400" width="255" height="210" rx="12" fill="#161e1a" stroke="#28362f"/>
+      <text x="353" y="434" font-size="15" font-weight="700" fill="#e8efec">Hardening + config</text>
+      <text x="353" y="462" fill="#95a69e">non-root, read-only rootfs,</text>
+      <text x="353" y="480" fill="#95a69e">drop all caps, seccomp</text>
+      <text x="353" y="506" fill="#95a69e">ConfigMap + Secret via envFrom</text>
+      <text x="353" y="532" fill="#95a69e">HPA v2 on CPU (2→6)</text>
       <text x="353" y="566" fill="#7fb79a" font-weight="700">least-privilege pods</text>
     </g>
     <g filter="url(#sh)">
-      <rect x="606" y="400" width="255" height="210" rx="12" fill="#1f1c18" stroke="#3a342c"/>
-      <text x="626" y="434" font-size="15" font-weight="700" fill="#f6f1e8">Stateful tier</text>
-      <text x="626" y="462" fill="#c8b6aa">Redis StatefulSet + PVC</text>
-      <text x="626" y="482" fill="#c8b6aa">headless Service for DNS</text>
-      <text x="626" y="508" fill="#c8b6aa">app finds Redis by name</text>
-      <text x="626" y="534" fill="#c8b6aa">counter shared across pods</text>
+      <rect x="606" y="400" width="255" height="210" rx="12" fill="#161e1a" stroke="#28362f"/>
+      <text x="626" y="434" font-size="15" font-weight="700" fill="#e8efec">Stateful tier</text>
+      <text x="626" y="462" fill="#95a69e">Redis StatefulSet + PVC</text>
+      <text x="626" y="482" fill="#95a69e">headless Service for DNS</text>
+      <text x="626" y="508" fill="#95a69e">app finds Redis by name</text>
+      <text x="626" y="534" fill="#95a69e">counter shared across pods</text>
       <text x="626" y="566" fill="#7fb79a" font-weight="700">persistent backing store</text>
     </g>
     <g filter="url(#sh)">
-      <rect x="879" y="400" width="261" height="210" rx="12" fill="#1f1c18" stroke="#3a342c"/>
-      <text x="899" y="434" font-size="15" font-weight="700" fill="#f6f1e8">Provision + verify</text>
-      <text x="899" y="462" fill="#c8b6aa">Terraform → EC2 + EIP + SG</text>
-      <text x="899" y="482" fill="#c8b6aa">cloud-init installs k3s + app</text>
-      <text x="899" y="508" fill="#c8b6aa">cert-manager + Let's Encrypt</text>
-      <text x="899" y="534" fill="#c8b6aa">CI: kubeconform -strict</text>
+      <rect x="879" y="400" width="261" height="210" rx="12" fill="#161e1a" stroke="#28362f"/>
+      <text x="899" y="434" font-size="15" font-weight="700" fill="#e8efec">Provision + verify</text>
+      <text x="899" y="462" fill="#95a69e">Terraform → EC2 + EIP + SG</text>
+      <text x="899" y="482" fill="#95a69e">cloud-init installs k3s + app</text>
+      <text x="899" y="508" fill="#95a69e">cert-manager + Let's Encrypt</text>
+      <text x="899" y="534" fill="#95a69e">CI: kubeconform -strict</text>
       <text x="899" y="566" fill="#7fb79a" font-weight="700">provision → live → HTTPS</text>
     </g>
   </g>
 
-  <text x="600" y="668" font-size="13" fill="#e9ddd2" text-anchor="middle">Ran at k3s-demo.stephens.page until September 20, 2026 - a stateless web Deployment in front of a Redis StatefulSet, on one k3s node.</text>
-  <text x="600" y="694" font-size="12" fill="#a3958a" text-anchor="middle">Kept off the production fleet by design: production runs on systemd, this was the deliberate Kubernetes exercise.</text>
+  <text x="600" y="668" font-size="13" fill="#e8efec" text-anchor="middle">Ran at k3s-demo.stephens.page until September 20, 2026 - a stateless web Deployment in front of a Redis StatefulSet, on one k3s node.</text>
+  <text x="600" y="694" font-size="12" fill="#95a69e" text-anchor="middle">Kept off the production fleet by design: production runs on systemd, this was the deliberate Kubernetes exercise.</text>
 </svg>

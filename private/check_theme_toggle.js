@@ -33,7 +33,19 @@ const pages = [
     {
         name: 'home',
         path: '/',
-        toggleParents: ['.site-header > .theme-toggle-cluster'],
+        toggleParents: ['.header-utility[data-theme-toggle]'],
+        hasThemeColor: true,
+    },
+    {
+        name: 'about',
+        path: '/about.html',
+        toggleParents: ['.topbar > .theme-toggle-cluster'],
+        hasThemeColor: true,
+    },
+    {
+        name: 'contact',
+        path: '/contact.html',
+        toggleParents: ['.topbar > .theme-toggle-cluster'],
         hasThemeColor: true,
     },
     {
@@ -210,6 +222,57 @@ async function checkSharedStyles(context, baseUrl) {
     await page.close();
 }
 
+async function checkDossier(context, baseUrl) {
+    const page = await context.newPage();
+    await page.goto(baseUrl + '/');
+    const layout = await page.evaluate(() => {
+        const panel = document.querySelector('.hero-panel').getBoundingClientRect();
+        const metrics = document.querySelector('.hero-metrics').getBoundingClientRect();
+        const banner = document.querySelector('.hero > .links-panel').getBoundingClientRect();
+        return {
+            containerWidth: document.querySelector('.container').getBoundingClientRect().width,
+            columns: metrics.left > panel.right && Math.abs(metrics.top - panel.top) < 1,
+            bannerSpansColumns: Math.abs(banner.left - panel.left) < 1 && Math.abs(banner.right - metrics.right) < 1,
+        };
+    });
+    check('dossier', 'desktop executive split with full-width current work', layout, {
+        containerWidth: 1060, columns: true, bannerSpansColumns: true,
+    });
+    check('dossier', 'six icon-equipped quick links', await page.locator('.hero-panel .cta').evaluateAll((links) =>
+        links.map((link) => [link.textContent.trim(), link.getAttribute('href'), !!link.querySelector('svg')])
+    ), [
+        ['Resume', '/resume/', true],
+        ['Portfolio', '/portfolio.html', true],
+        ['ETA Platform case study', '/blog/one-engineer-platform-production-systems/', true],
+        ['Decisions', 'https://adr.stephens.page/', true],
+        ['GitHub', 'https://github.com/JacobStephens2', true],
+        ['LinkedIn', 'https://www.linkedin.com/in/jacob-c-stephens/', true],
+    ]);
+    check('dossier', 'categorized Start Here cards', await page.locator('.navigation > *').evaluateAll((items) =>
+        items.map((item) => (item.querySelector('.nav-label') || item).textContent.trim())
+    ), [
+        'Production Systems & Architecture', 'Portfolio', 'ETA Platform case study', 'Architecture decisions', 'Tech stack',
+        'Writing, Background & Code', 'Blog', 'Resume', 'About', 'GitHub',
+    ]);
+    for (const width of [320, 390, 739, 740, 1060]) {
+        await page.setViewportSize({ width, height: 900 });
+        const responsive = await page.evaluate(() => {
+            const hero = document.querySelector('.hero-panel').getBoundingClientRect();
+            const metrics = document.querySelector('.hero-metrics').getBoundingClientRect();
+            const cards = [...document.querySelectorAll('.navigation .nav-item')].map((item) => item.getBoundingClientRect());
+            return {
+                noOverflow: document.documentElement.scrollWidth <= innerWidth,
+                splitHero: metrics.left > hero.right,
+                twoCardsPerRow: cards.length === 8 && Math.abs(cards[0].top - cards[1].top) < 1 && cards[2].top > cards[0].bottom,
+            };
+        });
+        check('dossier', `responsive layout at ${width}px`, responsive, {
+            noOverflow: true, splitHero: width >= 740, twoCardsPerRow: width >= 740,
+        });
+    }
+    await page.close();
+}
+
 async function checkAllPagePalettes(context, baseUrl) {
     const paths = execFileSync('git', ['ls-files', '*.html'], { cwd: repoRoot, encoding: 'utf8' })
         .trim().split('\n')
@@ -289,6 +352,7 @@ async function main() {
             if (systemTheme === 'light') {
                 await checkAllPagePalettes(context, baseUrl);
                 await checkSharedStyles(context, baseUrl);
+                await checkDossier(context, baseUrl);
                 const manifest = await (await context.request.get(baseUrl + '/manifest.webmanifest')).json();
                 check('manifest', 'install colors', [manifest.theme_color, manifest.background_color], ['#215239', '#fcfdfc']);
             }

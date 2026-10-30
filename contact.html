@@ -12,7 +12,7 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="/bee-favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#9b4d24">
+    <meta name="theme-color" content="#215239">
     <title>Contact | Jacob Stephens</title>
     <meta name="description" content="Get in touch with Jacob Stephens about platform engineering, infrastructure, payment systems, and AI automation work.">
     <meta property="og:title" content="Contact | Jacob Stephens">
@@ -30,12 +30,15 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         :root {
-            --ink: #181512;
-            --brand: #9b4d24;
-            --muted: #625a52;
-            --surface: #ffffff;
-            --soft: #efe9df;
-            --rule: #d6d1c9;
+            --ink: #111714;
+            --brand: #215239;
+            --brand-hover: #173d2a;
+            --brand-accent: #488264;
+            --brand-ink: #ffffff;
+            --muted: #4a5750;
+            --surface: #fcfdfc;
+            --soft: #eef2ef;
+            --rule: #cfd8d3;
         }
 
         * { box-sizing: border-box; }
@@ -119,8 +122,8 @@
             font-size: 0.95rem;
         }
         .cta:hover, .cta:focus-visible { text-decoration: none; }
-        .cta-primary { background: var(--brand); color: #fff; }
-        .cta-primary:hover { background: #874020; }
+        .cta-primary { background: var(--brand); color: var(--brand-ink); }
+        .cta-primary:hover, .cta-primary:focus-visible { background: var(--brand-hover); }
         .cta-secondary { color: var(--ink); background: var(--surface); border: 1px solid var(--rule); }
         .cta-secondary:hover { border-color: var(--brand); color: var(--brand); }
 
@@ -237,11 +240,12 @@
             <section class="hero">
                 <div class="eyebrow">Contact</div>
                 <h1>Let's talk.</h1>
-                <p class="hero-intro">Email is the fastest way to reach me. Tell me what you are building or what is breaking, and I will tell you honestly whether I am the right person for it. I read everything sent to jacob@stephens.page and reply to anything that needs a person.</p>
+                <p class="hero-intro">I'm open to conversations about Senior/Staff Platform, Infrastructure, and AI Agent Systems roles, as well as Engineering Leadership positions. Email is the fastest way to reach me - I read everything sent to jacob@stephens.page and reply directly.</p>
                 <div class="cta-row">
                     <a href="mailto:jacob@stephens.page" class="cta cta-primary">Email jacob@stephens.page</a>
                     <a href="https://www.linkedin.com/in/jacob-c-stephens" class="cta cta-secondary">LinkedIn</a>
                     <a href="https://stephens.page/resume/" class="cta cta-secondary">Resume</a>
+                    <a href="/portfolio.html" class="cta cta-secondary">Portfolio</a>
                 </div>
             </section>
 
@@ -279,7 +283,7 @@
                         <div class="nav-main">
                             <span class="nav-label">Email</span>
                             <span class="nav-value">jacob@stephens.page</span>
-                            <span class="nav-description">Best for project inquiries, contract work, and roles. I reply to real messages.</span>
+                            <span class="nav-description">Best for engineering roles, leadership opportunities, and technical discussions. I reply directly.</span>
                         </div>
                         <span class="nav-arrow" aria-hidden="true">↗</span>
                     </a>
@@ -310,10 +314,9 @@
         </main>
 
         <footer class="footer">
-            <p><strong>Stephens Page LLC</strong> &middot; Software studio</p>
-            <p>3965 Lancaster Ave, Suite 305, Philadelphia, PA 19104</p>
-            <p><a href="tel:+12673205474">+1&nbsp;267-320-5474</a> &middot; <a href="mailto:jacob@stephens.page">jacob@stephens.page</a></p>
-            <p>&copy; <span id="current-year"></span> Stephens Page LLC</p>
+            <p><strong>Jacob Stephens</strong> &middot; Head of Engineering &amp; Staff Systems Engineer &middot; Philadelphia, PA</p>
+            <p><a href="/resume/">Resume</a> &middot; <a href="/portfolio.html">Portfolio</a> &middot; <a href="https://adr.stephens.page/">Architecture Decisions</a> &middot; <a href="https://github.com/JacobStephens2" rel="me">GitHub</a> &middot; <a href="https://www.linkedin.com/in/jacob-c-stephens/" rel="me">LinkedIn</a> &middot; <a href="/contact.html">Contact</a> &middot; <a href="mailto:jacob@stephens.page">jacob@stephens.page</a></p>
+            <p>&copy; <span id="current-year"></span> Jacob Stephens &middot; Independent apps published via Stephens Page LLC</p>
         </footer>
     </div>
 

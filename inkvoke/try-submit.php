@@ -202,7 +202,8 @@ function sanitize_ip(string $ip): string {
     if ($ip === '' || $ip === 'unknown') {
         return 'unknown';
     }
-    // XFF may be IPv4/IPv6; only trust if it validates.
+    // Any valid address, including a private peer. The forwarded hop is
+    // range-checked on its own; this check must not reject the peer.
     if (filter_var($ip, FILTER_VALIDATE_IP)) {
         return $ip;
     }
@@ -231,16 +232,41 @@ function load_env(string $path): array {
     return $env;
 }
 
-function client_ip(): string {
+/**
+ * Peers allowed to supply one forwarded hop. Empty: the live-try address
+ * is the connection peer.
+ *
+ * @var list<string>
+ */
+const LIVE_TRY_TRUSTED_PROXIES = [];
+
+/**
+ * Connection peer, unless that peer is named on $trustedProxies (the
+ * allowlist above when omitted). A forwarded hop is used only for an
+ * allowlisted peer, and only when the hop is a public IP. The private
+ * and reserved range check applies to the hop, not the peer.
+ *
+ * @param list<string>|null $trustedProxies
+ */
+function client_ip(?array $trustedProxies = null): string {
+    $trusted = $trustedProxies ?? LIVE_TRY_TRUSTED_PROXIES;
+    $peer = sanitize_ip((string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+    if (!in_array($peer, $trusted, true)) {
+        return $peer;
+    }
     $xff = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
     if (is_string($xff) && $xff !== '') {
-        $first = trim(explode(',', $xff)[0]);
-        $first = sanitize_ip($first);
-        if ($first !== 'unknown') {
-            return $first;
+        $hop = trim(explode(',', $xff)[0]);
+        $public = filter_var(
+            $hop,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        );
+        if (is_string($public)) {
+            return $public;
         }
     }
-    return sanitize_ip((string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+    return $peer;
 }
 
 function log_trial(array $event): void {

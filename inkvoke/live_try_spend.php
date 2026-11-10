@@ -20,7 +20,7 @@ final class LiveTrySpend
     {
         $fp = self::openLocked($publicPath);
         if (!is_resource($fp)) {
-            return self::priorTally($publicPath, $durablePath);
+            return self::fallbackTally($publicPath, $durablePath);
         }
 
         $original = '';
@@ -32,20 +32,21 @@ final class LiveTrySpend
             rewind($fp);
             $read = stream_get_contents($fp);
             if ($read === false) {
-                return self::priorTally($publicPath, $durablePath);
+                return self::fallbackTally($publicPath, $durablePath);
             }
             $original = $read;
             $base = self::base($original, $durablePath, $trialsPath);
             $next = self::apply($base, $costUsd, $now);
             $encoded = self::encode($next);
-            if ($encoded === null || !self::replace($fp, $encoded) || !@chmod($publicPath, 0664)) {
+            if ($encoded === null || !self::replace($fp, $encoded)) {
                 self::replace($fp, $original);
                 return $base;
             }
+            @chmod($publicPath, 0664);
             $bytes = $encoded;
             $published = true;
         } catch (Throwable $e) {
-            error_log('inkvoke try: spend tally error: ' . $e->getMessage());
+            error_log('inkvoke try: spend public tally error: ' . $e->getMessage());
             if (!$published) {
                 self::replace($fp, $original);
             }
@@ -63,22 +64,27 @@ final class LiveTrySpend
     /** @return resource|null */
     private static function openLocked(string $path)
     {
-        if (!self::ensureDir($path)) {
-            return null;
-        }
-        $existed = is_file($path);
-        $fp = @fopen($path, 'c+');
-        if ($fp === false) {
-            return null;
-        }
-        if (!flock($fp, LOCK_EX)) {
-            fclose($fp);
-            if (!$existed && is_file($path) && @filesize($path) === 0) {
-                @unlink($path);
+        try {
+            if (!self::ensureDir($path)) {
+                return null;
             }
+            $existed = is_file($path);
+            $fp = @fopen($path, 'c+');
+            if ($fp === false) {
+                return null;
+            }
+            if (!flock($fp, LOCK_EX)) {
+                fclose($fp);
+                if (!$existed && is_file($path) && @filesize($path) === 0) {
+                    @unlink($path);
+                }
+                return null;
+            }
+            return $fp;
+        } catch (Throwable $e) {
+            error_log('inkvoke try: spend open error: ' . $e->getMessage());
             return null;
         }
-        return $fp;
     }
 
     /** @param resource|null $fp */
@@ -169,14 +175,20 @@ final class LiveTrySpend
     /** @return array{total_usd: float, image_count: int, updated_at: int}|null */
     private static function readTally(string $path): ?array
     {
+        $raw = self::readBytes($path);
+        if ($raw === null) {
+            return null;
+        }
+        return self::tallyFromBytes($raw);
+    }
+
+    private static function readBytes(string $path): ?string
+    {
         if (!is_file($path) || !is_readable($path)) {
             return null;
         }
         $raw = @file_get_contents($path);
-        if ($raw === false) {
-            return null;
-        }
-        return self::tallyFromBytes($raw);
+        return is_string($raw) ? $raw : null;
     }
 
     /**
@@ -188,11 +200,8 @@ final class LiveTrySpend
      */
     private static function positiveDurable(string $path): ?array
     {
-        if (!is_file($path) || !is_readable($path)) {
-            return null;
-        }
-        $raw = @file_get_contents($path);
-        if (!is_string($raw)) {
+        $raw = self::readBytes($path);
+        if ($raw === null) {
             return null;
         }
         $data = json_decode($raw, true);
@@ -324,7 +333,7 @@ final class LiveTrySpend
             }
             @chmod($path, 0664);
         } catch (Throwable $e) {
-            error_log('inkvoke try: spend tally error: ' . $e->getMessage());
+            error_log('inkvoke try: spend durable mirror error: ' . $e->getMessage());
         } finally {
             self::unlock($fp);
         }
@@ -335,7 +344,7 @@ final class LiveTrySpend
      *
      * @return array{total_usd: float, image_count: int, updated_at: int}
      */
-    private static function priorTally(string $publicPath, string $durablePath): array
+    private static function fallbackTally(string $publicPath, string $durablePath): array
     {
         if (self::readTally($publicPath) !== null) {
             return self::zeros();

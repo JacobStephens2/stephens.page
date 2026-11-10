@@ -1005,7 +1005,7 @@ if (!preg_match('/^[A-Za-z0-9+\/]+=*$/', $b64) || strlen($b64) < 64) {
     respond(false, 'Image generation returned an unreadable result. Please try again.', [], 502);
 }
 
-// Running public spend tally (all successful live-tries; not reduced when gallery prunes).
+// Running public spend tally (all successful live tries; not reduced when gallery prunes).
 $spend = LiveTrySpend::record(
     isset($cost['cost_usd']) ? (float) $cost['cost_usd'] : null,
     time(),

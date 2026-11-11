@@ -123,8 +123,8 @@ python3 -m unittest discover --start-directory tests --pattern 'test_*.py'
 (cd blog/from-machine-code-to-ai-the-same-hello-world/server && python3 -m unittest test_execute)
 ```
 
-The resume tests and check need Chrome and run on the droplet; the Playwright
-checks above run by hand.
+`private/test_resume_projections.php` and `private/check_resume.php` need
+Chrome and run on the droplet; the Playwright checks above run by hand.
 
 ### Social preview images
 

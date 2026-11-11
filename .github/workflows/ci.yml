@@ -1,6 +1,6 @@
 name: CI
 
-# Pull request checks before Self-merge. Runs on the runner's preinstalled PHP
+# Pull request checks before merge. Runs on the runner's preinstalled PHP
 # CLI and Python 3, with no third-party actions and no network services.
 # Not run here: private/test_resume_projections.php and private/check_resume.php
 # render real PDFs with Chrome and must run on the droplet, and the Playwright
@@ -16,7 +16,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # A new push supersedes a pull request's run; every main commit finishes.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
@@ -42,6 +43,8 @@ jobs:
             echo "::endgroup::"
           done
 
+      # test_live_try_rate_admit.py runs the PHP admission suite again, and
+      # adds the check that a web request cannot reach it.
       - name: Run Python test suites in tests/
         run: python3 -m unittest discover --start-directory tests --pattern 'test_*.py' --verbose
 

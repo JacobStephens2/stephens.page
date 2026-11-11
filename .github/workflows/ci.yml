@@ -1,0 +1,50 @@
+name: CI
+
+# Pull request checks before Self-merge. Runs on the runner's preinstalled PHP
+# CLI and Python 3, with no third-party actions and no network services.
+# Not run here: private/test_resume_projections.php and private/check_resume.php
+# render real PDFs with Chrome and must run on the droplet, and the Playwright
+# checks under private/ need a browser download.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: PHP lint and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show tool versions
+        run: |
+          php --version
+          python3 --version
+
+      - name: Lint every tracked PHP file
+        run: git ls-files -z -- '*.php' | xargs -0 -n1 php -l
+
+      - name: Run PHP test suites in tests/
+        run: |
+          for suite in tests/test_*.php; do
+            echo "::group::$suite"
+            php "$suite"
+            echo "::endgroup::"
+          done
+
+      - name: Run Python test suites in tests/
+        run: python3 -m unittest discover --start-directory tests --pattern 'test_*.py' --verbose
+
+      - name: Run the hello-world server tests
+        working-directory: blog/from-machine-code-to-ai-the-same-hello-world/server
+        run: python3 -m unittest test_execute --verbose

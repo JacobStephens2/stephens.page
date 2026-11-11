@@ -111,6 +111,21 @@ Fonts and verify their layout, including the Outcomes and Current work headings 
 desktop widths from 740 to 1280px in a 900px-high viewport. Font checks require network
 access; the default check also covers the fallback fonts offline.
 
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every pull request and push to `main`, using
+the runner's own PHP CLI and Python 3:
+
+```bash
+git ls-files -z -- '*.php' | xargs -0 -n1 php -l
+for suite in tests/test_*.php; do php "$suite"; done
+python3 -m unittest discover --start-directory tests --pattern 'test_*.py'
+(cd blog/from-machine-code-to-ai-the-same-hello-world/server && python3 -m unittest test_execute)
+```
+
+The resume tests and check need Chrome and run on the droplet; the Playwright
+checks above run by hand.
+
 ### Social preview images
 
 The `og-<sha256-prefix>.jpg` files are real 1200 × 630 screenshots of their

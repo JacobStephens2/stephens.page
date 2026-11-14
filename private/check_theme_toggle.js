@@ -195,6 +195,36 @@ async function checkPage(context, baseUrl, spec, systemTheme) {
     await page.close();
 }
 
+// With storage blocked (private mode, site data disabled) every localStorage access
+// throws. The toggle must still cycle system → light → dark → system in-page.
+async function checkBlockedStorage(context, baseUrl) {
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+        Object.defineProperty(window, 'localStorage', {
+            configurable: true,
+            get() { throw new DOMException('The operation is insecure.', 'SecurityError'); },
+        });
+    });
+    await page.goto(baseUrl + '/', { waitUntil: 'load' });
+    await page.waitForSelector('.theme-toggle', { state: 'attached' });
+    const toggle = page.locator('.theme-toggle:visible').first();
+    const state = () => page.evaluate(() => ({
+        dataTheme: document.documentElement.getAttribute('data-theme'),
+        label: document.querySelector('.theme-toggle').getAttribute('aria-label'),
+    }));
+    check('blocked storage', 'starts on system', await state(),
+        { dataTheme: null, label: 'Theme: system (click for light)' });
+    for (const expected of [
+        { dataTheme: 'light', label: 'Theme: light (click for dark)' },
+        { dataTheme: 'dark', label: 'Theme: dark (click for system)' },
+        { dataTheme: null, label: 'Theme: system (click for light)' },
+    ]) {
+        await toggle.click();
+        check('blocked storage', `click → ${expected.dataTheme || 'system'}`, await state(), expected);
+    }
+    await page.close();
+}
+
 async function checkSharedStyles(context, baseUrl) {
     const page = await context.newPage();
     await page.goto(baseUrl);
@@ -311,6 +341,7 @@ async function main() {
                 await checkPage(context, baseUrl, spec, systemTheme);
             }
             if (systemTheme === 'light') {
+                await checkBlockedStorage(context, baseUrl);
                 await checkAllPagePalettes(context, baseUrl);
                 await checkSharedStyles(context, baseUrl);
                 await checkDossier(context, baseUrl, check, webfonts);

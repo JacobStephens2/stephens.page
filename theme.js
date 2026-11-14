@@ -4,6 +4,11 @@
  * Default: follow prefers-color-scheme (no data-theme attribute) - "system".
  * Toggle cycles: system → light → dark → system.
  * Storage key: "theme" → "light" | "dark" | null (system)
+ *
+ * The preference is held in memory (`pref`) and storage is best effort. Reading it
+ * back from localStorage on every click broke the cycle when storage is blocked
+ * (private mode, site data disabled): every read returned null, so the toggle went
+ * system → light on every click and could never reach dark.
  */
 (function () {
   var STORAGE_KEY = 'theme';
@@ -36,10 +41,12 @@
     } catch (e) { /* ignore */ }
   }
 
+  /** The visitor's preference for this page view: "light" | "dark" | null (system). */
+  var pref = readStored();
+
   /** Effective theme the page is showing right now. */
   function effectiveTheme() {
-    var stored = readStored();
-    if (stored) return stored;
+    if (pref) return pref;
     return systemPrefersDark() ? THEME_DARK : THEME_LIGHT;
   }
 
@@ -51,6 +58,7 @@
   }
 
   function applyTheme(preference) {
+    pref = preference === THEME_LIGHT || preference === THEME_DARK ? preference : null;
     var root = document.documentElement;
     if (preference === THEME_LIGHT || preference === THEME_DARK) {
       root.setAttribute('data-theme', preference);
@@ -68,7 +76,7 @@
   }
 
   function toggleTheme() {
-    var next = nextPreference(readStored());
+    var next = nextPreference(pref);
     writeStored(next);
     applyTheme(next);
   }
@@ -95,9 +103,8 @@
   }
 
   function updateToggleLabels() {
-    var stored = readStored();
-    var current = stored === null ? 'system' : stored;
-    var next = nextPreference(stored);
+    var current = pref === null ? 'system' : pref;
+    var next = nextPreference(pref);
     var nextLabel = next === null ? 'system' : next;
     var label = 'Theme: ' + current + ' (click for ' + nextLabel + ')';
     document.querySelectorAll('.theme-toggle').forEach(function (btn) {
@@ -180,7 +187,7 @@
   }
 
   // Apply stored preference as early as this script runs.
-  applyTheme(readStored());
+  applyTheme(pref);
 
   function onReady(fn) {
     if (document.readyState === 'loading') {
@@ -202,7 +209,7 @@
   if (window.matchMedia) {
     var mql = window.matchMedia('(prefers-color-scheme: dark)');
     var onChange = function () {
-      if (!readStored()) {
+      if (!pref) {
         applyTheme(null);
       }
     };

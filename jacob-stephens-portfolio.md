@@ -540,6 +540,27 @@ A/B Testing
 [Play it](https://thereish.app/)
 [Read the write-up →](/blog/the-machine-grades-it-never-rules/)
 
+### Wire Report
+
+A real-time tactical strategy game of outpost operations on real-world flashpoint geography, playable solo or live 1v1 in a desktop browser. Every Shelter houses one four-person Fireteam: keep it Working inside for Supply and Victory, or Commit it to contest the Relays while its Shelter produces nothing.
+
+**Why it matters**
+Separating simulation, rendering, and network authority lets one TypeScript rules core drive solo browser matches, deterministic replays, automated balance gates, and live 1v1 rooms. An offline compiler projects ~675 m by 420 m OpenStreetMap snapshots onto the 1800 by 1125 battlefield, simplifies geometry, and rejects any Dispatch that fails a playability audit.
+
+**What stands out**
+Three.js renders an angled 3D diorama over a headless 2D simulation with discrete height classes, directional cover, and clipped sightlines, so Vitest and a 600-match worker-thread Balance Gate run in Node without a DOM or GPU. Bots receive only their own side's fog-filtered view and Signals Intelligence delay. Live 1v1 runs at 20 Hz on a Node WebSocket daemon with per-address socket quotas; on SIGTERM during deploys, active rooms snapshot to SQLite and re-simulate with state-hash checks so deploys do not drop in-progress matches.
+
+TypeScript
+Three.js
+WebSockets
+Deterministic Sim
+Node.js
+SQLite
+OpenStreetMap
+
+[Overview](https://wire.stephens.page/)
+[Play in browser](https://wire.stephens.page/play/)
+
 ### Sotto
 
 A Flask web app that turns a Markdown document into an MP3 you can listen to, narrated by a neural text-to-speech model running entirely on my own server - no third-party API, and no text or audio ever leaves the box.

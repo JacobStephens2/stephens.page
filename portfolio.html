@@ -1334,6 +1334,37 @@
                         </div>
                     </article>
 
+                    <article class="portfolio-item" id="wire-report">
+                        <button class="image-button" type="button" data-image="screenshots/wire-report-tabletop.jpg" data-images="screenshots/wire-report-tabletop.jpg,screenshots/wire-report-overhead.jpg" data-captions="Dispatch D1 (tabletop camera): Rifle Teams in Contact beside four Shelter roles,Dispatch D1 (overhead camera): Home Wire Vision and sightline cones clipped by cover" data-title="Wire Report">
+                            <img src="screenshots/wire-report-tabletop.jpg" alt="Wire Report Dispatch D1 tabletop view: four Shelter roles inside the blue Home Wire and opposing Rifle Teams exchanging fire with cover pips and clipped sightline cones" class="portfolio-image portfolio-image--contain" loading="lazy">
+                        </button>
+                        <div class="portfolio-content">
+                            <h3 class="portfolio-title">Wire Report</h3>
+                            <p class="portfolio-summary">A real-time tactical strategy game of outpost operations on real-world flashpoint geography, playable solo or live 1v1 in a desktop browser. Every Shelter houses one four-person Fireteam: keep it Working inside for Supply and Victory, or Commit it to contest the Relays while its Shelter produces nothing.</p>
+                            <div class="portfolio-block">
+                                <strong>Why it matters</strong>
+                                <span>Separating simulation, rendering, and network authority lets one TypeScript rules core drive solo browser matches, deterministic replays, automated balance gates, and live 1v1 rooms. An offline compiler projects ~675 m by 420 m OpenStreetMap snapshots onto the 1800 by 1125 battlefield, simplifies geometry, and rejects any Dispatch that fails a playability audit.</span>
+                            </div>
+                            <div class="portfolio-block">
+                                <strong>What stands out</strong>
+                                <span>Three.js renders an angled 3D diorama over a headless 2D simulation with discrete height classes, directional cover, and clipped sightlines, so Vitest and a 600-match worker-thread Balance Gate run in Node without a DOM or GPU. Bots receive only their own side's fog-filtered view and Signals Intelligence delay. Live 1v1 runs at 20 Hz on a Node WebSocket daemon with per-address socket quotas; on SIGTERM during deploys, active rooms snapshot to SQLite and re-simulate with state-hash checks so deploys do not drop in-progress matches.</span>
+                            </div>
+                            <div class="portfolio-tags">
+                                <span class="portfolio-tag">TypeScript</span>
+                                <span class="portfolio-tag">Three.js</span>
+                                <span class="portfolio-tag">WebSockets</span>
+                                <span class="portfolio-tag">Deterministic Sim</span>
+                                <span class="portfolio-tag">Node.js</span>
+                                <span class="portfolio-tag">SQLite</span>
+                                <span class="portfolio-tag">OpenStreetMap</span>
+                            </div>
+                            <div class="portfolio-links">
+                                <a href="https://wire.stephens.page/" class="portfolio-link" target="_blank" rel="noreferrer">Overview</a>
+                                <a href="https://wire.stephens.page/play/" class="portfolio-link" target="_blank" rel="noreferrer">Play in browser</a>
+                            </div>
+                        </div>
+                    </article>
+
                     <article class="portfolio-item" id="sotto">
                         <button class="image-button" type="button" data-image="screenshots/sotto.png" data-images="screenshots/sotto.png,screenshots/sotto-library.png" data-captions="Paste markdown - choose a voice - get an MP3,A saved narration with revocable share links and the privacy boundaries" data-title="Sotto - paste markdown, choose a voice, convert to an MP3, narrated by a self-hosted neural TTS model">
                             <img src="screenshots/sotto.png" alt="Sotto web app: a markdown input box, a voice selector, sample voice players, and a Convert to audio button" class="portfolio-image">

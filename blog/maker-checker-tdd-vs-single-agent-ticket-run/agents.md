@@ -17,7 +17,7 @@ This is the machine-oriented companion to the second preregistered, paired, blin
 
 Governing finding:
 
-> **Do not replace a capable single-agent ticket workflow with multi-session maker-checker orchestration for small-to-medium issues.** Even after moving the Candidate's top-level orchestrator from Claude Code to Codex (`gpt-6.1-sol`, `high`) — which halved the Candidate-to-Baseline cost and time ratios from `10.4×` / `6.4×` (first study) to `4.62×` / `3.28×` — splitting a ~20-minute ticket across 11–64 fresh contexts spent **56.1%** of total Candidate cost in orchestration alone (`76.0%` outside green implementation), lowered unattended delivery from **17/17** to **11/17**, multiplied test lines per production line from **2.64×** to **10.10×**, and dropped blind maintainer `merge as is` readiness from **10/11** (`91%`) to **2/11** (`18%`). Adopt only bounded, single-pass checks inside the single-agent pipeline.
+> **Do not replace a capable single-agent ticket workflow with multi-session maker-checker orchestration for small-to-medium issues.** Even after moving the Candidate's top-level orchestrator from Claude Code to Codex (`gpt-6.1-sol`, `high`) - which halved the Candidate-to-Baseline cost and time ratios from `10.4×` / `6.4×` (first study) to `4.62×` / `3.28×` - splitting a ~20-minute ticket across 11–64 fresh contexts spent **56.1%** of total Candidate cost in orchestration alone (`76.0%` outside green implementation), lowered unattended delivery from **17/17** to **11/17**, multiplied test lines per production line from **2.64×** to **10.10×**, and dropped blind maintainer `merge as is` readiness from **10/11** (`91%`) to **2/11** (`18%`). Adopt only bounded, single-pass checks inside the single-agent pipeline.
 
 ## TL;DR
 
@@ -66,23 +66,23 @@ Governing finding:
 | `5-LLM` (`-astra`, OpenAI excluded) | `8–1–2` (`11` deliv.) | `1` win (`T10`) |
 | `4-LLM` (`-family`, neither Anthropic/OpenAI) | `5–0–6` (`11` deliv.) | `0` wins |
 | Median cost (17 primary; paired ratio `4.62×`) | `$1.27` (`$22.50` / 17; `$25.93` / 20) | `$5.46` (`$177.07` / 17; `$199.13` / 20) |
-| Median time (17 primary; paired ratio `3.28×`) | `18.9m` (`311.4m` / 17; `334.4m` / 20) | `55.1m` (`1,686.7m` / 17; `2,958.7m` / 20) |
+| Median time (17 primary; paired ratio `3.28×`) | `18.9m` (`311.4m` / 17; about `357.5m` / 20 from rounded trial rows) | `55.1m` (`1,686.7m` / 17; about `1,872.9m` / 20 from rounded trial rows) |
 | Median test / prod lines (11 delivered) | `163` / `67` (`2.64×`) | `454` / `56` (`10.10×`; paired test ratio `2.32×`) |
 | Repeat self-consistency (`3` repeat tasks) | `2/3` delivery outcome; `2/2` human call | `3/3` delivery outcome; `1/2` 6-LLM panel |
 
 ## Pre-registered hypotheses (H1–H6)
 
-1. **H1 (Independent test fault detection) — Not supported (`0` Baseline defects).** Candidate tests found `0` confirmed defects in Baseline PRs across `11` delivered primary pairs (`13` with repeats). Both Candidate cross-test failures on Baseline (`T5`, `T10`) asserted Candidate-private helper structure. Conversely, a Baseline unit test caught a real regression in Candidate `T17` (`FILTER_VALIDATE_INT` rejecting zero-padded numeric strings like `'0010'`).
-2. **H2 (Verification rounds & test volume) — Supported.** Candidate ran a median `4.0` verification rounds (`0–21`, `91` rounds across `17` primary pairs, `112` across `20`) vs. `1.0` for Baseline, and wrote `4,953` vs. `1,832` total test lines across `11` primary pairs (`2.32×` paired median; `6,323` vs. `2,250` across `13`).
-3. **H3 (Planning questions & unattended stops) — Supported.** Candidate failed to deliver on `6/17` (`35.3%`): `4` `stopped-to-ask` (`T1`, `T8`, `T13`, `T16`; `44.4m` total), `1` 12h timeout on `T3` (`699.4m`, `64` sessions, `$64.22`, stuck in `meta1`–`meta11` building a 32-row formal state-transition table `T01`–`T32` of a local Apache test-fixture `stop()` method after the actual task passed 543 HTTP tests at `1h44m`), and `1` `failed` push on `T9` after editing `.github/workflows/` without `workflow` PAT scope.
-4. **H4 (Context re-reading & pre-production spend) — Supported.** Candidate made `2,934` file-read/search tool calls across `17` primary pairs (`3,355` across `20`) vs. `729` (`848` across `20`, `2.65×` paired median, `3.96×` total across 20 pairs), reached first PHP edit at median `11.4m` vs. `1.8m` (`6.11×`), and spent `74.5%` of primary-pair cost (`76.0%` across `20` pairs: `$150.32` of `$197.70`) before green implementation.
-5. **H5 (Fail-safe behaviour) — No net advantage.** `advantage_pairs = 0`; human grader recorded `0` unexpected-case defects on either arm across `13` pairs.
-6. **H6 (Diff size & preference divergence) — Supported.** Human reviewer preferred the smaller diff/test suite on `8/8` non-tied primary pairs (`10/10` with repeats), citing test bloat on `9/13` graded Candidate PRs. By contrast, `astra` and `grok` preferred the larger diff on `4/9` non-tied pairs, `kimi` on `3/8`, and `sol` on `3/9`.
+1. **H1 (Independent test fault detection) - Not supported (`0` Baseline defects).** Candidate tests found `0` confirmed defects in Baseline PRs across `11` delivered primary pairs (`13` with repeats). Both Candidate cross-test failures on Baseline (`T5`, `T10`) asserted Candidate-private helper structure. Conversely, a Baseline unit test caught a real regression in Candidate `T17` (`FILTER_VALIDATE_INT` rejecting zero-padded numeric strings like `'0010'`).
+2. **H2 (Verification rounds & test volume) - Supported.** Candidate ran a median `4.0` verification rounds (`0–21`, `91` rounds across `17` primary pairs, `112` across `20`) vs. `1.0` for Baseline, and wrote `4,953` vs. `1,832` total test lines across `11` primary pairs (`2.32×` paired median; `6,323` vs. `2,250` across `13`).
+3. **H3 (Planning questions & unattended stops) - Supported.** Candidate failed to deliver on `6/17` (`35.3%`): `4` `stopped-to-ask` (`T1`, `T8`, `T13`, `T16`; `44.4m` total), `1` 12h timeout on `T3` (`699.4m`, `64` sessions, `$64.22`, stuck in `meta1`–`meta11` building a 32-row formal state-transition table `T01`–`T32` of a local Apache test-fixture `stop()` method after the actual task passed 543 HTTP tests at `1h44m`), and `1` `failed` push on `T9` after editing `.github/workflows/` without `workflow` PAT scope.
+4. **H4 (Context re-reading & pre-production spend) - Supported.** Candidate made `2,934` file-read/search tool calls across `17` primary pairs (`3,355` across `20`) vs. `729` (`848` across `20`, `2.65×` paired median, `3.96×` total across 20 pairs), reached first PHP edit at median `11.4m` vs. `1.8m` (`6.11×`), and spent `74.5%` of primary-pair cost (`76.0%` across `20` pairs: `$150.32` of `$197.70`) before green implementation.
+5. **H5 (Fail-safe behaviour) - No net advantage.** `advantage_pairs = 0`; human grader recorded `0` unexpected-case defects on either arm across `13` pairs.
+6. **H6 (Diff size & preference divergence) - Supported.** Human reviewer preferred the smaller diff/test suite on `8/8` non-tied primary pairs (`10/10` with repeats), citing test bloat on `9/13` graded Candidate PRs. By contrast, `astra` and `grok` preferred the larger diff on `4/9` non-tied pairs, `kimi` on `3/8`, and `sol` on `3/9`.
 
 ## Grader panel, position bias & family bias
 
 - **Dual-order neutralization worked:** First-position preference rates spanned `33.3%` (`sol`) to `54.5%` (`kimi`). Order flips (`muse` `5/11`, `kimi` `3/11`, `sonnet` `2/11`, `opus` `2/11`) resolved near-ties to `tie`.
-- **OpenAI family bias:** OpenAI graders (`astra` `5–4–1`, `sol` `6–3–1`) gave Candidate `3–4` wins out of `10` complete pairs, whereas Anthropic (`sonnet` `8–1–2`, `opus` `7–0–4`) and Google (`gemini` `7–1–0`) favored Baseline. Dropping `astra` shifts `4` `3–3` ties (`T5`, `T12`, `T17`, `T15-r2`) to Baseline (`8–1–2`).
+- **OpenAI family bias:** OpenAI graders (`astra` `5–4–1`, `sol` `6–3–1`) gave Candidate `3–4` wins out of `10` complete pairs, whereas Anthropic (`sonnet` `8–1–2`, `opus` `7–0–4`) and Google (`gemini` `7–1–0`) favored Baseline. Removing `astra` lowers the strict-majority threshold from `4 of 6` to `3 of 5` voters. Three primary ties (`T5`, `T12`, `T17`) become **Baseline wins**, yielding `8 Baseline, 1 Candidate, 2 ties` on the 11 delivered first pairs; the repeat `T15-r2` also changes to Baseline. These were not evenly split votes: Table 6 records `3B/2C/1 tie` on `T5`, `3B/1C/1 tie/1 missing` on `T12`, and `3B/0C/1 tie/2 missing` on both `T17` and `T15-r2`.
 - **Qualitative rubric profile (`145` completed 6-LLM panel evaluations across `13` pairs):**
   - Merge calls (`as_is` / `small_fixes` / `no`): Baseline `57 (39.3%) / 85 (58.6%) / 3 (2.1%)` vs. Candidate `41 (28.3%) / 91 (62.8%) / 13 (9.0%)`.
   - Codebase fit (`follows` / `minor_departures` / `reshapes`): Baseline `82 (56.6%) / 59 (40.7%) / 4 (2.8%)` vs. Candidate `43 (29.7%) / 94 (64.8%) / 8 (5.5%)`.
@@ -95,13 +95,13 @@ Governing finding:
 
 | Phase | Candidate sessions (verif.) | Candidate min | Candidate cost (share) | Baseline sessions | Baseline min | Baseline cost (share) |
 |---|---|---|---|---|---|---|
-| Orchestrator | `23` (`0`) | `1,778.2` | `$110.87` (`56.1%`) | — | — | — |
-| Plan + verify | `65` (`26`) | `402.6` | `$24.59` (`12.4%`) | — | — | — |
-| RED + verify | `42` (`17`) | `208.7` | `$14.86` (`7.5%`) | — | — | — |
+| Orchestrator | `23` (`0`) | `1,778.2` | `$110.87` (`56.1%`) | - | - | - |
+| Plan + verify | `65` (`26`) | `402.6` | `$24.59` (`12.4%`) | - | - | - |
+| RED + verify | `42` (`17`) | `208.7` | `$14.86` (`7.5%`) | - | - | - |
 | GREEN / Implement | `32` (`10`) | `199.1` | `$13.97` (`7.1%`) | `21` | `193.5` | `$14.53` (`56.0%`) |
-| Refactor | `5` (`0`) | `7.9` | `$1.02` (`0.5%`) | — | — | — |
+| Refactor | `5` (`0`) | `7.9` | `$1.02` (`0.5%`) | - | - | - |
 | Review / meta-review | `84` (`63`) | `232.7` | `$23.12` (`11.7%`) | `38` (spec/std) + `20` (sec) | `62.2` + `78.7` | `$6.82` (`26.3%`) + `$4.59` (`17.7%`) |
-| Other (setup, audits) | `39` (`7`) | `129.5` | `$9.28` (`4.7%`) | — | — | — |
+| Other (setup, audits) | `39` (`7`) | `129.5` | `$9.28` (`4.7%`) | - | - | - |
 
 Key takeaway: actual `make` + `check` tool-call medians differed only slightly (`94.0` make / `65.0` check for Candidate vs. `88.5` / `59.0` for Baseline, `1.24×` and `1.25×`). Almost the entire tool-call gap came from the Candidate's median `237.5` orchestration calls per run. On Pair 3 (`T3`), the dedicated test-fixture lifecycle test grew to `1,101` lines and `41` cases (`31` failing, `10` passing) against a `17`-line server config fix: the maker called `F2` non-blocking (`"no collision frequency or failed canonical run is established"`, MAST `FM-2.5`), and meta-reviews 12 and 14 called the loop `"expensive churn"` / `"unjustified"` while authorizing another step (`FM-2.6`).
 
@@ -115,11 +115,11 @@ Key takeaway: actual `make` + `check` tool-call medians differed only slightly (
 
 ## Modular decisions taken for thirdshift
 
-- **Ship / run on every ticket (`~$0`, seconds) — Deterministic `tests_on_base` check & `assume_and_document`:** Verify newly added regression tests fail on `base/` via a deterministic command, and set `on_ambiguity = "assume_and_document"` to eliminate unattended `stopped-to-ask` halts without extra model turns.
-- **Evaluate selectively — Bounded `+1` Blind Behavioral Breaker (`public_api_delta.txt`, `≤ 3 min`, `≤ 150` LOC, `max_rounds = 1`):** Given Study 2's `H1 = 0` (`2/19 = 10.5%` combined) and `T5`/`T10` helper-name false positives, extract only added/changed public class/method signatures (`public_api_delta.txt`, stripping method bodies and `tests/` diffs) and gate a single cross-family breaker pass onto stateful data/text-mutation tickets or the `Spec` feature boundary (`Fresh Eyes`), discarding passing tests that add no branch coverage and capping repair to `1` builder resume turn.
-- **Evaluate — Single bounded cross-family code review pass (`max_rounds = 1`):** Add one non-OpenAI reviewer (`claude-sonnet-5-5` or `gemini-4-argon-high`) in parallel with `spec_review` and `standards_review`, capped at **1** review-and-fix pass.
-- **Evaluate — Review-prompt rules for test proportionality & no helper spirals + Rust runner circuit breakers:** Flag bespoke test harnesses, source-string assertions, and tests of deleted files (`T6`), prohibit recursive formal modeling of test helpers (`T3`), and enforce loop/cost limits in Rust runner code.
-- **Reject — Multi-session maker-checker orchestration & unbounded meta-review:** Do not split single-ticket implementation across fresh planner/RED/GREEN/verifier sessions or allow meta-review loops past a hard round cap without human interruption.
+- **Ship / run on every ticket (`~$0`, seconds) - Deterministic `tests_on_base` check & `assume_and_document`:** Verify newly added regression tests fail on `base/` via a deterministic command, and set `on_ambiguity = "assume_and_document"` to eliminate unattended `stopped-to-ask` halts without extra model turns.
+- **Evaluate selectively - Bounded `+1` Blind Behavioral Breaker (`public_api_delta.txt`, `≤ 3 min`, `≤ 150` LOC, `max_rounds = 1`):** Given Study 2's `H1 = 0` (`2/19 = 10.5%` combined) and `T5`/`T10` helper-name false positives, extract only added/changed public class/method signatures (`public_api_delta.txt`, stripping method bodies and `tests/` diffs) and gate a single cross-family breaker pass onto stateful data/text-mutation tickets or the `Spec` feature boundary (`Fresh Eyes`), discarding passing tests that add no branch coverage and capping repair to `1` builder resume turn.
+- **Evaluate - Single bounded cross-family code review pass (`max_rounds = 1`):** Add one non-OpenAI reviewer (`claude-sonnet-5-5` or `gemini-4-argon-high`) in parallel with `spec_review` and `standards_review`, capped at **1** review-and-fix pass.
+- **Evaluate - Review-prompt rules for test proportionality & no helper spirals + Rust runner circuit breakers:** Flag bespoke test harnesses, source-string assertions, and tests of deleted files (`T6`), prohibit recursive formal modeling of test helpers (`T3`), and enforce loop/cost limits in Rust runner code.
+- **Reject - Multi-session maker-checker orchestration & unbounded meta-review:** Do not split single-ticket implementation across fresh planner/RED/GREEN/verifier sessions or allow meta-review loops past a hard round cap without human interruption.
 
 ## Operational checklist for multi-agent workflow design
 
@@ -141,7 +141,7 @@ Key takeaway: actual `make` + `check` tool-call medians differed only slightly (
 
 ## Self-test (answers inline)
 
-1. Did moving the Candidate's top-level orchestrator from Claude Code to Codex (`gpt-6.1-sol`) eliminate the cost/time gap? **No — it roughly halved the ratios (`10.4× → 4.62×` cost, `6.4× → 3.28×` time), but Candidate still spent `56.1%` of total cost in the orchestrator alone and delivered fewer PRs (`11/17` vs `17/17`).**
+1. Did moving the Candidate's top-level orchestrator from Claude Code to Codex (`gpt-6.1-sol`) eliminate the cost/time gap? **No - it roughly halved the ratios (`10.4× → 4.62×` cost, `6.4× → 3.28×` time), but Candidate still spent `56.1%` of total cost in the orchestrator alone and delivered fewer PRs (`11/17` vs `17/17`).**
 2. How many Baseline defects did Candidate cross-tests expose across the 11 delivered primary pairs? **Zero (`0`); meanwhile a Baseline cross-test caught 1 regression in Candidate `T17` (leading-zero numeric string IDs rejected by `FILTER_VALIDATE_INT`).**
 3. What caused Pair 3 (`T3`) to burn 11.7 hours and `$64.22` without opening a PR? **After passing 543 HTTP tests in `1h44m`, a meta-review ban on deferring low-severity test-fixture findings combined with unbounded "changed evidence" loops and a model-checking rule forced 15 meta-review cycles debating a 32-row state table of the test helper's `stop()` method until the 12-hour timeout hit.**
 4. Which arm did OpenAI graders (`astra`, `sol`) vs. non-OpenAI panel graders favor? **OpenAI graders gave Candidate `3–4` wins out of `10` pairs; removing `astra` turned `4` ties into Baseline wins (`8–1–2`), and the 4-family panel excluding both OpenAI and Anthropic voted `5–0–6` Baseline.**

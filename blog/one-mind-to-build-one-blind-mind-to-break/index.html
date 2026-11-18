@@ -18,16 +18,16 @@
     <title>One Mind to Build, One Blind Mind to Break | Jacob Stephens</title>
     <link rel="canonical" href="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/">
     <link rel="alternate" type="text/markdown" href="/blog/one-mind-to-build-one-blind-mind-to-break/agents.md" title="Agent-oriented version (markdown)">
-    <meta name="description" content="Across 30 paired replay runs, splitting coding agents into fresh-context maker-checker roles cut delivery, inflated test volume 10x-15x, and cost 4.6x-10.4x more, while one diff-blind behavioral test pass caught real bugs my single session missed.">
+    <meta name="description" content="Across 30 paired replay runs, maker-checker workflows cut delivery and increased test volume: 6.05x aggregate in Study 1 and 2.32x paired median in Study 2. Diff-blind tests still caught bugs my single session missed.">
     <meta property="og:title" content="One Mind to Build, One Blind Mind to Break">
     <meta property="og:description" content="30 preregistered paired replays testing multi-agent maker-checker TDD against a single-agent ticket run, what broke inside the 11.7-hour loop, and the selective 4+1 hybrid I am building instead.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/">
-    <meta property="og:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-423732168a59.jpg">
+    <meta property="og:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-cc3fbe702109.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="One Mind to Build, One Blind Mind to Break">
     <meta name="twitter:description" content="30 preregistered paired replays testing multi-agent maker-checker TDD against a single-agent ticket run, and why independent verification belongs in post-hoc execution rather than pre-code handoffs.">
-    <meta name="twitter:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-423732168a59.jpg">
+    <meta name="twitter:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-cc3fbe702109.jpg">
     <!-- Umami (self-hosted) - analytics + session replay -->
     <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
     <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
@@ -173,6 +173,7 @@
                 <a href="/blog/" class="back-link">&larr; All posts</a>
                 <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/" class="back-link">Study 1 (10 issues)</a>
                 <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/" class="back-link">Study 2 (20 pairs)</a>
+                <a href="https://github.com/JacobStephens2/stephens.page/tree/main/blog/one-mind-to-build-one-blind-mind-to-break/" class="back-link" rel="noopener">Source on GitHub</a>
             </nav>
             <div class="top-right">
                 <a href="mailto:jacob@stephens.page" class="contact-link">jacob@stephens.page</a>
@@ -188,19 +189,23 @@
 
                 <section class="tldr" aria-labelledby="tldr-label">
                     <div class="panel-label" id="tldr-label">TL;DR</div>
-                    <p><strong>Does splitting a coding agent into isolated "maker-checker" roles beat a single-context coding session?</strong> Across 30 preregistered, paired, blinded replay runs on production tickets, no &mdash; with one surgical exception.</p>
+                    <p><strong>Does splitting a coding agent into isolated "maker-checker" roles beat a single-context coding session?</strong> Across 30 preregistered, paired, blinded replay runs on production tickets, no - with one surgical exception.</p>
                     <ul>
-                        <li><strong>Both workflows used TDD; only role isolation differed:</strong> My single-context Ticket run in <a href="https://thirdshift.app" rel="noopener">thirdshift</a> delivered <strong>27 of 27</strong> unique primary pull requests (<code>89%</code> rated <em>merge as is</em> blind) while writing a test first at minute <code>1.3&ndash;1.8</code>. Splitting test planning, test writing, coding, refactoring, and cross-family verification across fresh contexts lowered delivery to <strong>19 of 27</strong>, inflated test-to-code lines to <strong>14.7:1</strong> and <strong>10.10:1</strong>, and cost <strong>$422.84</strong> and <strong>67.6 active hours</strong> across the 30 pairs vs. <strong>$39.32</strong> and <strong>7.7 hours</strong>.</li>
+                        <li><strong>Both workflows used TDD; this compared complete workflows:</strong> My single-context Ticket run in <a href="https://thirdshift.app" rel="noopener">thirdshift</a> delivered <strong>27 of 27</strong> unique primary pull requests (<code>89%</code> rated <em>merge as is</em> blind) while writing a test first at minute <code>1.3&ndash;1.8</code>. The maker-checker workflow delivered <strong>19 of 27</strong>, raised test-to-production line ratios to <strong>14.7:1</strong> and <strong>10.10:1</strong>, and cost <strong>$422.84</strong> and about <strong>49.5 active hours</strong> across the 30 pairs vs. <strong>$39.32</strong> and <strong>8.0 hours</strong>, summing elapsed trial time in both studies. Study 1 also differed in orchestrator and review configuration; Study 2 equalized the top-level orchestrator while retaining other workflow differences.</li>
                         <li><strong>Equalizing the orchestrator halved cost, not failure modes:</strong> Moving the multi-agent orchestrator from Claude Code to Codex in Study 2 dropped the median cost ratio from <code>10.4&times;</code> to <code>4.62&times;</code>, yet the blind maintainer still preferred the single-agent run <strong>8&ndash;0&ndash;3</strong> (and a blind colleague scored <strong>1&ndash;0&ndash;1</strong> on two sampled pairs), while a 17-line web server access-control rule trapped the multi-agent pipeline in an <strong>11-hour 39-minute, 64-session, $64.22 loop</strong> with no PR opened.</li>
-                        <li><strong>The one mechanism worth keeping:</strong> Post-hoc, <em>diff-blind behavioral execution</em> exposed real bugs in <strong>2 of 19</strong> delivered pairs (Study 1 Pairs 6 and 7) that single sessions and diff reviewers missed &mdash; falling to <strong>0 of 11</strong> in Study 2. Instead of pre-code handoffs, I am testing deterministic <code>tests_on_base</code> checks on every ticket and a selective, runner-bounded <code>+1</code> Blind Behavioral Breaker fed only public signatures (<code>public_api_delta.txt</code>).</li>
+                        <li><strong>The one mechanism worth keeping:</strong> Post-hoc, <em>diff-blind behavioral execution</em> exposed real bugs in <strong>2 of 19</strong> delivered pairs (Study 1 Pairs 6 and 7) that single sessions and diff reviewers missed - falling to <strong>0 of 11</strong> in Study 2. Instead of pre-code handoffs, I am testing deterministic <code>tests_on_base</code> checks on every ticket and a selective, runner-bounded <code>+1</code> Blind Behavioral Breaker fed only public signatures (<code>public_api_delta.txt</code>).</li>
                     </ul>
                 </section>
 
-                <p>Separating coding agents into isolated planner, test-writer, implementer, and multi-round reviewer roles degraded delivery, multiplied cost by <code>4.6&times;</code> to <code>10.4&times;</code> across 30 paired replay runs, and produced half as many merge-ready pull requests as one continuous coding session &mdash; yet executing one independently written behavioral test suite after the fact caught real defects that a single session and its reviewers missed.</p>
+                <p>Separating coding agents into isolated planner, test-writer, implementer, and multi-round reviewer roles degraded delivery, multiplied cost by <code>4.6&times;</code> to <code>10.4&times;</code> across 30 paired replay runs, and produced half as many merge-ready pull requests as one continuous coding session - yet executing one independently written behavioral test suite after the fact caught real defects that a single session and its reviewers missed.</p>
 
-                <p>I ran these experiments because I carry the merge gate. At Educational Travel Adventures, most bug fixes and small features on Tourbot &mdash; our ~100,000-line PHP 8 and MySQL 8 operations platform &mdash; start inside <a href="https://thirdshift.app" rel="noopener">thirdshift</a>, an open-source Rust orchestrator I built to run coding agents cleanly. One Codex session reads an issue, writes a failing test first, builds the change, spawns parallel spec, standards, and security sub-agents, and opens a pull request. That ships fast, but it breaks a rule from Cleanroom software engineering (Mills, Dyer, &amp; Linger, 1987): <em>nobody should grade their own homework.</em> If one context misreads a ticket, both its code and its test suite carry the blind spot. Before migrating our upcoming feature builds onto an isolated multi-agent Maker-Checker TDD pipeline, I wanted to measure what role separation actually buys &mdash; and what it quietly breaks.</p>
+                <p>I ran these experiments because I carry the merge gate. At Educational Travel Adventures, most bug fixes and small features on Tourbot - our ~100,000-line PHP 8 and MySQL 8 operations platform - start inside <a href="https://thirdshift.app" rel="noopener">thirdshift</a>, an open-source Rust orchestrator I built to run coding agents cleanly. One Codex session reads an issue, writes a failing test first, builds the change, spawns parallel spec, standards, and security sub-agents, and opens a pull request. That ships fast, but it breaks a rule from Cleanroom software engineering (Mills, Dyer, &amp; Linger, 1987): <em>nobody should grade their own homework.</em> If one context misreads a ticket, both its code and its test suite carry the blind spot. Before migrating our upcoming feature builds onto an isolated multi-agent Maker-Checker TDD pipeline, I wanted to measure what role separation actually buys - and what it quietly breaks.</p>
 
                 <p class="fold-hint">Each section below starts folded so the questions read as the argument in brief. Click any heading to open it, search natively with Find in Page, or <button type="button" class="linkish" id="foldAllBtn" aria-expanded="false"><span class="lbl-expand">expand all sections</span><span class="lbl-collapse">collapse all sections</span></button>.</p>
+                <noscript>
+                    <style>.sec-body[hidden] { display: block !important; content-visibility: visible !important; } .fold-hint, .ctl { display: none; }</style>
+                    <p>JavaScript is unavailable. All sections are expanded and the figures show static summaries; <a href="agents.md">agents.md</a> includes the quiz answers.</p>
+                </noscript>
 
                 <section class="acc-sec" aria-labelledby="sec-h-1">
                     <h2 id="sec-h-1"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-1"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>1. How do you test two coding-agent workflows without fooling yourself?</span></button></h2>
@@ -215,7 +220,7 @@
                 </section>
 
                 <section class="acc-sec" aria-labelledby="sec-h-2">
-                    <h2 id="sec-h-2"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-2"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>2. What happened across all 30 paired runs &mdash; and when I equalized the orchestrator?</span></button></h2>
+                    <h2 id="sec-h-2"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-2"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>2. What happened across all 30 paired runs - and when I equalized the orchestrator?</span></button></h2>
                     <div id="sec-body-2" class="sec-body" hidden="until-found"><div class="sec-inner">
                         <p>Study 1 tested an adoption gate under the rules as packaged on October 29: a Claude Code orchestrator managing separate fresh-context Test Plan, RED Test, GREEN Code, and Refactor makers, each checked by another provider before advancing, plus up to five rounds of cross-family code review. That run rejected wholesale adoption on every threshold: <code>2</code> wins in <code>10</code> (needed <code>8</code>), <code>10.4&times;</code> median cost, <code>6.4&times;</code> median time (cap <code>2.0&times;</code>), <code>3</code> correctness or delivery failures vs. <code>2</code>, and <code>1 of 8</code> pull requests mergeable as is blind vs. <code>7 of 8</code> for the single-agent Baseline.</p>
                         <p>Fair criticism remained after Study 1: Claude's API-rate pricing is higher than Codex's cached tokens, and 64 commits landed on the Candidate rules between October 29 and November 3. So in Study 2 we ran <strong>both</strong> arms under the exact same top-level Codex <code>gpt-6.1-sol</code> (<code>high</code>) orchestrator on 17 new tasks plus 3 repeats, adding <code>base_tests</code> and a 6-family non-arm voting panel plus 2 exact-model diagnostic graders. Moving the orchestrator to Codex halved the relative cost and time ratios (<code>10.4&times; &rarr; 4.62&times;</code> cost; <code>6.4&times; &rarr; 3.28&times;</code> time), yet widened the delivery gap (<code>17/17</code> vs. <code>11/17</code>) and left blind maintainer preference essentially unchanged (<code>8&ndash;0&ndash;3</code> Baseline across delivered first pairs; <code>10/11</code> vs. <code>2/11</code> mergeable as is).</p>
@@ -230,10 +235,10 @@
                                 </div>
                             </div>
                             <div class="fig-body">
-                                <div class="svg-host" id="archHost"></div>
+                                <div class="svg-host" id="archHost"><p>The single-context Builder delivered 27 of 27 primary PRs; isolated maker-checker roles delivered 19 of 27. The proposed selective hybrid keeps one Builder and adds a bounded, implementation-blind check. <a href="agents.md">Read the workflow and information-barrier contract.</a></p></div>
                                 <p class="readout" id="archReadout"></p>
                             </div>
-                            <div class="fig-caption">Switch modes to compare context continuity, where verification sits, and how the <code>public_api_delta.txt</code> barrier keeps a selective Blind Breaker blind to implementation bodies and tests without guessing internal helper names.</div>
+                            <div class="fig-caption">Hand-built inline SVG, switched by local JavaScript, compares context continuity, where verification sits, and how the <code>public_api_delta.txt</code> barrier keeps a selective Blind Breaker blind to implementation bodies and tests without guessing internal helper names. A static text summary remains if initialization fails.</div>
                         </div>
 
                         <div class="table-wrap" tabindex="0" role="region" aria-labelledby="tbl-30pair-cap">
@@ -289,7 +294,7 @@
                                     </tr>
                                     <tr>
                                         <th scope="row">Colleague blind sample (2 pairs: <code>T10</code>, <code>T12</code>)</th>
-                                        <td class="num">&mdash;</td>
+                                        <td class="num"> - </td>
                                         <td class="num"><strong>1&ndash;0&ndash;1 Baseline</strong></td>
                                     </tr>
                                     <tr>
@@ -304,9 +309,9 @@
                 </section>
 
                 <section class="acc-sec" aria-labelledby="sec-h-3">
-                    <h2 id="sec-h-3"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-3"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>3. Where did $422 and 67 hours of agent work actually go?</span></button></h2>
+                    <h2 id="sec-h-3"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-3"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>3. Where did $422 and about 49.5 hours of agent work actually go?</span></button></h2>
                     <div id="sec-body-3" class="sec-body" hidden="until-found"><div class="sec-inner">
-                        <p>If an expensive workflow spent its extra compute writing deeper application code, the bill might buy reliability. Across both studies, the phase logs show the opposite: <strong>both arms spent nearly the exact same number of active minutes implementing the PHP fix itself</strong> (<code>89m</code> Baseline vs. <code>85m</code> Candidate across 10 pairs in Study 1; <code>193.5m / $14.53</code> vs. <code>199.1m / $13.97</code> across 20 pairs in Study 2). Three-quarters of the Candidate's money &mdash; <code>74%</code> in Study 1 and <code>76.0%</code> in Study 2 &mdash; never touched shipping code at all.</p>
+                        <p>If an expensive workflow spent its extra compute writing deeper application code, the bill might buy reliability. Across both studies, the phase logs show the opposite: <strong>both arms spent nearly the exact same number of active minutes implementing the PHP fix itself</strong> (<code>89m</code> Baseline vs. <code>85m</code> Candidate across 10 pairs in Study 1; <code>193.5m / $14.53</code> vs. <code>199.1m / $13.97</code> across 20 pairs in Study 2). Three-quarters of the Candidate's money - <code>74%</code> in Study 1 and <code>76.0%</code> in Study 2 - never touched shipping code at all.</p>
 
                         <div class="fig" id="fig-spend">
                             <div class="fig-head">
@@ -318,16 +323,16 @@
                                 </div>
                             </div>
                             <div class="fig-body">
-                                <div class="svg-host" id="spendHost"></div>
+                                <div class="svg-host" id="spendHost"><p>Across 30 pairs, the rounded Candidate phase rows total $420.39 versus Baseline's $39.32. Orchestration, planning, and RED verification consumed $314.27 (74.8%) of that Candidate spend. The published tracked totals sum to $420.37; the two-cent difference is rounding. <a href="agents.md">Read the per-study spend breakdown.</a></p></div>
                                 <p class="readout" id="spendReadout"></p>
                             </div>
-                            <div class="fig-caption">*Phase-tracked Candidate spend sums to <code>$222.67</code> (Study 1 sessions) + <code>$197.70</code> (Study 2 tracked phases) = <code>$420.37</code> (<code>$422.84</code> including unattributed command overhead across <code>4,053.7</code> active minutes = <code>67.6</code> hours vs. Baseline <code>$39.32</code> / <code>459.4</code> min = <code>7.7</code> hours). Actual <code>make</code> + <code>check</code> tool medians barely moved between arms in Study 2 (<code>94.0/65.0</code> vs. <code>88.5/59.0</code>); the Candidate's median <code>237.5</code> orchestration calls drove the gap.</div>
+                            <div class="fig-caption">Hand-built inline SVG bars rendered by local JavaScript; a static spend summary remains if initialization fails. Published phase-tracked Candidate totals sum to <code>$222.67</code> (Study 1 sessions) + <code>$197.70</code> (Study 2 tracked phases) = <code>$420.37</code> (<code>$422.84</code> including unattributed command overhead), vs. Baseline <code>$39.32</code>. The combined bars sum the rounded source phase rows to <code>$420.39</code>, a <code>$0.02</code> rounding difference; percentages use that row sum. Separately, summing the rounded elapsed trial rows in <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/#table-12">Study 1 Table 12</a> and <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/#table-5">Study 2 Table 5</a> gives about <code>2,967.4</code> minutes (<code>49.5</code> hours) Candidate vs. <code>482.6</code> minutes (<code>8.0</code> hours) Baseline; these are trial totals, not sums of overlapping session times. Actual <code>make</code> + <code>check</code> tool medians barely moved between arms in Study 2 (<code>94.0/65.0</code> vs. <code>88.5/59.0</code>); the Candidate's median <code>237.5</code> orchestration calls drove the gap.</div>
                         </div>
 
                         <p>Two classic software-engineering laws explain why role separation multiplied effort instead of quality:</p>
                         <ol>
                             <li><strong>Context fragmentation vs. conceptual integrity (Brooks, 1975; Yan, 2025; Kim et al., 2025):</strong> In <em>The Mythical Man-Month</em>, Fred Brooks argues that a clean fix depends on keeping one coherent mental model rather than splitting coupled decisions across actors whose handoffs grow quadratically. Walden Yan's context-sharing rule updates Brooks for coding agents: exploring a legacy PHP repository builds a dense belief state in context, and every fixture line encodes implicit assumptions. Starting <code>11</code> to <code>72</code> fresh contexts threw away that exploration trace every handoff, multiplying file reads by <code>5.2&times;</code> (Study 1: <code>2,505</code> vs. <code>481</code>) and <code>4.0&times;</code> (Study 2: <code>2,934</code> vs. <code>729</code>) and causing isolated test writers to invent internal helper names that clashed with the Baseline (<code>T5</code>, <code>T10</code>). Across 260 configurations on SWE-bench Verified, Kim et al. (2025) measured the same penalty: every multi-agent architecture trailed a single agent by <code>2.1</code> to <code>14.9</code> percentage points.</li>
-                            <li><strong>Cleanroom test separation vs. Goodhart's Law (Mills et al., 1987; Goodhart, 1975; Hora &amp; Robbes, 2026; Chen et al., 2026):</strong> Separating test authors from coders works in DO-178C and IBM Cleanroom aerospace projects only because a complete formal specification fixes every signature and transition before a line of code exists. On a 15-line natural-language ticket over a legacy web app, an isolated RED writer cannot yet be scored on catching implementation bugs &mdash; its survival depends on pleasing adversarial verifiers before any implementation exists. As Goodhart's Law predicts, passing the verifier checklist became the target: writers generated defensive mocks, PHP source-string regexes, and bloated harnesses (<code>14.7:1</code> test-to-code ratio in Study 1; <code>10.10:1</code> in Study 2). On a two-line <code>session_write_close()</code> fix in Study 1 Pair 9, reading the tests felt like auditing a mortgage contract to buy a pack of gum.</li>
+                            <li><strong>Cleanroom test separation vs. Goodhart's Law (Mills et al., 1987; Goodhart, 1975; Hora &amp; Robbes, 2026; Chen et al., 2026):</strong> Separating test authors from coders works in DO-178C and IBM Cleanroom aerospace projects only because a complete formal specification fixes every signature and transition before a line of code exists. On a 15-line natural-language ticket over a legacy web app, an isolated RED writer cannot yet be scored on catching implementation bugs - its survival depends on pleasing adversarial verifiers before any implementation exists. As Goodhart's Law predicts, passing the verifier checklist became the target: writers generated defensive mocks, PHP source-string regexes, and bloated harnesses (<code>14.7:1</code> test-to-code ratio in Study 1; <code>10.10:1</code> in Study 2). On a two-line <code>session_write_close()</code> fix in Study 1 Pair 9, reading the tests felt like auditing a mortgage contract to buy a pack of gum.</li>
                         </ol>
                     </div></div>
                 </section>
@@ -335,7 +340,7 @@
                 <section class="acc-sec" aria-labelledby="sec-h-4">
                     <h2 id="sec-h-4"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-4"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>4. How does a 17-line server rule turn into an 11-hour, 64-session loop?</span></button></h2>
                     <div id="sec-body-4" class="sec-body" hidden="until-found"><div class="sec-inner">
-                        <p>Study 2 Task <code>T3</code> asked for a web server access-control rule blocking HTTP requests to dot-paths, repository metadata, dependency manifests, and log or SQL dumps &mdash; <strong>17 lines of configuration</strong>. My single-agent Ticket run shipped a clean patch and regression test in <code>15.7</code> minutes (<code>$1.25</code>, <code>4</code> sessions). The Candidate actually finished the working config fix and <strong>543 passing HTTP assertions</strong> in <code>1 hour 44 minutes</code> (<code>$8.10</code>). Then four natural-language rules locked into a non-terminating loop for the next ten hours.</p>
+                        <p>Study 2 Task <code>T3</code> asked for a web server access-control rule blocking HTTP requests to dot-paths, repository metadata, dependency manifests, and log or SQL dumps - <strong>17 lines of configuration</strong>. My single-agent Ticket run shipped a clean patch and regression test in <code>15.7</code> minutes (<code>$1.25</code>, <code>4</code> sessions). The Candidate actually finished the working config fix and <strong>543 passing HTTP assertions</strong> in <code>1 hour 44 minutes</code> (<code>$8.10</code>). Then four natural-language rules locked into a non-terminating loop for the next ten hours.</p>
 
                         <div class="fig" id="fig-loop">
                             <div class="fig-head">
@@ -348,28 +353,28 @@
                                 </div>
                             </div>
                             <div class="fig-body">
-                                <div id="loopCard"></div>
+                                <div id="loopCard"><p>T3 passed 543 HTTP assertions by 1h 44m, then entered repeated fixture-helper reviews until a 699.4-minute timeout: 64 sessions, $64.22, and no PR. <a href="agents.md">Read the trace stages and stopping rules.</a></p></div>
                             </div>
-                            <div class="fig-caption">Compare against the single-agent Baseline on the exact same commit: <code>4</code> sessions, <code>15.7</code> minutes, <code>$1.25</code>, green CI, PR shipped.</div>
+                            <div class="fig-caption">Local JavaScript switches a hand-built DOM card through four recorded trace stages; a static trace summary remains if initialization fails. Compare against the single-agent Baseline on the exact same commit: <code>4</code> sessions, <code>15.7</code> minutes, <code>$1.25</code>, green CI, PR shipped.</div>
                         </div>
 
                         <p>Every failure in the multi-agent traces maps cleanly onto two architectural results in the agent literature:</p>
                         <ul>
                             <li><strong>Deterministic code workflows vs. prose-interpreted loops (Schluntz &amp; Zhang, 2024; MAST, Cemri et al., 2025):</strong> Schluntz and Zhang draw the line between code-driven <em>workflows</em> (<code>thirdshift</code>'s fixed Rust state machine: build, three parallel reviewers, bounded repair) and prompt-driven <em>agents</em> interpreting Markdown rules at runtime. In UC Berkeley's MAST taxonomy of 1,600+ multi-agent traces, failures stem predominantly from orchestration rules rather than weak base models: halting unattended runs when a planning question lacks a human (<code>FM-3.1</code> <em>Premature Termination</em>: <code>I2</code>, <code>I10</code>, <code>T1</code>, <code>T8</code>, <code>T13</code>, <code>T16</code>), brushing past a maker's low-risk assessment (<code>FM-2.5</code> <em>Ignored Other Agent's Input</em>), diagnosing churn while authorizing another cycle (<code>FM-2.6</code> <em>Reasoning&ndash;Action Mismatch</em>), and looping wherever "changed evidence" exists (<code>FM-1.5</code> <em>Unaware of Termination Conditions</em>).</li>
-                            <li><strong>Appetite, scope hammering, and circuit breakers (Singer, 2019):</strong> Ryan Singer's <em>Shape Up</em> starts from fixed appetite &mdash; how much time a change is worth &mdash; scope-hammers non-essential polish to follow-up issues, compares improvements against the live baseline rather than an imaginary ideal, and trips a hard circuit breaker before rabbit holes eat the schedule. Natural-language review policies that forbid follow-up deferrals and replace user pauses with unbounded meta-review do the opposite: fixed scope, unbounded time.</li>
+                            <li><strong>Appetite, scope hammering, and circuit breakers (Singer, 2019):</strong> Ryan Singer's <em>Shape Up</em> starts from fixed appetite - how much time a change is worth - scope-hammers non-essential polish to follow-up issues, compares improvements against the live baseline rather than an imaginary ideal, and trips a hard circuit breaker before rabbit holes eat the schedule. Natural-language review policies that forbid follow-up deferrals and replace user pauses with unbounded meta-review do the opposite: fixed scope, unbounded time.</li>
                         </ul>
                     </div></div>
                 </section>
 
                 <section class="acc-sec" aria-labelledby="sec-h-5">
-                    <h2 id="sec-h-5"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-5"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>5. Where did independent tests beat my single agent &mdash; and why did H1 drop to zero in Study 2?</span></button></h2>
+                    <h2 id="sec-h-5"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-5"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>5. Where did independent tests beat my single agent - and why did H1 drop to zero in Study 2?</span></button></h2>
                     <div id="sec-body-5" class="sec-body" hidden="until-found"><div class="sec-inner">
                         <p>If that were the whole story, you would bin every piece of the multi-agent workflow and never look back. But Study 1 Pair 6 (<code>I6</code>, replacing stale signatures in queued bid emails without touching coordinator notes) refuses to let me ignore the other side. Working in one context, my Baseline agent pictured a signature as the trailing block at the bottom of the email, wrote a broad name-line regex and happy-path tests, passed its own TDD suite, passed its parallel spec, standards, and security sub-agent reviews, and passed my blind reading as <em>merge after small fixes</em>.</p>
                         <p>When the evaluation harness transplanted the Candidate's independently authored tests onto the Baseline's code, they failed immediately and proved three real bugs: the Baseline deleted coordinator text written beside a signature, rewrote a historical signature copy stored inside notes, and left stale contacts in legacy templates. In Pair 7 (<code>I7</code>), independent tests caught a daylight-saving spring-forward failure too.</p>
                         <p>Three results explain both the Pair 6 catch and why Study 2 changed how I would deploy it:</p>
                         <ul>
-                            <li><strong>Intrinsic self-correction blindness vs. execution oracles (Huang et al., 2024; Kamoi et al., 2024; Knight &amp; Leveson, 1986):</strong> Language models cannot reliably spot their own reasoning mistakes without an external ground-truth failure signal, and separate reviewers shown the implementer's diff anchor on the same framing (correlated misses). Independent tests written without seeing the implementation catch nearly double the faults (<code>25%</code> vs. <code>14%</code>; arXiv:2607.05139) &mdash; <em>but you get that lift from post-hoc execution of a diff-blind test suite, not from 14 rounds of pre-code planning</em> (Pair 6 cost 72 sessions and $74.14!).</li>
-                            <li><strong>Study 2 answered my open question cleanly (H1 = 0 in Study 2; 2 of 19 overall):</strong> Across all 11 newly delivered primary pairs (13 with repeats) in Study 2, Candidate cross-tests found <strong>zero</strong> confirmed defects in Baseline PRs (the two failures, on <code>T5</code> and <code>T10</code>, merely asserted private Candidate helper structure), while a Baseline unit test caught one real Candidate regression (<code>filter_var(..., FILTER_VALIDATE_INT)</code> rejecting valid zero-padded IDs like <code>'0010'</code> on <code>T17</code>). Combined across both studies, independent Candidate tests caught Baseline bugs on <strong>2 of 19 delivered pairs (10.5%)</strong> &mdash; and Pair 6 needed 1,736 test lines to get there.</li>
+                            <li><strong>Intrinsic self-correction blindness vs. execution oracles (Huang et al., 2024; Kamoi et al., 2024; Knight &amp; Leveson, 1986):</strong> Language models cannot reliably spot their own reasoning mistakes without an external ground-truth failure signal, and separate reviewers shown the implementer's diff anchor on the same framing (correlated misses). Independent tests written without seeing the implementation catch nearly double the faults (<code>25%</code> vs. <code>14%</code>; arXiv:2607.05139) - <em>but you get that lift from post-hoc execution of a diff-blind test suite, not from 14 rounds of pre-code planning</em> (Pair 6 cost 72 sessions and $74.14!).</li>
+                            <li><strong>Study 2 answered my open question cleanly (H1 = 0 in Study 2; 2 of 19 overall):</strong> Across all 11 newly delivered primary pairs (13 with repeats) in Study 2, Candidate cross-tests found <strong>zero</strong> confirmed defects in Baseline PRs (the two failures, on <code>T5</code> and <code>T10</code>, merely asserted private Candidate helper structure), while a Baseline unit test caught one real Candidate regression (<code>filter_var(..., FILTER_VALIDATE_INT)</code> rejecting valid zero-padded IDs like <code>'0010'</code> on <code>T17</code>). Combined across both studies, independent Candidate tests caught Baseline bugs on <strong>2 of 19 delivered pairs (10.5%)</strong> - and Pair 6 needed 1,736 test lines to get there.</li>
                             <li><strong>Human attention economics vs. LLM length bias (Sadowski et al., 2018; Pombal et al., 2026):</strong> Make a prediction in Fig. 4 before revealing how blind human reviewers and eight model graders traded off test size and quality.</li>
                         </ul>
 
@@ -386,12 +391,13 @@
                                         <button type="button" class="btn guess-btn" data-guess="zero">Zero times (0 of 14 non-tied)</button>
                                     </div>
                                 </div>
+                                <noscript><p>Blind human reviewers preferred the smaller diff in all 14 non-tied primary pairs and the larger diff in none. The colleague sample added one smaller-diff preference and one tie.</p></noscript>
                                 <div class="reveal" id="judgeReveal" hidden>
                                     <p class="readout" id="judgeMsg"></p>
                                     <div class="svg-host" id="judgeHost" style="margin-top:0.85rem"></div>
                                 </div>
                             </div>
-                            <div class="fig-caption">Study 2 used 6 voting model families not shared by either arm (<code>sonnet</code>, <code>astra</code>, <code>gemini</code>, <code>grok</code>, <code>muse</code>, <code>kimi</code>) plus 2 same-model diagnostics (<code>opus</code>, <code>sol</code>), each evaluated in both orders. OpenAI models tolerated large test diffs far more often (<code>4/9</code> for <code>astra</code>, <code>3/9</code> for <code>sol</code>); dropping <code>astra</code> shifts 4 ties to Baseline wins (<code>8&ndash;1&ndash;2</code>), and excluding both OpenAI and Anthropic drops Candidate wins to <code>0</code> (<code>5&ndash;0&ndash;6</code>).</div>
+                            <div class="fig-caption">Local JavaScript renders a hand-built inline SVG chart after a prediction; a static summary is available without JavaScript. Study 2 used 6 voting model families not shared by either arm (<code>sonnet</code>, <code>astra</code>, <code>gemini</code>, <code>grok</code>, <code>muse</code>, <code>kimi</code>) plus 2 same-model diagnostics (<code>opus</code>, <code>sol</code>), each evaluated in both orders. OpenAI models tolerated large test diffs far more often (<code>4/9</code> for <code>astra</code>, <code>3/9</code> for <code>sol</code>); dropping <code>astra</code> shifts three primary ties to Baseline wins (<code>8&ndash;1&ndash;2</code>) plus the repeat <code>T15-r2</code>, and excluding both OpenAI and Anthropic drops Candidate wins to <code>0</code> (<code>5&ndash;0&ndash;6</code>).</div>
                         </div>
                     </div></div>
                 </section>
@@ -403,7 +409,7 @@
                         <ul>
                             <li><strong>On every ticket (~$0, seconds):</strong> Keep the single continuous-context Builder (<code>Explore &rarr; write TDD test &rarr; implement &rarr; green CI</code>), set <code>on_ambiguity = "assume_and_document"</code> so minor questions become stated PR assumptions rather than unattended halts (<code>0/27</code> halts instead of <code>6/27</code>), run deterministic <code>tests_on_base</code> against the unpatched parent commit so every regression test proves it fails without the fix, instruct code reviewers to flag source-string regex assertions and test-helper spirals, and enforce loop ceilings in Rust runner code.</li>
                             <li><strong>Selective <code>+1</code> Blind Behavioral Breaker (and Spec-level second look):</strong> Paying for an extra isolated test session on dead-script deletions (<code>T6</code>, <code>T12</code>) returned zero defects in Study 2. Instead, reserve a single bounded cross-family breaker (<code>&le; 180s</code>, <code>&le; 25</code> tool calls, <code>&le; $1.50</code>, <code>&le; 150</code> LOC / <code>5</code> test methods) for stateful data-mutation tickets (like Study 1 Pair 6 and Pair 7) or the whole-feature <code>Spec</code> boundary where <a href="/blog/fresh-eyes-beat-a-second-family/">Fresh Eyes</a> found real missed bugs in 16&ndash;19 of 30 features.</li>
-                            <li><strong>Solve helper mismatches with <code>public_api_delta.txt</code>:</strong> In Study 2, Candidate cross-tests falsely failed on Baseline PRs twice (<code>T5</code>, <code>T10</code>) because an isolated test writer guessed private helper names. Generating a stripped signature header &mdash; showing <em>only</em> added or changed public class/method signatures with every method body replaced by <code>{ /* hidden */ }</code> and all <code>tests/</code> diffs omitted &mdash; fixes helper-name mismatches while keeping the breaker blind to implementation flow.</li>
+                            <li><strong>Solve helper mismatches with <code>public_api_delta.txt</code>:</strong> In Study 2, Candidate cross-tests falsely failed on Baseline PRs twice (<code>T5</code>, <code>T10</code>) because an isolated test writer guessed private helper names. Generating a stripped signature header - showing <em>only</em> added or changed public class/method signatures with every method body replaced by <code>{ /* hidden */ }</code> and all <code>tests/</code> diffs omitted - fixes helper-name mismatches while keeping the breaker blind to implementation flow.</li>
                         </ul>
 
                         <p id="toml-cap"><strong>Selective 4+1 runner contract (reconciled post-Study 2):</strong></p>
@@ -443,7 +449,7 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                 <section class="acc-sec" aria-labelledby="sec-h-7">
                     <h2 id="sec-h-7"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-7"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>7. When I'd choose differently, what's still open, and the 1&ndash;10 scorecard</span></button></h2>
                     <div id="sec-body-7" class="sec-body" hidden="until-found"><div class="sec-inner">
-                        <p><strong>When I'd choose differently:</strong> If I were building a cryptographic protocol, a financial settlement engine, or an avionics controller with a formal specification written down to exact invariants before any code exists &mdash; and where a $75 verification bill per change is trivial next to a seven-figure failure &mdash; Cleanroom role separation makes sense. On 2&ndash;8 file tickets in an evolving web application shaped from 15-line issues, separating test authors from builders destroys context without buying safety.</p>
+                        <p><strong>When I'd choose differently:</strong> If I were building a cryptographic protocol, a financial settlement engine, or an avionics controller with a formal specification written down to exact invariants before any code exists - and where a $75 verification bill per change is trivial next to a seven-figure failure - Cleanroom role separation makes sense. On 2&ndash;8 file tickets in an evolving web application shaped from 15-line issues, separating test authors from builders destroys context without buying safety.</p>
 
                         <p><strong>What I still don't know:</strong></p>
                         <ol>
@@ -511,8 +517,8 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                                 <div class="qz">
                                     <div class="q">1. Did moving the Candidate orchestrator from Claude Code to Codex fix the gap in Study 2?</div>
                                     <div class="opts">
-                                        <button type="button" class="opt">Yes &mdash; it beat the Ticket run once models were equalized.</button>
-                                        <button type="button" class="opt" data-c="1">No &mdash; it halved cost/time ratios (10.4&times; &rarr; 4.62&times;), but delivery fell (11/17 vs. 17/17) and the human still preferred Baseline 8&ndash;0&ndash;3.</button>
+                                        <button type="button" class="opt">Yes - it beat the Ticket run once models were equalized.</button>
+                                        <button type="button" class="opt" data-c="1">No - it halved cost/time ratios (10.4&times; &rarr; 4.62&times;), but delivery fell (11/17 vs. 17/17) and the human still preferred Baseline 8&ndash;0&ndash;3.</button>
                                         <button type="button" class="opt">Cost rose because Codex wrote more production code.</button>
                                     </div>
                                     <p class="expl" hidden>Equalizing the orchestrator lowered token prices, but orchestration still took 56.1% of Candidate spend and green coding still spent $13.97 vs. $14.53.</p>
@@ -575,7 +581,7 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                             <h3>Companion studies &amp; software</h3>
                             <ul>
                                 <li><span class="cite-title">Study 1 (10-issue adoption test):</span> <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ (Ten Replayed Tourbot Issues)</a> &middot; <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/maker-checker-tdd-ten-issue-adoption-study.pdf">PDF (26 pp.)</a></li>
-                                <li><span class="cite-title">Study 2 (17 tasks + 3 repeats, Codex orchestrator):</span> <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ (Seventeen Tasks &amp; 8-Model Panel)</a> &middot; <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf">PDF (31 pp.)</a></li>
+                                <li><span class="cite-title">Study 2 (17 tasks + 3 repeats, Codex orchestrator):</span> <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ (Seventeen Tasks &amp; 8-Model Panel)</a> &middot; <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf">PDF (32 pp.)</a></li>
                                 <li><span class="cite-title">Prior review study:</span> <a href="/blog/fresh-eyes-beat-a-second-family/">Fresh Eyes Beat a Second Family</a> (183 replayed code reviews showing why post-feature review finds real missed bugs).</li>
                                 <li><span class="cite-title">Orchestrator under test:</span> <a href="https://thirdshift.app" rel="noopener">thirdshift</a> (<a href="https://github.com/JacobStephens2/thirdshift" rel="noopener">github.com/JacobStephens2/thirdshift</a>).</li>
                             </ul>
@@ -585,7 +591,7 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                                 <li>Walden Yan, <span class="cite-title">"Don't Build Multi-Agents: Principles of Context Engineering"</span> (Cognition, June 2025): sharing full context traces vs. colliding implicit decisions.</li>
                                 <li>Y. Kim et al., <span class="cite-title">"Towards a Science of Scaling Agent Systems"</span> (2025): 260 multi-agent configurations on SWE-bench Verified. <a href="https://arxiv.org/abs/2512.08296" rel="noopener">arxiv.org/abs/2512.08296</a></li>
                                 <li>Harlan D. Mills, Michael Dyer, &amp; Richard C. Linger, <span class="cite-title">"Cleanroom Software Engineering"</span> (<em>IEEE Software</em>, 1987): specification-complete separation of coding and verification.</li>
-                                <li>Charles Goodhart (1975) &amp; Marilyn Strathern (1997): metric targeting &mdash; when verifier approval becomes the optimization target.</li>
+                                <li>Charles Goodhart (1975) &amp; Marilyn Strathern (1997): metric targeting - when verifier approval becomes the optimization target.</li>
                                 <li>Mert Cemri, Matei Zaharia, Ion Stoica, et al., <span class="cite-title">"Why Do Multi-Agent LLM Systems Fail?"</span> (MAST taxonomy, 2025). <a href="https://arxiv.org/abs/2503.13657" rel="noopener">arxiv.org/abs/2503.13657</a></li>
                                 <li>Erik Schluntz &amp; Barry Zhang, <span class="cite-title">"Building Effective Agents"</span> (Anthropic, December 2024): deterministic workflows vs. open-ended agent loops.</li>
                                 <li>Jie Huang et al., <span class="cite-title">"Large Language Models Cannot Self-Correct Reasoning Yet"</span> (<em>ICLR</em>, 2024); Ryo Kamoi et al. (<em>TACL</em>, 2024); John C. Knight &amp; Nancy G. Leveson (<em>IEEE TSE</em>, 1986); independent test generation (<code>25%</code> vs. <code>14%</code>, <a href="https://arxiv.org/abs/2607.05139" rel="noopener">arxiv.org/abs/2607.05139</a>).</li>
@@ -597,8 +603,9 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                 </section>
 
                 <div class="ai-note">
-                    Synthesized from our two internal preregistered experiment reports (30 paired Tourbot replays), session traces, and primary literature notes, with AI drafting assistance. Every metric, blind human call, and meta-reviewer trace quote traces directly to the underlying studies linked above; all architecture decisions and open questions are mine.
+                    Synthesized from our two internal preregistered experiment reports (30 paired Tourbot replays), session traces, and primary literature notes, with AI drafting assistance. Figures 1, 2, and 4 use hand-built inline SVG rendered by local JavaScript; Figure 3 switches hand-built DOM cards. All four include static text fallbacks. Every metric, blind human call, and meta-reviewer trace quote traces directly to the underlying studies linked above; all architecture decisions and open questions are mine.
                 </div>
+                <p><strong>For AI agents:</strong> <a href="agents.md">agents.md</a> contains the workflow contract, verified numbers, operational checklist, and self-test with answers.</p>
             </article>
         </main>
 
@@ -717,7 +724,7 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                     ['Orchestrator', '24%-56% of spend', 'up to 5,638 tool calls', 'bad'],
                     ['Plan + RED (isolated)', '3-14 rounds,', '10-15:1 test bloat', 'bad'],
                     ['GREEN + Refactor', 'Same 8.5-10m', 'actual coding time', 'soft'],
-                    ['Cross-Review + Meta', '6/27 non-delivered,', 'up to 11.7h timeout', 'bad']
+                    ['Cross-Review + Meta', '8/27 non-delivered,', 'up to 11.7h timeout', 'bad']
                 ],
                 note: 'Fresh context at every handoff re-read code 4.0x-5.2x more, invented clashing helpers (T5, T10), ballooned tests under verifier pressure, and triggered unconstrained loops (T3).'
             },
@@ -764,16 +771,16 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
         /* ---------- Fig. 2: Phase Spend Breakdown ---------- */
         var SPEND = {
             all: {
-                title: 'All 30 Pairs: Candidate ($420.37 tracked phases, 67.6h) vs. Baseline ($39.32, 7.7h)',
+                title: 'All 30 Pairs: Candidate $420.39 vs. Baseline $39.32 (rounded phase rows)',
                 rows: [
                     ['Candidate: Orchestrator', 164.32, '39.1%', 'var(--no)'],
-                    ['Candidate: Plan + RED + verify', 150.07, '35.7%', 'var(--part)'],
-                    ['Candidate: Review / Other', 64.97, '15.5%', 'var(--muted)'],
-                    ['Candidate: GREEN + Refactor', 41.01, '9.8%', 'var(--brand)'],
+                    ['Candidate: Plan + RED + verify', 149.95, '35.7%', 'var(--part)'],
+                    ['Candidate: Review / Other', 68.41, '16.3%', 'var(--muted)'],
+                    ['Candidate: GREEN + Refactor', 37.71, '9.0%', 'var(--brand)'],
                     ['Baseline: Total (all 4 sessions)', 39.32, '9.4% of C', 'var(--yes)']
                 ],
                 max: 180,
-                note: 'Combined across all 30 paired replays, pre-implementation orchestration, planning, and RED cycles cost $314.39 (74.8%) before shipping code ran; Baseline shipped 29 of 30 runs for $39.32 total.'
+                note: 'Combined across all 30 paired replays, pre-implementation orchestration, planning, and RED cycles cost $314.27 (74.8% of rounded phase rows) before shipping code ran; Baseline shipped 29 of 30 runs for $39.32 total.'
             },
             s1: {
                 title: 'Study 1 (10 Pairs, Claude Candidate Orch.): $222.67 vs. $13.39',
@@ -871,7 +878,7 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
         /* ---------- Fig. 4: Predict, Then Look ---------- */
         var GUESS_MSG = {
             many: 'Zero out of 14. In both Study 1 (6-0-2) and Study 2 (8-0-3, plus a colleague\'s 1-0-1 sample), blind human reviewers never picked the larger test suite once. Sadowski et al. (2018) explain why: review defect detection drops sharply as diff bloat climbs.',
-            some: 'Still too high: it was zero. Across all 14 non-tied pairs I graded blind across both studies — plus two colleague blind reviews in Study 2 — the larger Candidate diff won 0 times.',
+            some: 'Still too high: it was zero. Across all 14 non-tied pairs I graded blind across both studies - plus two colleague blind reviews in Study 2 - the larger Candidate diff won 0 times.',
             zero: 'Exact match: 0 of 14 non-tied primary pairs (6/6 in Study 1, 8/8 in Study 2; colleague 1-0-1). By contrast, OpenAI model graders rewarded the larger test suite 4/9 times (astra) and 3/9 times (sol).'
         };
         [].forEach.call(document.querySelectorAll('.guess-btn'), function (b) {

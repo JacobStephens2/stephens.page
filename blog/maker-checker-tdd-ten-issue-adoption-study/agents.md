@@ -26,7 +26,7 @@ Governing finding:
 - **Blind human merge-readiness (`RQ4`):** Baseline **7 `as is` / 1 `small fixes` / 0 `don't merge`** across 8 graded pairs (`10/10` PRs delivered); Candidate **1 `as is` / 3 `small fixes` / 4 `don't merge`** (`8/10` PRs delivered; `I2`, `I10` no PR). Author preferred Baseline on **7 of 8** graded pairs and tied **1 of 8** (`I4`), Candidate higher in `0`.
 - **Where work and cost went (`EQ1`):** Candidate started `4–72` sessions per run (median `19.5` vs `4.0`, `4.9×`), made `5,189` tool calls (`412` median vs `144`, `2.8×`; `2,505` vs `481` reads), reached first PHP edit at median `24.4` min (`1.3` min Baseline, `21.4×`), and spent **50%** (`$110.50` of `$222.67`) on test planning & RED tests, **24%** (`$53.45`, `712` active min) in the orchestrator, **13%** (`$27.93`) in review, and only **8%** (`$17.57`, `85` min) implementing GREEN code (roughly equal to Baseline's `89` min / `$7.18` implementation session).
 - **Test bloat vs. independent fault detection (`EQ2`, `EQ3`):** Both arms wrote tests first (`7/10` Baseline first edits were tests). Candidate wrote **6.0×** more test code (`7,123` vs `1,178` lines; `14.7` vs `3.7` test/code ratio), often parsing/evaluating PHP source strings. Independently written tests caught **2** real defects in Baseline (`I6` broad signature regex deleting coordinator text / stale bus email contacts; `I7` spring-forward DST exception), while Baseline caught a **`latin1` vs UTF-8** encoding mismatch on `I8` (`Montréal`) that Candidate's `729`-combination test grid missed.
-- **Model vs. human divergence (`EQ4`):** Grader pair result matched author's ranking only once (`I1`). In `I6` (`$74.14`, `295.9m`, `72` sessions, `1,736` test lines), both model graders chose Candidate while the blind author marked Baseline `merge after small fixes` and Candidate `don't merge` — yet Candidate cross-tests showed Baseline's PR had a subtle defect. Neither model grading alone nor unaided diff reading sufficed alone.
+- **Model vs. human divergence (`EQ4`):** Grader pair result matched author's ranking only once (`I1`). In `I6` (`$74.14`, `295.9m`, `72` sessions, `1,736` test lines), both model graders chose Candidate while the blind author marked Baseline `merge after small fixes` and Candidate `don't merge` - yet Candidate cross-tests showed Baseline's PR had a subtle defect. Neither model grading alone nor unaided diff reading sufficed alone.
 
 ## Terminology
 
@@ -37,12 +37,12 @@ Governing finding:
 
 ## Apparatus & design
 
-- **Issue selection:** Of `156` Tourbot issues closed since 1 July 2026 by 1 merged `master` PR, `24` were shortlisted (`2–8` files, no migrations/staging/marketing; exact intermediate shortlist not preserved — re-running criteria on 3 Nov yields `77`), and all `10` with explicit acceptance criteria (`I1`–`I10`) were enrolled in chronological `ready-for-agent` order. (`I0` served as uncounted shakedown.)
+- **Issue selection:** Of `156` Tourbot issues closed since 1 July 2026 by 1 merged `master` PR, `24` were shortlisted (`2–8` files, no migrations/staging/marketing; exact intermediate shortlist not preserved - re-running criteria on 3 Nov yields `77`), and all `10` with explicit acceptance criteria (`I1`–`I10`) were enrolled in chronological `ready-for-agent` order. (`I0` served as uncounted shakedown.)
 - **Arms (`thirdshift 0.18.6`, frozen 29 October 2026):**
   - **Baseline (`ticket-run`):** Codex `gpt-6.1-sol` (`high`) single session + parallel spec/standards reviewers + security review (`4` sessions/run).
   - **Candidate:** Claude Code (`claude-opus-5-5`, `medium`) orchestrator + fresh Claude Agent-tool / `codex exec` makers and cross-provider verifiers + up to `5` rounds of parallel Claude + Codex review + `thirdshift` `delivery`. (`44` installed files checksum-verified before every pair; no security review; Codex reviewers ran at `high` rather than documented `low`.)
 - **Isolation & blinding:** Separate OS accounts, separate replay repos, cloned 8-vCPU / 16 GB Ubuntu 24.04 cloud droplets; zero transcript leaks; `php-cs-fixer` (`3.95.27`, `@PSR12`) normalization; `random.SystemRandom().shuffle` `X`/`Y` labels; read-only `bwrap` grading sandbox with `PHPUnit`, `PCOV 1.0.12`, `Infection` (no mutations hit in 7/10 pairs due to legacy top-level PHP scripts outside `src/`).
-- **Blind grading:** Two graders — Claude Code (`claude-opus-5-5`, read-only repo access) and Codex (`gpt-6.1-sol`, read-only command execution) — each graded `[X, Y]` and `[Y, X]` (32 verdicts across 8 graded pairs); author judged all 8 pairs blind in a write-once form before unsealing verdicts or mappings.
+- **Blind grading:** Two graders - Claude Code (`claude-opus-5-5`, read-only repo access) and Codex (`gpt-6.1-sol`, read-only command execution) - each graded `[X, Y]` and `[Y, X]` (32 verdicts across 8 graded pairs); author judged all 8 pairs blind in a write-once form before unsealing verdicts or mappings.
 
 ## Pre-registered decision table (RQ1–RQ4)
 
@@ -68,14 +68,22 @@ Governing finding:
 | 8 | `I8` | Tour manager address-change email | Tie (`C` / `B`) | `1.47 / 11.62` | `11.7 / 52.8` | `7.9 / 4.5` | `as_is` / `no` | `69 / 80` | `185 / 963` |
 | 9 | `I9` | Summary dashboard session lock | Tie (`C` / `B`) | `1.41 / 15.54` | `9.9 / 61.3` | `11.0 / 6.2` | `as_is` / `small_fixes` | `16 / 16` | `45 / 448` |
 | 10 | `I10` | Foreign profile state defaults `AL` | **Loss** (no PR) | `1.11 / 3.18` | `9.4 / 18.6` | `2.9 / 2.0` (`1.98`) | `–` / `no PR` | `–` | `–` |
-| **Total / Med.** | `10` | `2 wins · 3 losses · 5 ties` | — | **`13.39 / 223.71`** | **`125 / 1,095`** | **`10.4× / 6.4×`** | **`7/8` vs `1/8` `as_is`** | **`319 / 484`** | **`1,178 / 7,123`** |
+| **Total / Med.** | `10` | `2 wins · 3 losses · 5 ties` | - | **`13.39 / 223.71`** | **`125 / 1,095`** | **`10.4× / 6.4×`** | **`7/8` vs `1/8` `as_is`** | **`319 / 484`** | **`1,178 / 7,123`** |
 
 ## Operational lessons & follow-up changes
 
 1. **Test separation alone is not free:** Separating test planning, RED writing, GREEN coding, refactoring, and verification across fresh contexts destroyed shared context and consumed 50% of spend before production edits started (`10.4×` median cost), even while catching real defects on `I6` and `I7`.
 2. **Verification without caps produces test bloat:** Up to `14` test-plan verifications (`I6`) inflated tests to `8.4–52.8` lines per production line (including source-token `eval` harnesses on `I5`, `I7`, `I9`).
 3. **Human blocking questions fail unattended runs:** `stopped-to-ask` on `I2` and `I10` delivered no PR where the Baseline documented a sensible assumption and shipped; unattended ticket pipelines need explicit stated-assumption fallbacks rather than blocking halts.
-4. **Methodological upgrades carried into Study 2:** Make blind human merge-readiness primary alongside an expanded multi-family grader panel, replace same-model panel voters with non-arm model graders plus structured five-criterion rubrics, automate deterministic task selection with `tests_on_base`, and test the Codex-orchestrated update directly — reported in [Maker-Checker TDD vs. a Single-Agent Ticket Run (Study 2)](https://stephens.page/blog/maker-checker-tdd-vs-single-agent-ticket-run/).
+4. **Methodological upgrades carried into Study 2:** Make blind human merge-readiness primary alongside an expanded multi-family grader panel, replace same-model panel voters with non-arm model graders plus structured five-criterion rubrics, automate deterministic task selection with `tests_on_base`, and test the Codex-orchestrated update directly - reported in [Maker-Checker TDD vs. a Single-Agent Ticket Run (Study 2)](https://stephens.page/blog/maker-checker-tdd-vs-single-agent-ticket-run/).
+
+## Operational checklist
+
+- [ ] Freeze ticket selection, acceptance criteria, and the adoption gate before starting counted trials.
+- [ ] Start both arms from the same pre-fix tree and keep implementations and grading packets isolated.
+- [ ] Record non-deliveries alongside correctness, elapsed trial time, API-priced cost, and blind merge calls.
+- [ ] Run independently written tests against the other implementation; distinguish behavioral defects from assumptions about private helpers.
+- [ ] Keep construction in one continuous context and evaluate extra verification as a bounded, single-pass addition.
 
 ## Self-test for agents reading this file
 

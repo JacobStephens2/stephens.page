@@ -19,7 +19,7 @@ This is the machine-oriented synthesis of two preregistered, paired, blinded rep
 
 Governing finding:
 
-> **Keep construction inside one continuous context (`One Mind to Build`), enforce deterministic loop and budget ceilings in runner code rather than agent prompts, and reserve cross-family isolation strictly for post-hoc, diff-blind verification (`One Blind Mind to Break`).** Across 30 paired runs, splitting planning, RED tests, GREEN code, and refactoring across fresh contexts spent `$422.84` (`$223.71` + `$199.13`) and `67.6` active hours vs. Baseline's `$39.32` and `7.7` hours, lowered primary PR delivery (`19/27` vs. `27/27`), inflated test volume to `14.7:1` / `10.10:1` LOC, dropped blind `merge as is` readiness from `89%` (`17/19`) to `16%` (`3/19`), and lost `14–0–5` on blind maintainer preference across delivered pairs. Equalizing the orchestrator on Codex halved the cost and time ratios (`10.4× → 4.62×` cost; `6.4× → 3.28×` time) without fixing delivery, test bloat, or human preference. Candidate cross-tests exposed Baseline bugs on `2 of 19` (`10.5%`) unique delivered pairs (`I6`, `I7` in Study 1; `0 of 11` in Study 2, while a Baseline test caught `1` Candidate regression in `T17`).
+> **Keep construction inside one continuous context (`One Mind to Build`), enforce deterministic loop and budget ceilings in runner code rather than agent prompts, and reserve cross-family isolation strictly for post-hoc, diff-blind verification (`One Blind Mind to Break`).** Across 30 paired runs, the maker-checker workflow spent `$422.84` (`$223.71` + `$199.13`) and about `49.5` active hours vs. Baseline's `$39.32` and `8.0` hours, lowered primary PR delivery (`19/27` vs. `27/27`), raised test-to-production line ratios to `14.7:1` / `10.10:1`, dropped blind `merge as is` readiness from `89%` (`17/19`) to `16%` (`3/19`), and lost `14–0–5` on blind maintainer preference across delivered pairs. Time totals sum elapsed trial rows in Study 1 Table 12 and Study 2 Table 5 (`2,967.4` / `482.6` rounded minutes), rather than overlapping session times. Both workflows used TDD, but role isolation was not the only difference: Study 1 also varied orchestrator and review configuration; Study 2 equalized the top-level orchestrator. Cost and time ratios roughly halved (`10.4× → 4.62×` cost; `6.4× → 3.28×` time) without fixing delivery, test bloat, or human preference. Candidate cross-tests exposed Baseline bugs on `2 of 19` (`10.5%`) unique delivered pairs (`I6`, `I7` in Study 1; `0 of 11` in Study 2, while a Baseline test caught `1` Candidate regression in `T17`).
 
 ## 30-pair empirical summary
 
@@ -34,7 +34,7 @@ Governing finding:
 | Pre-GREEN Candidate spend share | `74%` (`$163.95` of `$222.67`: orchestrator + plan + RED) | `76.0%` (`$150.32` of `$197.70` across 20 pairs; `56.1%` orchestrator alone) |
 | Blind author `merge as is` (delivered pairs) | **`7 / 8` (`88%`)** vs **`1 / 8` (`13%`)** (`4` `no`) | **`10 / 11` (`91%`)** vs **`2 / 11` (`18%`)** (`3` `no`; `12/13` vs `2/13` all) |
 | Blind author pair wins (`B`–`C`–`tie`) | **`6–0–2`** (graded) / `7–0–1` category comparison | **`8–0–3`** (delivered) / **`14–0–3`** (all 17 first pairs) |
-| Blind colleague sample (`2` pairs: `T10`, `T12`) | — | **`1–0–1` Baseline** (`T10` `small_fixes`/`small_fixes` = `tie`; `T12` `as_is`/`small_fixes` = **B**, matching author) |
+| Blind colleague sample (`2` pairs: `T10`, `T12`) | - | **`1–0–1` Baseline** (`T10` `small_fixes`/`small_fixes` = `tie`; `T12` `as_is`/`small_fixes` = **B**, matching author) |
 | Candidate cross-tests catching Baseline defects | **`2 / 8`** (`I6` coordinator-text regex deletion; `I7` DST bug) | **`0 / 11`** (`1` Baseline test caught Candidate `T17` `'0010'` leading-zero bug) |
 | `7-voter` / `6-LLM` / `5-LLM (-astra)` panel (Study 2) | Dual-model panel: `2–3–5` (Candidate rejected on `< 8/10`) | `10–1–0` (`16–1–0` all `17`) / `5–1–5` / `8–1–2` (`4-LLM -family`: `5–0–6`) |
 
@@ -61,19 +61,54 @@ What runs on **every** ticket (`~$0` incremental model cost):
 - Single continuous-context Builder (`Explore → write TDD test → Implement → pass CI`).
 - `on_ambiguity = "assume_and_document"` in runner prompts (`0` unattended halts).
 - Deterministic `tests_on_base` check verifying new regression tests fail on `base/`.
-- Hard numeric limits in Rust runner code (`max_total_sessions`, `max_wall_clock_minutes`, `max_api_cost_usd`, `max_repair_rounds = 1`).
+- Hard numeric limits in Rust runner code (`max_total_sessions = 6`, `max_wall_clock_minutes = 30`, `max_api_cost_usd = 4.00`, and at most one repair round).
 - Explicit review-prompt rules penalizing source-string assertions, mocked internals, tests of deleted files, and test-helper TDD spirals.
 
 What is evaluated **selectively** (e.g., on stateful data/text-mutation tickets or at the feature `Spec` boundary matching [Fresh Eyes](https://stephens.page/blog/fresh-eyes-beat-a-second-family/)):
-- Deterministic signature extraction: `thirdshift extract-signatures --base HEAD~1 --head HEAD --out .thirdshift/public_api_delta.txt` (exposes *only* added/changed public class and function signatures; strips all method bodies and `tests/` diffs — eliminating `T5`/`T10` private-helper false positives while preserving diff blindness).
+- Deterministic signature extraction: `thirdshift extract-signatures --base HEAD~1 --head HEAD --out .thirdshift/public_api_delta.txt` (exposes *only* added/changed public class and function signatures; strips all method bodies and `tests/` diffs - eliminating `T5`/`T10` private-helper false positives while preserving diff blindness).
 - Single bounded cross-family **Blind Behavioral Breaker** (`≤ 180s`, `≤ 25` tool calls, `≤ $1.50`, `≤ 5` test methods / `≤ 150` LOC) run in parallel with `spec_review`, `standards_review`, and `security_review`.
 - Execute breaker test against Builder's branch via PHPUnit/test runner: discard if passing without adding branch coverage delta; otherwise allow **at most `1` warm-context Builder resume turn**.
+
+The proposed runner contract, identical to the human article's configuration:
+
+```toml
+# thirdshift selective 4+1 hybrid configuration
+[limits]
+# 1 builder + 3 diff reviewers + 1 selective breaker + max 1 repair
+max_total_sessions = 6
+max_wall_clock_minutes = 30    # hard cap (vs. 699m in prose loops)
+max_api_cost_usd = 4.00
+on_ambiguity = "assume_and_document"  # avoids stopped-to-ask halts
+
+[steps.build]
+# one mind: explore -> red test -> implement -> tests_on_base
+context = "continuous"
+
+[steps.extract_public_signatures]
+run = "thirdshift extract-signatures --base HEAD~1 --head HEAD"
+out = ".thirdshift/public_api_delta.txt"
+
+[steps.verify_parallel.blind_breaker]
+# skip trivial deletions and config rules (Study 2 H1 = 0)
+enabled_for = ["stateful_mutation", "spec_boundary"]
+provider = "claude"            # cross-family executable probes
+input = ["issue", "base_repo", "public_api_delta"]  # no diff bodies/tests
+max_duration_seconds = 180
+max_tool_calls = 25
+max_test_lines = 150
+max_test_methods = 5
+retain_test_only_if = "fails_on_head_or_increases_branch_coverage"
+
+[steps.repair_if_needed]
+type = "resume_builder"        # keeps warm KV context intact
+max_rounds = 1                 # never spawns RED->GREEN helper loops
+```
 
 ## Operational checklist
 
 - [ ] Keep exploration, TDD test authoring, implementation, and refactoring inside one continuous-context Builder session.
 - [ ] Run `tests_on_base` deterministically on every regression fix so new tests prove they fail without the patch.
-- [ ] Put loop ceilings, timeouts, and cost caps in runner code—never leave stopping criteria in LLM-interpreted prose.
+- [ ] Put loop ceilings, timeouts, and cost caps in runner code - never leave stopping criteria in LLM-interpreted prose.
 - [ ] Set `on_ambiguity = "assume_and_document"` for unattended ticket runs; reserve questions for interactive sessions.
 - [ ] Feed any independent behavioral test generator *only* `public_api_delta.txt` (signatures without bodies or `tests/` diffs).
 - [ ] Gate extra cross-family test/review passes selectively on stateful mutations or feature (`Spec`) boundaries rather than trivial deletions or config rules.

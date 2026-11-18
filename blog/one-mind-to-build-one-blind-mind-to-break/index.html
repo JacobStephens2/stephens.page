@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    <!-- AI agents: the machine-oriented version of this post is at
+         /blog/one-mind-to-build-one-blind-mind-to-break/agents.md (text/markdown). -->
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/bee-favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>One Mind to Build, One Blind Mind to Break | Jacob Stephens</title>
+    <link rel="canonical" href="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/">
+    <link rel="alternate" type="text/markdown" href="/blog/one-mind-to-build-one-blind-mind-to-break/agents.md" title="Agent-oriented version (markdown)">
+    <meta name="description" content="Across 30 paired replay runs, splitting coding agents into fresh-context maker-checker roles cut delivery, inflated test volume 10x-15x, and cost 4.6x-10.4x more, while one diff-blind behavioral test pass caught real bugs my single session missed.">
+    <meta property="og:title" content="One Mind to Build, One Blind Mind to Break">
+    <meta property="og:description" content="30 preregistered paired replays testing multi-agent maker-checker TDD against a single-agent ticket run, what broke inside the 11.7-hour loop, and the selective 4+1 hybrid I am building instead.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/">
+    <meta property="og:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-423732168a59.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="One Mind to Build, One Blind Mind to Break">
+    <meta name="twitter:description" content="30 preregistered paired replays testing multi-agent maker-checker TDD against a single-agent ticket run, and why independent verification belongs in post-hoc execution rather than pre-code handoffs.">
+    <meta name="twitter:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-423732168a59.jpg">
+    <!-- Umami (self-hosted) - analytics + session replay -->
+    <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
+    <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,600;0,700;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #111714; --brand: #215239; --brand-ink: #ffffff; --muted: #4a5750;
+            --surface: #fcfdfc; --soft: #eef2ef; --rule: #cfd8d3; --code-bg: #eef2ef; --bar-bg: #e6ece8;
+            --yes: #2f7a4c; --no: #b0442a; --part: #9a6d00;
+        }
+        html[data-theme="dark"] { --yes: #7fbf95; --no: #d99a7a; --part: #e0b85a; }
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]):not([data-theme="dark"]) { --yes: #7fbf95; --no: #d99a7a; --part: #e0b85a; }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-padding-top: 1.5rem; }
+        body { font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; background: var(--surface); color: var(--ink); line-height: 1.7; min-height: 100vh; }
+        .container { max-width: 740px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+        .top-links { display: flex; flex-wrap: wrap; gap: 0.45rem 1rem; align-items: center; }
+        .top-right { display: flex; align-items: center; gap: 0.75rem; }
+        .back-link, .contact-link { color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+        .back-link:hover, .contact-link:hover,
+        .back-link:focus-visible, .contact-link:focus-visible { color: var(--brand); text-decoration: underline; text-underline-offset: 0.14em; }
+        .eyebrow { display: inline-block; margin-bottom: 0.85rem; color: var(--brand); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+        h1.title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: clamp(2rem, 4.2vw, 2.75rem); line-height: 1.08; letter-spacing: -0.012em; margin-bottom: 1rem; }
+        .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.5rem; padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule); }
+        .meta strong { color: var(--ink); font-weight: 700; }
+        p { margin-bottom: 1rem; color: var(--ink); }
+        h2 { margin: 0.3rem 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 1.38rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.25; }
+        h3 { font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; font-size: 1.04rem; font-weight: 700; margin: 1.25rem 0 0.45rem; color: var(--ink); }
+        ol, ul { margin-bottom: 1rem; padding-left: 1.45rem; }
+        li { margin-bottom: 0.42rem; }
+        blockquote { margin: 1.1rem 0; padding: 0.65rem 1rem; border-left: 3px solid var(--brand); background: var(--soft); border-radius: 0 6px 6px 0; font-style: italic; }
+        blockquote p:last-child { margin-bottom: 0; }
+        code { background: var(--code-bg); padding: 0.1rem 0.38rem; border-radius: 4px; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.88em; }
+        pre { background: var(--code-bg); padding: 0.95rem 1.05rem; border-radius: 6px; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.81rem; line-height: 1.48; margin: 0.6rem 0 1.15rem; border: 1px solid var(--rule); }
+        pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+        pre:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+        a { color: var(--brand); text-decoration: none; }
+        a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 0.14em; }
+
+        /* TL;DR & Fold Controls */
+        .tldr { margin: 0 0 1.6rem; padding: 1rem 1.2rem 0.55rem; background: var(--soft); border-left: 3px solid var(--brand); border-radius: 0 6px 6px 0; }
+        .panel-label { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 0.45rem; }
+        .tldr p, .tldr li { font-size: 0.96rem; }
+        .tldr ul { margin-bottom: 0.5rem; }
+        .fold-hint { font-size: 0.92rem; color: var(--muted); margin: 1.35rem 0 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+        button.linkish { background: none; border: 0; padding: 0.25rem 0; min-height: 24px; font: inherit; color: var(--brand); cursor: pointer; text-decoration: underline; text-underline-offset: 0.15em; }
+        button.linkish:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+        #foldAllBtn[aria-expanded="false"] .lbl-collapse,
+        #foldAllBtn[aria-expanded="true"] .lbl-expand { display: none; }
+
+        /* Accessible Searchable Accordion Sections (button inside h2 + hidden="until-found" wrapper) */
+        section.acc-sec { border-top: 1px solid var(--rule); padding: 0.45rem 0; }
+        section.acc-sec:last-of-type { border-bottom: 1px solid var(--rule); }
+        button.sec-toggle {
+            width: 100%; display: flex; align-items: flex-start; gap: 0.55rem;
+            background: none; border: 0; padding: 0.45rem 0; min-height: 40px;
+            font: inherit; color: var(--brand); text-align: left; cursor: pointer;
+        }
+        button.sec-toggle:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+        button.sec-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 4px; }
+        .sec-chev {
+            flex: none; width: 0.85rem; height: 1.25em; margin-top: 0.1em;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: transform 0.18s ease;
+        }
+        button.sec-toggle[aria-expanded="true"] .sec-chev { transform: rotate(90deg); }
+        @media (prefers-reduced-motion: reduce) { .sec-chev { transition: none; } }
+        .sec-inner { padding: 0.4rem 0 0.75rem; }
+
+        /* Interactive Figures */
+        .fig { margin: 1.25rem 0 1.45rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); overflow: hidden; }
+        .fig-head { display: flex; flex-wrap: wrap; gap: 0.55rem 0.9rem; align-items: center; justify-content: space-between; padding: 0.65rem 0.95rem; border-bottom: 1px solid var(--rule); background: var(--soft); }
+        .fig-title { font-weight: 700; font-size: 0.79rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brand); }
+        .ctl { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-size: 0.85rem; }
+        .btn { font: inherit; font-size: 0.84rem; min-height: 30px; padding: 0.25rem 0.7rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; }
+        .btn:hover, .btn:focus-visible { border-color: var(--brand); }
+        .btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+        .btn[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); font-weight: 600; }
+        .fig-body { padding: 0.95rem; }
+        .fig-caption { padding: 0.65rem 0.95rem 0.75rem; color: var(--muted); font-size: 0.87rem; border-top: 1px dashed var(--rule); line-height: 1.5; }
+        .svg-host svg { width: 100%; height: auto; display: block; color: var(--ink); }
+        .readout { margin: 0.75rem 0 0; font-size: 0.91rem; color: var(--ink); padding: 0.6rem 0.8rem; background: var(--soft); border-radius: 6px; border-left: 3px solid var(--brand); }
+        .readout:last-child { margin-bottom: 0; }
+        .quote-box { margin-top: 0.65rem; padding: 0.65rem 0.85rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); font-size: 0.89rem; }
+        .tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.08rem 0.45rem; border-radius: 4px; background: var(--code-bg); color: var(--brand); margin-right: 0.35rem; }
+
+        /* Responsive Tables */
+        .table-wrap { overflow-x: auto; max-width: 100%; margin: 1rem 0 1.25rem; border: 1px solid var(--rule); border-radius: 6px; }
+        .table-wrap:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+        table.grid { border-collapse: collapse; width: 100%; min-width: 540px; font-size: 0.87rem; line-height: 1.4; font-variant-numeric: tabular-nums; }
+        table.grid caption { text-align: left; font-size: 0.86rem; font-weight: 700; color: var(--muted); padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--rule); background: var(--soft); }
+        table.grid th, table.grid td { border-bottom: 1px solid var(--rule); padding: 0.45rem 0.65rem; text-align: left; vertical-align: top; }
+        table.grid thead th { font-size: 0.76rem; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); font-weight: 700; background: var(--soft); }
+        table.grid tbody tr:last-child th, table.grid tbody tr:last-child td { border-bottom: 0; }
+        table.grid tbody th { font-weight: 600; color: var(--ink); }
+        .num { text-align: right; white-space: nowrap; }
+        .good { color: var(--yes); font-weight: 700; }
+        .bad { color: var(--no); font-weight: 700; }
+        .mid { color: var(--part); font-weight: 700; }
+
+        /* Predict + Quiz */
+        .predict p { font-weight: 600; margin-bottom: 0.5rem; }
+        .reveal { margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px dashed var(--rule); }
+        .qz { padding: 0.85rem 0 0.7rem; border-bottom: 1px dashed var(--rule); }
+        .qz:first-child { padding-top: 0.15rem; }
+        .qz:last-of-type { border-bottom: 0; }
+        .qz .q { font-weight: 700; margin-bottom: 0.5rem; }
+        .qz .opts { display: grid; gap: 0.4rem; }
+        .qz button.opt { font: inherit; font-size: 0.91rem; text-align: left; padding: 0.48rem 0.72rem; min-height: 36px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; line-height: 1.45; }
+        .qz button.opt:hover:not(:disabled), .qz button.opt:focus-visible { border-color: var(--brand); }
+        .qz button.opt:disabled { cursor: default; }
+        .qz button.opt.correct { border-color: var(--yes); background: var(--soft); font-weight: 600; }
+        .qz button.opt.wrong { opacity: 0.72; }
+        .qz .expl { margin: 0.5rem 0 0.15rem; font-size: 0.88rem; color: var(--muted); }
+        #qzTally { margin-top: 0.75rem; margin-bottom: 0; font-weight: 600; }
+
+        /* Sources + Provenance */
+        .sources h3 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0.9rem 0 0.45rem; }
+        .sources ul { list-style: none; padding-left: 0; margin-bottom: 0; }
+        .sources li { padding: 0.32rem 0; border-bottom: 1px solid var(--rule); color: var(--muted); line-height: 1.5; font-size: 0.9rem; }
+        .sources li:last-child { border-bottom: 0; }
+        .sources .cite-title { color: var(--ink); font-weight: 600; }
+        .ai-note { margin-top: 1.8rem; padding: 0.95rem 1.15rem; background: var(--soft); border-left: 3px solid var(--brand); border-radius: 0 6px 6px 0; color: var(--muted); font-size: 0.9rem; }
+        .footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); text-align: center; color: var(--muted); font-size: 0.85rem; }
+        @media (max-width: 640px) { .container { padding: 1.25rem 1rem 2.5rem; } .topbar { flex-direction: column; align-items: flex-start; } }
+        @media print {
+            html, html[data-theme], html:not([data-theme="light"]):not([data-theme="dark"]) { color-scheme: light; }
+            .fold-hint, .ctl, [data-theme-toggle] { display: none !important; }
+        }
+    </style>
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/theme.js" defer></script>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/app-icons/apple-touch-icon.png">
+</head>
+<body>
+    <div class="container">
+        <header class="topbar">
+            <nav class="top-links" aria-label="Breadcrumb">
+                <a href="/blog/" class="back-link">&larr; All posts</a>
+                <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/" class="back-link">Study 1 (10 issues)</a>
+                <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/" class="back-link">Study 2 (20 pairs)</a>
+            </nav>
+            <div class="top-right">
+                <a href="mailto:jacob@stephens.page" class="contact-link">jacob@stephens.page</a>
+                <span data-theme-toggle></span>
+            </div>
+        </header>
+
+        <main id="content">
+            <article class="note">
+                <div class="eyebrow">Notes &middot; AI coding agents &middot; Multi-agent systems</div>
+                <h1 class="title">One Mind to Build, One Blind Mind to Break</h1>
+                <p class="meta"><strong>November 17, 2026</strong> &middot; ~2,500 words &middot; 4 interactive figures and a quiz &middot; companion papers: <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/">Study 1 (10 issues)</a> &amp; <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">Study 2 (20 pairs)</a> &middot; AI agent? read <a href="/blog/one-mind-to-build-one-blind-mind-to-break/agents.md">agents.md</a></p>
+
+                <section class="tldr" aria-labelledby="tldr-label">
+                    <div class="panel-label" id="tldr-label">TL;DR</div>
+                    <p><strong>Does splitting a coding agent into isolated "maker-checker" roles beat a single-context coding session?</strong> Across 30 preregistered, paired, blinded replay runs on production tickets, no &mdash; with one surgical exception.</p>
+                    <ul>
+                        <li><strong>Both workflows used TDD; only role isolation differed:</strong> My single-context Ticket run in <a href="https://thirdshift.app" rel="noopener">thirdshift</a> delivered <strong>27 of 27</strong> unique primary pull requests (<code>89%</code> rated <em>merge as is</em> blind) while writing a test first at minute <code>1.3&ndash;1.8</code>. Splitting test planning, test writing, coding, refactoring, and cross-family verification across fresh contexts lowered delivery to <strong>19 of 27</strong>, inflated test-to-code lines to <strong>14.7:1</strong> and <strong>10.10:1</strong>, and cost <strong>$422.84</strong> and <strong>67.6 active hours</strong> across the 30 pairs vs. <strong>$39.32</strong> and <strong>7.7 hours</strong>.</li>
+                        <li><strong>Equalizing the orchestrator halved cost, not failure modes:</strong> Moving the multi-agent orchestrator from Claude Code to Codex in Study 2 dropped the median cost ratio from <code>10.4&times;</code> to <code>4.62&times;</code>, yet the blind maintainer still preferred the single-agent run <strong>8&ndash;0&ndash;3</strong> (and a blind colleague scored <strong>1&ndash;0&ndash;1</strong> on two sampled pairs), while a 17-line web server access-control rule trapped the multi-agent pipeline in an <strong>11-hour 39-minute, 64-session, $64.22 loop</strong> with no PR opened.</li>
+                        <li><strong>The one mechanism worth keeping:</strong> Post-hoc, <em>diff-blind behavioral execution</em> exposed real bugs in <strong>2 of 19</strong> delivered pairs (Study 1 Pairs 6 and 7) that single sessions and diff reviewers missed &mdash; falling to <strong>0 of 11</strong> in Study 2. Instead of pre-code handoffs, I am testing deterministic <code>tests_on_base</code> checks on every ticket and a selective, runner-bounded <code>+1</code> Blind Behavioral Breaker fed only public signatures (<code>public_api_delta.txt</code>).</li>
+                    </ul>
+                </section>
+
+                <p>Separating coding agents into isolated planner, test-writer, implementer, and multi-round reviewer roles degraded delivery, multiplied cost by <code>4.6&times;</code> to <code>10.4&times;</code> across 30 paired replay runs, and produced half as many merge-ready pull requests as one continuous coding session &mdash; yet executing one independently written behavioral test suite after the fact caught real defects that a single session and its reviewers missed.</p>
+
+                <p>I ran these experiments because I carry the merge gate. At Educational Travel Adventures, most bug fixes and small features on Tourbot &mdash; our ~100,000-line PHP 8 and MySQL 8 operations platform &mdash; start inside <a href="https://thirdshift.app" rel="noopener">thirdshift</a>, an open-source Rust orchestrator I built to run coding agents cleanly. One Codex session reads an issue, writes a failing test first, builds the change, spawns parallel spec, standards, and security sub-agents, and opens a pull request. That ships fast, but it breaks a rule from Cleanroom software engineering (Mills, Dyer, &amp; Linger, 1987): <em>nobody should grade their own homework.</em> If one context misreads a ticket, both its code and its test suite carry the blind spot. Before migrating our upcoming feature builds onto an isolated multi-agent Maker-Checker TDD pipeline, I wanted to measure what role separation actually buys &mdash; and what it quietly breaks.</p>
+
+                <p class="fold-hint">Each section below starts folded so the questions read as the argument in brief. Click any heading to open it, search natively with Find in Page, or <button type="button" class="linkish" id="foldAllBtn" aria-expanded="false"><span class="lbl-expand">expand all sections</span><span class="lbl-collapse">collapse all sections</span></button>.</p>
+
+                <section class="acc-sec" aria-labelledby="sec-h-1">
+                    <h2 id="sec-h-1"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-1"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>1. How do you test two coding-agent workflows without fooling yourself?</span></button></h2>
+                    <div id="sec-body-1" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <p>If you evaluate a heavy workflow on hand-picked tickets or eyeball unblinded PRs, you only measure what you expected to see. Following Nosek et al. (2018) on preregistration, I built a deterministic replay harness and ran two back-to-back studies covering <strong>27 unique historical Tourbot issues plus 3 seeded repeats</strong> (30 paired runs, leaving aside one shakedown run per study):</p>
+                        <ul>
+                            <li><strong>Mechanical ticket selection:</strong> In <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/">Study 1</a> (10 issues, Oct 30 &ndash; Nov 1, 2026), we screened 156 closed issues down to 24 small-to-medium fixes (2&ndash;8 files, no schema migrations) and took the first 10 with explicit acceptance criteria. In <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">Study 2</a> (17 new tasks + 3 repeats = 20 pairs, Nov 3&ndash;5, 2026), a committed selection script took every eligible closed issue (+13 to +330 LOC) not in Study 1, paired with a frozen numbered acceptance checklist per task.</li>
+                            <li><strong>Identical starting trees and isolated machines:</strong> Both arms started from the parent commit immediately before the real fix merged, with post-triage comments stripped, running in parallel on cloned 8-vCPU cloud droplets with scoped tokens reaching only separate replay repositories. After completion, an automated leak scanner verified zero transcripts saw the shipped PR or commit hash.</li>
+                            <li><strong>Blind formatting, execution evidence, and dual-order grading:</strong> A packet builder stripped branch names, commit messages, and agent scratch files, ran <code>php-cs-fixer</code> (<code>@PSR12</code>) identically across <code>base</code>, <code>X</code>, and <code>Y</code>, randomized <code>X/Y</code> labels, transplanted each PR's tests onto the other PR's code (<code>cross_tests</code>) and onto the unpatched parent (<code>base_tests</code> in Study 2), and invoked blinded LLM graders in both presentation orders (<code>[X, Y]</code> and <code>[Y, X]</code>) to neutralize position bias (Zheng et al., 2023; Shi et al., 2025). I graded every delivered pair blind before opening any model verdict or arm mapping; in Study 2, a two-stage form locked my unaided merge calls before I opened any review helper, and a colleague independently graded two sampled pairs blind (Pairs 10 and 12).</li>
+                        </ul>
+                    </div></div>
+                </section>
+
+                <section class="acc-sec" aria-labelledby="sec-h-2">
+                    <h2 id="sec-h-2"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-2"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>2. What happened across all 30 paired runs &mdash; and when I equalized the orchestrator?</span></button></h2>
+                    <div id="sec-body-2" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <p>Study 1 tested an adoption gate under the rules as packaged on October 29: a Claude Code orchestrator managing separate fresh-context Test Plan, RED Test, GREEN Code, and Refactor makers, each checked by another provider before advancing, plus up to five rounds of cross-family code review. That run rejected wholesale adoption on every threshold: <code>2</code> wins in <code>10</code> (needed <code>8</code>), <code>10.4&times;</code> median cost, <code>6.4&times;</code> median time (cap <code>2.0&times;</code>), <code>3</code> correctness or delivery failures vs. <code>2</code>, and <code>1 of 8</code> pull requests mergeable as is blind vs. <code>7 of 8</code> for the single-agent Baseline.</p>
+                        <p>Fair criticism remained after Study 1: Claude's API-rate pricing is higher than Codex's cached tokens, and 64 commits landed on the Candidate rules between October 29 and November 3. So in Study 2 we ran <strong>both</strong> arms under the exact same top-level Codex <code>gpt-6.1-sol</code> (<code>high</code>) orchestrator on 17 new tasks plus 3 repeats, adding <code>base_tests</code> and a 6-family non-arm voting panel plus 2 exact-model diagnostic graders. Moving the orchestrator to Codex halved the relative cost and time ratios (<code>10.4&times; &rarr; 4.62&times;</code> cost; <code>6.4&times; &rarr; 3.28&times;</code> time), yet widened the delivery gap (<code>17/17</code> vs. <code>11/17</code>) and left blind maintainer preference essentially unchanged (<code>8&ndash;0&ndash;3</code> Baseline across delivered first pairs; <code>10/11</code> vs. <code>2/11</code> mergeable as is).</p>
+
+                        <div class="fig" id="fig-arch">
+                            <div class="fig-head">
+                                <span class="fig-title">Fig. 1 &middot; Three orchestration topologies &amp; the information barrier</span>
+                                <div class="ctl" role="group" aria-label="Select workflow topology">
+                                    <button type="button" class="btn arch-btn" data-arch="baseline" aria-pressed="true">1. Ticket Run (4 sessions)</button>
+                                    <button type="button" class="btn arch-btn" data-arch="candidate" aria-pressed="false">2. Maker-Checker (11&ndash;72 sessions)</button>
+                                    <button type="button" class="btn arch-btn" data-arch="hybrid" aria-pressed="false">3. Selective 4+1 Hybrid</button>
+                                </div>
+                            </div>
+                            <div class="fig-body">
+                                <div class="svg-host" id="archHost"></div>
+                                <p class="readout" id="archReadout"></p>
+                            </div>
+                            <div class="fig-caption">Switch modes to compare context continuity, where verification sits, and how the <code>public_api_delta.txt</code> barrier keeps a selective Blind Breaker blind to implementation bodies and tests without guessing internal helper names.</div>
+                        </div>
+
+                        <div class="table-wrap" tabindex="0" role="region" aria-labelledby="tbl-30pair-cap">
+                            <table class="grid">
+                                <caption id="tbl-30pair-cap">Table 1. Head-to-head summary across Study 1 (10 issues, Claude Candidate orchestrator) and Study 2 (17 primary tasks + 3 repeats, Codex Candidate orchestrator).</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Measure (Baseline vs. Candidate)</th>
+                                        <th scope="col" class="num">Study 1 (10 pairs)</th>
+                                        <th scope="col" class="num">Study 2 (17 primary + 3 rep.)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Primary PRs delivered (<code>B</code> vs. <code>C</code>)</th>
+                                        <td class="num"><span class="good">10/10</span> vs. 8/10</td>
+                                        <td class="num"><span class="good">17/17</span> vs. <span class="bad">11/17</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Median API cost per task (paired ratio)</th>
+                                        <td class="num">$1.35 vs. $14.06 (<strong>10.4&times;</strong>)</td>
+                                        <td class="num">$1.27 vs. $5.46 (<strong>4.62&times;</strong>)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Total API-priced spend across study</th>
+                                        <td class="num">$13.39 vs. $223.71</td>
+                                        <td class="num">$25.93 vs. $199.13 (20p)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Median active minutes (paired ratio)</th>
+                                        <td class="num">10.8m vs. 62.0m (<strong>6.4&times;</strong>)</td>
+                                        <td class="num">18.9m vs. 55.1m (<strong>3.28&times;</strong>)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Median minutes to first PHP edit</th>
+                                        <td class="num">1.3m vs. 24.4m (21.4&times;)</td>
+                                        <td class="num">1.8m vs. 11.4m (6.11&times;)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Test lines per production line (delivered)</th>
+                                        <td class="num">3.7 vs. <span class="bad">14.7</span></td>
+                                        <td class="num">2.64 vs. <span class="bad">10.10</span> (med.)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Blind author <code>merge as is</code> (delivered)</th>
+                                        <td class="num"><span class="good">7/8 (88%)</span> vs. 1/8 (13%)</td>
+                                        <td class="num"><span class="good">10/11 (91%)</span> vs. 2/11 (18%)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Blind author wins (<code>B&ndash;C&ndash;tie</code>, delivered)</th>
+                                        <td class="num"><strong>6&ndash;0&ndash;2</strong> (cat. 7&ndash;0&ndash;1)</td>
+                                        <td class="num"><strong>8&ndash;0&ndash;3</strong> (14&ndash;0&ndash;3 all 17)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Colleague blind sample (2 pairs: <code>T10</code>, <code>T12</code>)</th>
+                                        <td class="num">&mdash;</td>
+                                        <td class="num"><strong>1&ndash;0&ndash;1 Baseline</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Candidate cross-test defects found in <code>B</code></th>
+                                        <td class="num"><span class="mid">2 / 8</span> (<code>I6</code>, <code>I7</code>)</td>
+                                        <td class="num"><span class="bad">0 / 11</span> (1 <code>B</code> catch on <code>T17</code>)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div></div>
+                </section>
+
+                <section class="acc-sec" aria-labelledby="sec-h-3">
+                    <h2 id="sec-h-3"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-3"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>3. Where did $422 and 67 hours of agent work actually go?</span></button></h2>
+                    <div id="sec-body-3" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <p>If an expensive workflow spent its extra compute writing deeper application code, the bill might buy reliability. Across both studies, the phase logs show the opposite: <strong>both arms spent nearly the exact same number of active minutes implementing the PHP fix itself</strong> (<code>89m</code> Baseline vs. <code>85m</code> Candidate across 10 pairs in Study 1; <code>193.5m / $14.53</code> vs. <code>199.1m / $13.97</code> across 20 pairs in Study 2). Three-quarters of the Candidate's money &mdash; <code>74%</code> in Study 1 and <code>76.0%</code> in Study 2 &mdash; never touched shipping code at all.</p>
+
+                        <div class="fig" id="fig-spend">
+                            <div class="fig-head">
+                                <span class="fig-title">Fig. 2 &middot; Where Candidate API spend &amp; time went vs. Baseline</span>
+                                <div class="ctl" role="group" aria-label="Select study dataset">
+                                    <button type="button" class="btn spend-btn" data-spend="all" aria-pressed="true">All 30 Pairs ($421* vs. $39.32)</button>
+                                    <button type="button" class="btn spend-btn" data-spend="s1" aria-pressed="false">Study 1 (Claude Orch.)</button>
+                                    <button type="button" class="btn spend-btn" data-spend="s2" aria-pressed="false">Study 2 (Codex Orch.)</button>
+                                </div>
+                            </div>
+                            <div class="fig-body">
+                                <div class="svg-host" id="spendHost"></div>
+                                <p class="readout" id="spendReadout"></p>
+                            </div>
+                            <div class="fig-caption">*Phase-tracked Candidate spend sums to <code>$222.67</code> (Study 1 sessions) + <code>$197.70</code> (Study 2 tracked phases) = <code>$420.37</code> (<code>$422.84</code> including unattributed command overhead across <code>4,053.7</code> active minutes = <code>67.6</code> hours vs. Baseline <code>$39.32</code> / <code>459.4</code> min = <code>7.7</code> hours). Actual <code>make</code> + <code>check</code> tool medians barely moved between arms in Study 2 (<code>94.0/65.0</code> vs. <code>88.5/59.0</code>); the Candidate's median <code>237.5</code> orchestration calls drove the gap.</div>
+                        </div>
+
+                        <p>Two classic software-engineering laws explain why role separation multiplied effort instead of quality:</p>
+                        <ol>
+                            <li><strong>Context fragmentation vs. conceptual integrity (Brooks, 1975; Yan, 2025; Kim et al., 2025):</strong> In <em>The Mythical Man-Month</em>, Fred Brooks argues that a clean fix depends on keeping one coherent mental model rather than splitting coupled decisions across actors whose handoffs grow quadratically. Walden Yan's context-sharing rule updates Brooks for coding agents: exploring a legacy PHP repository builds a dense belief state in context, and every fixture line encodes implicit assumptions. Starting <code>11</code> to <code>72</code> fresh contexts threw away that exploration trace every handoff, multiplying file reads by <code>5.2&times;</code> (Study 1: <code>2,505</code> vs. <code>481</code>) and <code>4.0&times;</code> (Study 2: <code>2,934</code> vs. <code>729</code>) and causing isolated test writers to invent internal helper names that clashed with the Baseline (<code>T5</code>, <code>T10</code>). Across 260 configurations on SWE-bench Verified, Kim et al. (2025) measured the same penalty: every multi-agent architecture trailed a single agent by <code>2.1</code> to <code>14.9</code> percentage points.</li>
+                            <li><strong>Cleanroom test separation vs. Goodhart's Law (Mills et al., 1987; Goodhart, 1975; Hora &amp; Robbes, 2026; Chen et al., 2026):</strong> Separating test authors from coders works in DO-178C and IBM Cleanroom aerospace projects only because a complete formal specification fixes every signature and transition before a line of code exists. On a 15-line natural-language ticket over a legacy web app, an isolated RED writer cannot yet be scored on catching implementation bugs &mdash; its survival depends on pleasing adversarial verifiers before any implementation exists. As Goodhart's Law predicts, passing the verifier checklist became the target: writers generated defensive mocks, PHP source-string regexes, and bloated harnesses (<code>14.7:1</code> test-to-code ratio in Study 1; <code>10.10:1</code> in Study 2). On a two-line <code>session_write_close()</code> fix in Study 1 Pair 9, reading the tests felt like auditing a mortgage contract to buy a pack of gum.</li>
+                        </ol>
+                    </div></div>
+                </section>
+
+                <section class="acc-sec" aria-labelledby="sec-h-4">
+                    <h2 id="sec-h-4"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-4"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>4. How does a 17-line server rule turn into an 11-hour, 64-session loop?</span></button></h2>
+                    <div id="sec-body-4" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <p>Study 2 Task <code>T3</code> asked for a web server access-control rule blocking HTTP requests to dot-paths, repository metadata, dependency manifests, and log or SQL dumps &mdash; <strong>17 lines of configuration</strong>. My single-agent Ticket run shipped a clean patch and regression test in <code>15.7</code> minutes (<code>$1.25</code>, <code>4</code> sessions). The Candidate actually finished the working config fix and <strong>543 passing HTTP assertions</strong> in <code>1 hour 44 minutes</code> (<code>$8.10</code>). Then four natural-language rules locked into a non-terminating loop for the next ten hours.</p>
+
+                        <div class="fig" id="fig-loop">
+                            <div class="fig-head">
+                                <span class="fig-title">Fig. 3 &middot; Anatomy of Study 2 T3's 699.4-minute loop (click a window)</span>
+                                <div class="ctl" role="group" aria-label="Select timeline stage in Pair 3">
+                                    <button type="button" class="btn loop-btn" data-stage="0" aria-pressed="true">1. 0&ndash;1h 44m (Done)</button>
+                                    <button type="button" class="btn loop-btn" data-stage="1" aria-pressed="false">2. Round 5 (F2 Nitpick)</button>
+                                    <button type="button" class="btn loop-btn" data-stage="2" aria-pressed="false">3. Meta 5&ndash;11 (32-Row Table)</button>
+                                    <button type="button" class="btn loop-btn" data-stage="3" aria-pressed="false">4. Meta 12&ndash;15 (Churn &amp; Timeout)</button>
+                                </div>
+                            </div>
+                            <div class="fig-body">
+                                <div id="loopCard"></div>
+                            </div>
+                            <div class="fig-caption">Compare against the single-agent Baseline on the exact same commit: <code>4</code> sessions, <code>15.7</code> minutes, <code>$1.25</code>, green CI, PR shipped.</div>
+                        </div>
+
+                        <p>Every failure in the multi-agent traces maps cleanly onto two architectural results in the agent literature:</p>
+                        <ul>
+                            <li><strong>Deterministic code workflows vs. prose-interpreted loops (Schluntz &amp; Zhang, 2024; MAST, Cemri et al., 2025):</strong> Schluntz and Zhang draw the line between code-driven <em>workflows</em> (<code>thirdshift</code>'s fixed Rust state machine: build, three parallel reviewers, bounded repair) and prompt-driven <em>agents</em> interpreting Markdown rules at runtime. In UC Berkeley's MAST taxonomy of 1,600+ multi-agent traces, failures stem predominantly from orchestration rules rather than weak base models: halting unattended runs when a planning question lacks a human (<code>FM-3.1</code> <em>Premature Termination</em>: <code>I2</code>, <code>I10</code>, <code>T1</code>, <code>T8</code>, <code>T13</code>, <code>T16</code>), brushing past a maker's low-risk assessment (<code>FM-2.5</code> <em>Ignored Other Agent's Input</em>), diagnosing churn while authorizing another cycle (<code>FM-2.6</code> <em>Reasoning&ndash;Action Mismatch</em>), and looping wherever "changed evidence" exists (<code>FM-1.5</code> <em>Unaware of Termination Conditions</em>).</li>
+                            <li><strong>Appetite, scope hammering, and circuit breakers (Singer, 2019):</strong> Ryan Singer's <em>Shape Up</em> starts from fixed appetite &mdash; how much time a change is worth &mdash; scope-hammers non-essential polish to follow-up issues, compares improvements against the live baseline rather than an imaginary ideal, and trips a hard circuit breaker before rabbit holes eat the schedule. Natural-language review policies that forbid follow-up deferrals and replace user pauses with unbounded meta-review do the opposite: fixed scope, unbounded time.</li>
+                        </ul>
+                    </div></div>
+                </section>
+
+                <section class="acc-sec" aria-labelledby="sec-h-5">
+                    <h2 id="sec-h-5"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-5"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>5. Where did independent tests beat my single agent &mdash; and why did H1 drop to zero in Study 2?</span></button></h2>
+                    <div id="sec-body-5" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <p>If that were the whole story, you would bin every piece of the multi-agent workflow and never look back. But Study 1 Pair 6 (<code>I6</code>, replacing stale signatures in queued bid emails without touching coordinator notes) refuses to let me ignore the other side. Working in one context, my Baseline agent pictured a signature as the trailing block at the bottom of the email, wrote a broad name-line regex and happy-path tests, passed its own TDD suite, passed its parallel spec, standards, and security sub-agent reviews, and passed my blind reading as <em>merge after small fixes</em>.</p>
+                        <p>When the evaluation harness transplanted the Candidate's independently authored tests onto the Baseline's code, they failed immediately and proved three real bugs: the Baseline deleted coordinator text written beside a signature, rewrote a historical signature copy stored inside notes, and left stale contacts in legacy templates. In Pair 7 (<code>I7</code>), independent tests caught a daylight-saving spring-forward failure too.</p>
+                        <p>Three results explain both the Pair 6 catch and why Study 2 changed how I would deploy it:</p>
+                        <ul>
+                            <li><strong>Intrinsic self-correction blindness vs. execution oracles (Huang et al., 2024; Kamoi et al., 2024; Knight &amp; Leveson, 1986):</strong> Language models cannot reliably spot their own reasoning mistakes without an external ground-truth failure signal, and separate reviewers shown the implementer's diff anchor on the same framing (correlated misses). Independent tests written without seeing the implementation catch nearly double the faults (<code>25%</code> vs. <code>14%</code>; arXiv:2607.05139) &mdash; <em>but you get that lift from post-hoc execution of a diff-blind test suite, not from 14 rounds of pre-code planning</em> (Pair 6 cost 72 sessions and $74.14!).</li>
+                            <li><strong>Study 2 answered my open question cleanly (H1 = 0 in Study 2; 2 of 19 overall):</strong> Across all 11 newly delivered primary pairs (13 with repeats) in Study 2, Candidate cross-tests found <strong>zero</strong> confirmed defects in Baseline PRs (the two failures, on <code>T5</code> and <code>T10</code>, merely asserted private Candidate helper structure), while a Baseline unit test caught one real Candidate regression (<code>filter_var(..., FILTER_VALIDATE_INT)</code> rejecting valid zero-padded IDs like <code>'0010'</code> on <code>T17</code>). Combined across both studies, independent Candidate tests caught Baseline bugs on <strong>2 of 19 delivered pairs (10.5%)</strong> &mdash; and Pair 6 needed 1,736 test lines to get there.</li>
+                            <li><strong>Human attention economics vs. LLM length bias (Sadowski et al., 2018; Pombal et al., 2026):</strong> Make a prediction in Fig. 4 before revealing how blind human reviewers and eight model graders traded off test size and quality.</li>
+                        </ul>
+
+                        <div class="fig" id="fig-judge">
+                            <div class="fig-head">
+                                <span class="fig-title">Fig. 4 &middot; Predict, then look: test size vs. blind preference</span>
+                            </div>
+                            <div class="fig-body">
+                                <div class="predict" id="judgePredict">
+                                    <p>Across the 14 non-tied primary pairs graded blind by the human maintainer in Study 1 (<code>6</code>) and Study 2 (<code>8</code>), plus a colleague's 2 sampled blind reviews in Study 2, how many times did the blind human pick the pull request with the larger test diff?</p>
+                                    <div class="ctl" role="group" aria-label="Make a prediction">
+                                        <button type="button" class="btn guess-btn" data-guess="many">Often (about half)</button>
+                                        <button type="button" class="btn guess-btn" data-guess="some">A few times (2&ndash;4 pairs)</button>
+                                        <button type="button" class="btn guess-btn" data-guess="zero">Zero times (0 of 14 non-tied)</button>
+                                    </div>
+                                </div>
+                                <div class="reveal" id="judgeReveal" hidden>
+                                    <p class="readout" id="judgeMsg"></p>
+                                    <div class="svg-host" id="judgeHost" style="margin-top:0.85rem"></div>
+                                </div>
+                            </div>
+                            <div class="fig-caption">Study 2 used 6 voting model families not shared by either arm (<code>sonnet</code>, <code>astra</code>, <code>gemini</code>, <code>grok</code>, <code>muse</code>, <code>kimi</code>) plus 2 same-model diagnostics (<code>opus</code>, <code>sol</code>), each evaluated in both orders. OpenAI models tolerated large test diffs far more often (<code>4/9</code> for <code>astra</code>, <code>3/9</code> for <code>sol</code>); dropping <code>astra</code> shifts 4 ties to Baseline wins (<code>8&ndash;1&ndash;2</code>), and excluding both OpenAI and Anthropic drops Candidate wins to <code>0</code> (<code>5&ndash;0&ndash;6</code>).</div>
+                        </div>
+                    </div></div>
+                </section>
+
+                <section class="acc-sec" aria-labelledby="sec-h-6">
+                    <h2 id="sec-h-6"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-6"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>6. What I'm building instead: one mind to build, one selective blind mind to break</span></button></h2>
+                    <div id="sec-body-6" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <p>Reconciling the November research data leaves two clean tiers in <code>thirdshift</code>: cheap deterministic guardrails that run on <em>every</em> ticket at essentially zero marginal cost, plus a selective, runner-bounded <code>+1</code> Blind Behavioral Breaker (or feature-boundary review) where behavioral mutations warrant it.</p>
+                        <ul>
+                            <li><strong>On every ticket (~$0, seconds):</strong> Keep the single continuous-context Builder (<code>Explore &rarr; write TDD test &rarr; implement &rarr; green CI</code>), set <code>on_ambiguity = "assume_and_document"</code> so minor questions become stated PR assumptions rather than unattended halts (<code>0/27</code> halts instead of <code>6/27</code>), run deterministic <code>tests_on_base</code> against the unpatched parent commit so every regression test proves it fails without the fix, instruct code reviewers to flag source-string regex assertions and test-helper spirals, and enforce loop ceilings in Rust runner code.</li>
+                            <li><strong>Selective <code>+1</code> Blind Behavioral Breaker (and Spec-level second look):</strong> Paying for an extra isolated test session on dead-script deletions (<code>T6</code>, <code>T12</code>) returned zero defects in Study 2. Instead, reserve a single bounded cross-family breaker (<code>&le; 180s</code>, <code>&le; 25</code> tool calls, <code>&le; $1.50</code>, <code>&le; 150</code> LOC / <code>5</code> test methods) for stateful data-mutation tickets (like Study 1 Pair 6 and Pair 7) or the whole-feature <code>Spec</code> boundary where <a href="/blog/fresh-eyes-beat-a-second-family/">Fresh Eyes</a> found real missed bugs in 16&ndash;19 of 30 features.</li>
+                            <li><strong>Solve helper mismatches with <code>public_api_delta.txt</code>:</strong> In Study 2, Candidate cross-tests falsely failed on Baseline PRs twice (<code>T5</code>, <code>T10</code>) because an isolated test writer guessed private helper names. Generating a stripped signature header &mdash; showing <em>only</em> added or changed public class/method signatures with every method body replaced by <code>{ /* hidden */ }</code> and all <code>tests/</code> diffs omitted &mdash; fixes helper-name mismatches while keeping the breaker blind to implementation flow.</li>
+                        </ul>
+
+                        <p id="toml-cap"><strong>Selective 4+1 runner contract (reconciled post-Study 2):</strong></p>
+                        <pre role="region" aria-labelledby="toml-cap" tabindex="0"><code># thirdshift selective 4+1 hybrid configuration
+[limits]
+# 1 builder + 3 diff reviewers + 1 selective breaker + max 1 repair
+max_total_sessions = 6
+max_wall_clock_minutes = 30    # hard cap (vs. 699m in prose loops)
+max_api_cost_usd = 4.00
+on_ambiguity = "assume_and_document"  # avoids stopped-to-ask halts
+
+[steps.build]
+# one mind: explore -> red test -> implement -> tests_on_base
+context = "continuous"
+
+[steps.extract_public_signatures]
+run = "thirdshift extract-signatures --base HEAD~1 --head HEAD"
+out = ".thirdshift/public_api_delta.txt"
+
+[steps.verify_parallel.blind_breaker]
+# skip trivial deletions and config rules (Study 2 H1 = 0)
+enabled_for = ["stateful_mutation", "spec_boundary"]
+provider = "claude"            # cross-family executable probes
+input = ["issue", "base_repo", "public_api_delta"]  # no diff bodies/tests
+max_duration_seconds = 180
+max_tool_calls = 25
+max_test_lines = 150
+max_test_methods = 5
+retain_test_only_if = "fails_on_head_or_increases_branch_coverage"
+
+[steps.repair_if_needed]
+type = "resume_builder"        # keeps warm KV context intact
+max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pre>
+                    </div></div>
+                </section>
+
+                <section class="acc-sec" aria-labelledby="sec-h-7">
+                    <h2 id="sec-h-7"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-7"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>7. When I'd choose differently, what's still open, and the 1&ndash;10 scorecard</span></button></h2>
+                    <div id="sec-body-7" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <p><strong>When I'd choose differently:</strong> If I were building a cryptographic protocol, a financial settlement engine, or an avionics controller with a formal specification written down to exact invariants before any code exists &mdash; and where a $75 verification bill per change is trivial next to a seven-figure failure &mdash; Cleanroom role separation makes sense. On 2&ndash;8 file tickets in an evolving web application shaped from 15-line issues, separating test authors from builders destroys context without buying safety.</p>
+
+                        <p><strong>What I still don't know:</strong></p>
+                        <ol>
+                            <li>Does a 150-line, 3-minute Blind Behavioral Breaker still catch subtle data-corruption bugs like Study 1 Pair 6, or did Pair 6 depend on exploring 1,736 lines of realistic email corpus fixtures? Our saved 30-pair replay trees let us test that hypothesis directly.</li>
+                            <li>Where should the boundary sit between ticket-level probes and feature-level probes? Study 2 found <code>0/11</code> Baseline bugs on small tickets, whereas <a href="/blog/fresh-eyes-beat-a-second-family/">Fresh Eyes</a> found missed bugs in more than half of finished multi-ticket Spec branches. Running both checks cleanly on upcoming feature builds will tell.</li>
+                            <li>How do we run fast mutation testing (<code>Infection</code>) on legacy procedural PHP files outside <code>src/</code>? Seven of ten pairs in Study 1 and many procedural tasks in Study 2 generated zero mutants, leaving an instrumentation blind spot.</li>
+                        </ol>
+
+                        <div class="table-wrap" tabindex="0" role="region" aria-labelledby="tbl-score-cap">
+                            <table class="grid">
+                                <caption id="tbl-score-cap">Table 2. Author scorecard (1&ndash;10 across 30 replay pairs and the selective 4+1 hybrid design target).</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Dimension</th>
+                                        <th scope="col" class="num">Single-Agent Ticket Run</th>
+                                        <th scope="col" class="num">Multi-Agent Maker-Checker</th>
+                                        <th scope="col" class="num">Selective 4+1 Hybrid (target)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Cost efficiency (API proxy)</th>
+                                        <td class="num good">9 / 10 ($1.27&ndash;$1.35)</td>
+                                        <td class="num bad">2 / 10 ($5.46&ndash;$14.06)</td>
+                                        <td class="num good">8 / 10 (+~$0.30&ndash;$0.50 gated)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Wall-clock latency &amp; delivery</th>
+                                        <td class="num good">9 / 10 (27/27 PRs)</td>
+                                        <td class="num bad">3 / 10 (19/27; 11.7h tail)</td>
+                                        <td class="num good">9 / 10 (hard 30m cap)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Diff cleanliness &amp; merge readiness</th>
+                                        <td class="num good">9 / 10 (89% as is blind)</td>
+                                        <td class="num bad">2 / 10 (16% as is; 10&ndash;15:1)</td>
+                                        <td class="num good">9 / 10 (prune redundant probes)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Subtle blind-spot fault catching</th>
+                                        <td class="num mid">6 / 10 (missed I6, I7)</td>
+                                        <td class="num mid">7 / 10 (caught I6, I7; missed I8, T17)</td>
+                                        <td class="num good">8 / 10 (targeted blind oracle)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Operational predictability (no loops)</th>
+                                        <td class="num good">9 / 10 (fixed state machine)</td>
+                                        <td class="num bad">2 / 10 (FM-1.5 / FM-2.6 loops)</td>
+                                        <td class="num good">9 / 10 (<code>max_rounds = 1</code> in code)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div></div>
+                </section>
+
+                <section class="acc-sec" aria-labelledby="sec-h-8">
+                    <h2 id="sec-h-8"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-8"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>8. Quiz: pass it before you merge</span></button></h2>
+                    <div id="sec-body-8" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <div class="fig" id="fig-quiz">
+                            <div class="fig-head">
+                                <span class="fig-title">Quiz &middot; Check what the 30 pairs actually showed</span>
+                            </div>
+                            <div class="fig-body" id="quiz">
+                                <div class="qz">
+                                    <div class="q">1. Did moving the Candidate orchestrator from Claude Code to Codex fix the gap in Study 2?</div>
+                                    <div class="opts">
+                                        <button type="button" class="opt">Yes &mdash; it beat the Ticket run once models were equalized.</button>
+                                        <button type="button" class="opt" data-c="1">No &mdash; it halved cost/time ratios (10.4&times; &rarr; 4.62&times;), but delivery fell (11/17 vs. 17/17) and the human still preferred Baseline 8&ndash;0&ndash;3.</button>
+                                        <button type="button" class="opt">Cost rose because Codex wrote more production code.</button>
+                                    </div>
+                                    <p class="expl" hidden>Equalizing the orchestrator lowered token prices, but orchestration still took 56.1% of Candidate spend and green coding still spent $13.97 vs. $14.53.</p>
+                                </div>
+                                <div class="qz">
+                                    <div class="q">2. In Study 2 Pair 3 (T3), why did the meta-reviewers keep looping after calling the run "expensive churn" and "unjustified"?</div>
+                                    <div class="opts">
+                                        <button type="button" class="opt" data-c="1">The prose rules banned follow-up deferral for test-helper findings and re-triggered loops whenever "changed evidence" existed (MAST FM-2.6 / FM-1.5).</button>
+                                        <button type="button" class="opt">The 17-line server config change failed HTTP tests for 11 hours.</button>
+                                        <button type="button" class="opt">Codex lacked network permissions to open a pull request.</button>
+                                    </div>
+                                    <p class="expl" hidden>All 543 HTTP policy tests passed at 1h 44m ($8.10). The remaining 9h 55m spent 1,101 lines and a 32-row state table debating a test helper's cleanup method.</p>
+                                </div>
+                                <div class="qz">
+                                    <div class="q">3. Across all 19 unique delivered pairs in Study 1 (8) and Study 2 (11), how often did Candidate cross-tests expose a confirmed Baseline defect?</div>
+                                    <div class="opts">
+                                        <button type="button" class="opt">Every pair (~100%).</button>
+                                        <button type="button" class="opt" data-c="1">2 of 19 delivered pairs (10.5%: I6 and I7 in Study 1; 0 of 11 in Study 2, where Baseline caught 1 Candidate regression on T17).</button>
+                                        <button type="button" class="opt">Zero times across both studies.</button>
+                                    </div>
+                                    <p class="expl" hidden>That 2/19 rate is why the +1 Blind Breaker should be gated selectively onto stateful data-mutation work or whole-feature reviews rather than trivial config or file-deletion tasks.</p>
+                                </div>
+                                <div class="qz">
+                                    <div class="q">4. How does <code>public_api_delta.txt</code> stop false-positive cross-test failures like T5 and T10 without breaking independence?</div>
+                                    <div class="opts">
+                                        <button type="button" class="opt">It shares the builder's full diff and test suite with the breaker.</button>
+                                        <button type="button" class="opt" data-c="1">It exposes only added/changed public class and method signatures while stripping all method bodies and tests/ diffs.</button>
+                                        <button type="button" class="opt">It forces both arms to use the same model family.</button>
+                                    </div>
+                                    <p class="expl" hidden>Giving public signatures prevents guessing private helper names while hiding method bodies prevents anchoring bias (Huang et al., 2024; arXiv:2607.05139).</p>
+                                </div>
+                                <div class="qz">
+                                    <div class="q">5. Why did the eight LLM judges in Study 2 disagree with the blind maintainer on test-heavy PRs?</div>
+                                    <div class="opts">
+                                        <button type="button" class="opt">The LLM judges had access to CI results while the human did not.</button>
+                                        <button type="button" class="opt" data-c="1">Model judges (especially OpenAI models) often rewarded exhaustive test volume, whereas human reviewers penalized unrequested maintenance bloat (14/14 non-tied pairs).</button>
+                                        <button type="button" class="opt">Human grading excluded the cross-test output in Study 2.</button>
+                                    </div>
+                                    <p class="expl" hidden>In Study 2, humans saw cross-tests and base-tests inside the blind packet. Even with identical evidence, the blind author (8-0-3) and colleague (1-0-1) never once picked the larger diff.</p>
+                                </div>
+                                <div class="qz">
+                                    <div class="q">6. What four changes run on every thirdshift Ticket at ~zero incremental cost under the reconciled design?</div>
+                                    <div class="opts">
+                                        <button type="button" class="opt" data-c="1">Continuous single Builder, on_ambiguity = "assume_and_document", deterministic tests_on_base checks, and hard loop/cost caps in Rust runner code.</button>
+                                        <button type="button" class="opt">Four fresh makers, four stage verifiers, and 15 meta-reviews.</button>
+                                        <button type="button" class="opt">Running every ticket twice across two cloud droplets.</button>
+                                    </div>
+                                    <p class="expl" hidden>Those four rules eliminate 6/6 planning halts and runaway test-helper loops while proving regression tests fail on the unpatched commit.</p>
+                                </div>
+                                <p id="qzTally">0 of 6 answered.</p>
+                            </div>
+                        </div>
+                    </div></div>
+                </section>
+
+                <section class="acc-sec" aria-labelledby="sec-h-9">
+                    <h2 id="sec-h-9"><button type="button" class="sec-toggle" aria-expanded="false" aria-controls="sec-body-9"><svg class="sec-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>9. Sources &amp; companion papers</span></button></h2>
+                    <div id="sec-body-9" class="sec-body" hidden="until-found"><div class="sec-inner">
+                        <div class="sources">
+                            <h3>Companion studies &amp; software</h3>
+                            <ul>
+                                <li><span class="cite-title">Study 1 (10-issue adoption test):</span> <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ (Ten Replayed Tourbot Issues)</a> &middot; <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/maker-checker-tdd-ten-issue-adoption-study.pdf">PDF (26 pp.)</a></li>
+                                <li><span class="cite-title">Study 2 (17 tasks + 3 repeats, Codex orchestrator):</span> <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ (Seventeen Tasks &amp; 8-Model Panel)</a> &middot; <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf">PDF (31 pp.)</a></li>
+                                <li><span class="cite-title">Prior review study:</span> <a href="/blog/fresh-eyes-beat-a-second-family/">Fresh Eyes Beat a Second Family</a> (183 replayed code reviews showing why post-feature review finds real missed bugs).</li>
+                                <li><span class="cite-title">Orchestrator under test:</span> <a href="https://thirdshift.app" rel="noopener">thirdshift</a> (<a href="https://github.com/JacobStephens2/thirdshift" rel="noopener">github.com/JacobStephens2/thirdshift</a>).</li>
+                            </ul>
+                            <h3>Primary research &amp; engineering literature</h3>
+                            <ul>
+                                <li>Frederick P. Brooks, Jr., <span class="cite-title">The Mythical Man-Month</span> (1975) &amp; <span class="cite-title">"No Silver Bullet"</span> (1986): conceptual integrity and quadratic coordination overhead.</li>
+                                <li>Walden Yan, <span class="cite-title">"Don't Build Multi-Agents: Principles of Context Engineering"</span> (Cognition, June 2025): sharing full context traces vs. colliding implicit decisions.</li>
+                                <li>Y. Kim et al., <span class="cite-title">"Towards a Science of Scaling Agent Systems"</span> (2025): 260 multi-agent configurations on SWE-bench Verified. <a href="https://arxiv.org/abs/2512.08296" rel="noopener">arxiv.org/abs/2512.08296</a></li>
+                                <li>Harlan D. Mills, Michael Dyer, &amp; Richard C. Linger, <span class="cite-title">"Cleanroom Software Engineering"</span> (<em>IEEE Software</em>, 1987): specification-complete separation of coding and verification.</li>
+                                <li>Charles Goodhart (1975) &amp; Marilyn Strathern (1997): metric targeting &mdash; when verifier approval becomes the optimization target.</li>
+                                <li>Mert Cemri, Matei Zaharia, Ion Stoica, et al., <span class="cite-title">"Why Do Multi-Agent LLM Systems Fail?"</span> (MAST taxonomy, 2025). <a href="https://arxiv.org/abs/2503.13657" rel="noopener">arxiv.org/abs/2503.13657</a></li>
+                                <li>Erik Schluntz &amp; Barry Zhang, <span class="cite-title">"Building Effective Agents"</span> (Anthropic, December 2024): deterministic workflows vs. open-ended agent loops.</li>
+                                <li>Jie Huang et al., <span class="cite-title">"Large Language Models Cannot Self-Correct Reasoning Yet"</span> (<em>ICLR</em>, 2024); Ryo Kamoi et al. (<em>TACL</em>, 2024); John C. Knight &amp; Nancy G. Leveson (<em>IEEE TSE</em>, 1986); independent test generation (<code>25%</code> vs. <code>14%</code>, <a href="https://arxiv.org/abs/2607.05139" rel="noopener">arxiv.org/abs/2607.05139</a>).</li>
+                                <li>Andre Hora &amp; Romain Robbes (<em>MSR</em>, 2026, <a href="https://arxiv.org/abs/2602.00409" rel="noopener">arxiv.org/abs/2602.00409</a>); Z. Chen et al. (2026, <a href="https://arxiv.org/abs/2602.07900" rel="noopener">arxiv.org/abs/2602.07900</a>); Caitlin Sadowski et al., <span class="cite-title">"Modern Code Review: A Case Study at Google"</span> (<em>ICSE</em>, 2018); J. Pombal et al. (2026, <a href="https://arxiv.org/abs/2604.06996" rel="noopener">arxiv.org/abs/2604.06996</a>).</li>
+                                <li>Brian A. Nosek et al., <span class="cite-title">"The preregistration revolution"</span> (<em>PNAS</em>, 2018); Ryan Singer, <span class="cite-title">Shape Up</span> (Basecamp, 2019).</li>
+                            </ul>
+                        </div>
+                    </div></div>
+                </section>
+
+                <div class="ai-note">
+                    Synthesized from our two internal preregistered experiment reports (30 paired Tourbot replays), session traces, and primary literature notes, with AI drafting assistance. Every metric, blind human call, and meta-reviewer trace quote traces directly to the underlying studies linked above; all architecture decisions and open questions are mine.
+                </div>
+            </article>
+        </main>
+
+        <footer class="footer">
+            &copy; <span id="current-year"></span> Jacob Stephens
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script>
+    (function () {
+        /* ---------- Accordion with hidden="until-found" & Safari fallback ---------- */
+        var foldAllBtn = document.getElementById('foldAllBtn');
+        var secButtons = [].slice.call(document.querySelectorAll('button.sec-toggle'));
+        var secBodies = [].slice.call(document.querySelectorAll('.sec-body'));
+
+        function syncButton(btn, open) {
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        function isOpen(body) {
+            return !body.hasAttribute('hidden');
+        }
+        function setSection(btn, open) {
+            var body = document.getElementById(btn.getAttribute('aria-controls'));
+            if (!body) return;
+            if (open) body.removeAttribute('hidden');
+            else body.setAttribute('hidden', 'until-found');
+            syncButton(btn, open);
+        }
+        function syncFoldAll() {
+            var allOpen = secBodies.every(isOpen);
+            foldAllBtn.setAttribute('aria-expanded', allOpen ? 'true' : 'false');
+        }
+
+        secButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var body = document.getElementById(btn.getAttribute('aria-controls'));
+                setSection(btn, !isOpen(body));
+                syncFoldAll();
+            });
+        });
+
+        foldAllBtn.addEventListener('click', function () {
+            var openAll = foldAllBtn.getAttribute('aria-expanded') !== 'true';
+            secButtons.forEach(function (btn) { setSection(btn, openAll); });
+            syncFoldAll();
+        });
+
+        /* Browser Find-in-Page match reveals hidden="until-found"; sync ARIA button state */
+        document.addEventListener('beforematch', function (e) {
+            var panel = e.target && e.target.closest ? e.target.closest('.sec-body') : null;
+            if (!panel || !panel.id) return;
+            var btn = document.querySelector('button.sec-toggle[aria-controls="' + panel.id + '"]');
+            if (btn) syncButton(btn, true);
+            syncFoldAll();
+        });
+
+        /* Fallback for browsers without hidden="until-found" (e.g. Safari) */
+        if (!('onbeforematch' in HTMLElement.prototype)) {
+            secButtons.forEach(function (btn) {
+                var body = document.getElementById(btn.getAttribute('aria-controls'));
+                if (body) body.removeAttribute('hidden');
+                syncButton(btn, true);
+            });
+            syncFoldAll();
+        }
+
+        function openForHash() {
+            var id = decodeURIComponent(location.hash.slice(1));
+            if (!id) return;
+            var target = document.getElementById(id);
+            if (!target) return;
+            var body = target.closest('.sec-body');
+            if (!body && target.nextElementSibling && target.nextElementSibling.classList.contains('sec-body')) {
+                body = target.nextElementSibling;
+            }
+            if (body) {
+                var btn = document.querySelector('button.sec-toggle[aria-controls="' + body.id + '"]');
+                if (btn) setSection(btn, true);
+                syncFoldAll();
+            }
+            target.scrollIntoView();
+        }
+        window.addEventListener('hashchange', openForHash);
+        openForHash();
+
+        var printState = null;
+        window.addEventListener('beforeprint', function () {
+            printState = secBodies.map(isOpen);
+            secButtons.forEach(function (btn) { setSection(btn, true); });
+        });
+        window.addEventListener('afterprint', function () {
+            if (!printState) return;
+            secButtons.forEach(function (btn, i) { setSection(btn, printState[i]); });
+            syncFoldAll();
+            printState = null;
+        });
+
+        /* ---------- Fig. 1: Architecture Explorer ---------- */
+        var ARCH_DATA = {
+            baseline: {
+                title: 'Single-Agent Built-in Ticket Run (4 fixed sessions)',
+                nodes: [
+                    ['Issue + Repo', 'ready-for-agent', '2-8 files, small scope', 'soft'],
+                    ['Builder (1 session)', 'Explore, TDD (1.3-1.8m),', 'implement & fix CI', 'solid'],
+                    ['Parallel Reviews', 'Spec, Standards,', 'and Security checks', 'soft'],
+                    ['Open PR', '27/27 delivered', '89% merge as is', 'good']
+                ],
+                note: 'Single continuous context: preserves Brooks\'s conceptual integrity and Yan\'s implicit discovery state. Median cost $1.27-$1.35; missed 2 subtle domain bugs in 19 delivered pairs (I6, I7).'
+            },
+            candidate: {
+                title: 'Multi-Agent Maker-Checker TDD (11 to 72 sessions)',
+                nodes: [
+                    ['Orchestrator', '24%-56% of spend', 'up to 5,638 tool calls', 'bad'],
+                    ['Plan + RED (isolated)', '3-14 rounds,', '10-15:1 test bloat', 'bad'],
+                    ['GREEN + Refactor', 'Same 8.5-10m', 'actual coding time', 'soft'],
+                    ['Cross-Review + Meta', '6/27 non-delivered,', 'up to 11.7h timeout', 'bad']
+                ],
+                note: 'Fresh context at every handoff re-read code 4.0x-5.2x more, invented clashing helpers (T5, T10), ballooned tests under verifier pressure, and triggered unconstrained loops (T3).'
+            },
+            hybrid: {
+                title: 'Selective 4+1 Hybrid (Reconciled Runner Contract)',
+                nodes: [
+                    ['Builder + base check', 'Assume ambiguity,', 'tests_on_base (~$0)', 'solid'],
+                    ['Parallel Reviews', 'Core checks + optional', '1-pass non-OpenAI pass', 'soft'],
+                    ['public_api_delta.txt', 'Signatures only;', 'bodies & tests hidden', 'good'],
+                    ['Selective +1 Breaker', 'Stateful or Spec only;', 'max_rounds = 1', 'good']
+                ],
+                note: 'Keeps single-mind building for speed and clean diffs (~3:1 tests), adds deterministic tests_on_base + runner caps on every ticket, and restricts isolated oracle probes to stateful mutations or feature Spec boundaries.'
+            }
+        };
+        function renderArch(key) {
+            var d = ARCH_DATA[key];
+            var svg = '<svg viewBox="0 0 680 164" role="img" aria-labelledby="arch-svg-t" xmlns="http://www.w3.org/2000/svg">' +
+                '<title id="arch-svg-t">' + d.title + '</title>' +
+                '<defs><marker id="a1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--muted)"/></marker></defs>' +
+                '<text x="12" y="22" font-family="Source Sans 3, sans-serif" font-size="13" font-weight="700" fill="var(--ink)">' + d.title + '</text>';
+            d.nodes.forEach(function (n, i) {
+                var x = 12 + i * 168, fill = 'var(--surface)', stroke = 'var(--rule)', sw = '1.3';
+                if (n[3] === 'solid') { fill = 'var(--soft)'; stroke = 'var(--brand)'; sw = '2'; }
+                else if (n[3] === 'good') { fill = 'var(--soft)'; stroke = 'var(--yes)'; sw = '2'; }
+                else if (n[3] === 'bad') { fill = 'var(--soft)'; stroke = 'var(--no)'; sw = '2'; }
+                svg += '<rect x="' + x + '" y="38" width="152" height="80" rx="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+                svg += '<text x="' + (x + 76) + '" y="61" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="11.8" font-weight="700" fill="var(--ink)">' + n[0] + '</text>';
+                svg += '<text x="' + (x + 76) + '" y="82" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.2" fill="var(--muted)">' + n[1] + '</text>';
+                svg += '<text x="' + (x + 76) + '" y="98" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.2" fill="var(--muted)">' + n[2] + '</text>';
+                if (i < 3) svg += '<path d="M' + (x + 152) + ' 78 H' + (x + 166) + '" stroke="var(--muted)" stroke-width="1.4" marker-end="url(#a1)"/>';
+            });
+            svg += '<text x="12" y="146" font-family="Source Sans 3, sans-serif" font-size="11" fill="var(--muted)">Solid highlight = active design lever. Barrier in mode 3 hides method bodies and tests/.</text></svg>';
+            document.getElementById('archHost').innerHTML = svg;
+            document.getElementById('archReadout').textContent = d.note;
+        }
+        [].forEach.call(document.querySelectorAll('.arch-btn'), function (b) {
+            b.addEventListener('click', function () {
+                [].forEach.call(document.querySelectorAll('.arch-btn'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+                renderArch(b.getAttribute('data-arch'));
+            });
+        });
+        renderArch('baseline');
+
+        /* ---------- Fig. 2: Phase Spend Breakdown ---------- */
+        var SPEND = {
+            all: {
+                title: 'All 30 Pairs: Candidate ($420.37 tracked phases, 67.6h) vs. Baseline ($39.32, 7.7h)',
+                rows: [
+                    ['Candidate: Orchestrator', 164.32, '39.1%', 'var(--no)'],
+                    ['Candidate: Plan + RED + verify', 150.07, '35.7%', 'var(--part)'],
+                    ['Candidate: Review / Other', 64.97, '15.5%', 'var(--muted)'],
+                    ['Candidate: GREEN + Refactor', 41.01, '9.8%', 'var(--brand)'],
+                    ['Baseline: Total (all 4 sessions)', 39.32, '9.4% of C', 'var(--yes)']
+                ],
+                max: 180,
+                note: 'Combined across all 30 paired replays, pre-implementation orchestration, planning, and RED cycles cost $314.39 (74.8%) before shipping code ran; Baseline shipped 29 of 30 runs for $39.32 total.'
+            },
+            s1: {
+                title: 'Study 1 (10 Pairs, Claude Candidate Orch.): $222.67 vs. $13.39',
+                rows: [
+                    ['Candidate: Plan + RED + verifiers', 110.50, '49.6% · 456m', 'var(--part)'],
+                    ['Candidate: Orchestrator (Claude)', 53.45, '24.0% · 712m', 'var(--no)'],
+                    ['Candidate: Review + Refactor + Other', 41.15, '18.5%', 'var(--muted)'],
+                    ['Candidate: GREEN code (85m actual)', 17.57, '7.9%', 'var(--brand)'],
+                    ['Baseline: Total (89m impl + reviews)', 13.39, '6.0% of C', 'var(--yes)']
+                ],
+                max: 120,
+                note: 'Both arms spent nearly identical time coding (89m Baseline vs. 85m Candidate). Orchestration (712m) and pre-code TDD ceremonies (456m) consumed 73.6% of Candidate spend.'
+            },
+            s2: {
+                title: 'Study 2 (20 Pairs, Codex Candidate Orch.): $197.70 tracked phases vs. $25.93',
+                rows: [
+                    ['Candidate: Orchestrator (Codex)', 110.87, '56.1% · 1,778m', 'var(--no)'],
+                    ['Candidate: Plan + RED + verifiers', 39.45, '20.0% · 611m', 'var(--part)'],
+                    ['Candidate: Review / Meta + Other', 32.40, '16.4% · 362m', 'var(--muted)'],
+                    ['Candidate: GREEN (199m) + Refactor', 14.99, '7.6%', 'var(--brand)'],
+                    ['Baseline: Total (194m impl + reviews)', 25.93, '13.1% of C', 'var(--yes)']
+                ],
+                max: 120,
+                note: 'Switching the orchestrator to Codex lowered cached token costs, yet the orchestrator still accounted for 56.1% of tracked spend ($110.87, 5,638 tool calls), while GREEN implementation ($13.97) matched Baseline implementation ($14.53).'
+            }
+        };
+        function renderSpend(key) {
+            var d = SPEND[key], h = 42 + d.rows.length * 36;
+            var svg = '<svg viewBox="0 0 720 ' + h + '" role="img" aria-labelledby="sp-svg-t" xmlns="http://www.w3.org/2000/svg">' +
+                '<title id="sp-svg-t">' + d.title + '</title>' +
+                '<text x="10" y="20" font-family="Source Sans 3, sans-serif" font-size="13" font-weight="700" fill="var(--ink)">' + d.title + '</text>';
+            d.rows.forEach(function (r, idx) {
+                var y = 36 + idx * 36, bw = Math.max(6, (r[1] / d.max) * 265);
+                svg += '<text x="10" y="' + (y + 18) + '" font-family="Source Sans 3, sans-serif" font-size="11.5" fill="var(--ink)">' + r[0] + '</text>';
+                svg += '<rect x="242" y="' + (y + 4) + '" width="265" height="20" rx="3" fill="var(--bar-bg)"/>';
+                svg += '<rect x="242" y="' + (y + 4) + '" width="' + bw.toFixed(1) + '" height="20" rx="3" fill="' + r[3] + '"/>';
+                svg += '<text x="515" y="' + (y + 18) + '" font-family="Source Sans 3, sans-serif" font-size="11.5" font-weight="700" fill="var(--ink)">$' + r[1].toFixed(2) + ' <tspan font-weight="400" fill="var(--muted)">(' + r[2] + ')</tspan></text>';
+            });
+            svg += '</svg>';
+            document.getElementById('spendHost').innerHTML = svg;
+            document.getElementById('spendReadout').textContent = d.note;
+        }
+        [].forEach.call(document.querySelectorAll('.spend-btn'), function (b) {
+            b.addEventListener('click', function () {
+                [].forEach.call(document.querySelectorAll('.spend-btn'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+                renderSpend(b.getAttribute('data-spend'));
+            });
+        });
+        renderSpend('all');
+
+        /* ---------- Fig. 3: T3 Loop Scrubber ---------- */
+        var LOOP_STAGES = [
+            {
+                badge: '05:51-07:35 UTC · GREEN v3 PASS',
+                stats: '~$8.10 · ~12 sessions · 17 lines shipping config + 543 passing HTTP assertions',
+                code: 'Product Work Complete',
+                body: 'Five commits finished the server dot-path/.md block and verified 543 HTTP cases against an isolated Apache test fixture container. At 1h 44m, every behavioral requirement of Task T3 already passed.'
+            },
+            {
+                badge: '07:35-09:36 UTC · Review Rounds 3-5 · MAST FM-2.5',
+                stats: 'Round 5 raised low-severity Finding F2 on the test fixture\'s stop() helper',
+                code: 'FM-2.5 Ignored Pragmatic Input',
+                body: 'Finding F2 flagged a theoretical port-reuse window during test-fixture teardown. The maker explicitly noted: "no collision frequency or failed canonical run is established." Because rules forbade deferring any finding to a follow-up PR, Recovery opened.'
+            },
+            {
+                badge: '09:39-15:00 UTC · Meta-Reviews 5-11 · MAST FM-1.5',
+                stats: 'Fixture-lifecycle test swelled to 1,101 lines & 41 cases (31 failing, 10 passing)',
+                code: 'FM-1.5 Unbounded Termination Rule',
+                body: 'When seam-injected unit tests on the fixture helper were rejected on RED for structural reasons, meta-review 7 invoked a "model-check stateful/concurrent designs" clause and ordered a 32-row formal state-transition table (T01-T32) just for the test fixture\'s stop() method.'
+            },
+            {
+                badge: '15:00-17:30 UTC · Meta-Reviews 12-15 · MAST FM-2.6 Timeout',
+                stats: '699.4 min total · 64 Codex sessions · $64.22 · 0 pull requests opened',
+                code: 'FM-2.6 Reasoning-Action Mismatch',
+                body: 'Meta-review 12 wrote: "Twelve meta invocations and earlier capture/assignment failures are expensive churn." Meta-review 14 wrote: "Thirteen earlier meta calls make another unchanged opinion or model loop unjustified." Both still saw "changed evidence" and authorized the next round until the 12-hour process timeout killed the run.'
+            }
+        ];
+        function renderLoop(i) {
+            var s = LOOP_STAGES[i];
+            document.getElementById('loopCard').innerHTML =
+                '<div class="quote-box">' +
+                '<p style="margin-bottom:0.4rem"><span class="tag">' + s.code + '</span> <strong>' + s.badge + '</strong></p>' +
+                '<p style="margin-bottom:0.45rem;color:var(--muted);font-size:0.88rem">' + s.stats + '</p>' +
+                '<p style="margin-bottom:0">' + s.body + '</p>' +
+                '</div>';
+        }
+        [].forEach.call(document.querySelectorAll('.loop-btn'), function (b) {
+            b.addEventListener('click', function () {
+                [].forEach.call(document.querySelectorAll('.loop-btn'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+                renderLoop(Number(b.getAttribute('data-stage')));
+            });
+        });
+        renderLoop(0);
+
+        /* ---------- Fig. 4: Predict, Then Look ---------- */
+        var GUESS_MSG = {
+            many: 'Zero out of 14. In both Study 1 (6-0-2) and Study 2 (8-0-3, plus a colleague\'s 1-0-1 sample), blind human reviewers never picked the larger test suite once. Sadowski et al. (2018) explain why: review defect detection drops sharply as diff bloat climbs.',
+            some: 'Still too high: it was zero. Across all 14 non-tied pairs I graded blind across both studies — plus two colleague blind reviews in Study 2 — the larger Candidate diff won 0 times.',
+            zero: 'Exact match: 0 of 14 non-tied primary pairs (6/6 in Study 1, 8/8 in Study 2; colleague 1-0-1). By contrast, OpenAI model graders rewarded the larger test suite 4/9 times (astra) and 3/9 times (sol).'
+        };
+        [].forEach.call(document.querySelectorAll('.guess-btn'), function (b) {
+            b.addEventListener('click', function () {
+                [].forEach.call(document.querySelectorAll('.guess-btn'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+                document.getElementById('judgeMsg').textContent = GUESS_MSG[b.getAttribute('data-guess')];
+                var svg = '<svg viewBox="0 0 720 170" role="img" aria-labelledby="jg-svg-t" xmlns="http://www.w3.org/2000/svg">' +
+                    '<title id="jg-svg-t">Non-tied preference for smaller vs. larger diffs across blind human and Study 2 LLM graders</title>' +
+                    '<text x="8" y="20" font-family="Source Sans 3, sans-serif" font-size="12.5" font-weight="700" fill="var(--ink)">Non-tied pairs: smaller diff preferred (green) vs. larger diff preferred (terracotta)</text>' +
+                    '<g font-family="Source Sans 3, sans-serif" font-size="11.5" fill="var(--ink)">' +
+                    '<text x="8" y="54">Blind human (Study 1 + Study 2)</text><rect x="242" y="40" width="256" height="18" rx="3" fill="var(--yes)"/><text x="510" y="53" font-weight="700">14 smaller / 0 larger</text>' +
+                    '<text x="8" y="86">Colleague sample (Study 2: T10, T12)</text><rect x="242" y="72" width="128" height="18" rx="3" fill="var(--yes)"/><text x="510" y="85" font-weight="700">1 smaller / 0 larger (1 tie)</text>' +
+                    '<text x="8" y="118">claude-sonnet-5-5 / gemini-4-argon</text><rect x="242" y="104" width="224" height="18" rx="3" fill="var(--yes)"/><rect x="468" y="104" width="30" height="18" rx="3" fill="var(--no)"/><text x="510" y="117">7-8 smaller / 1 larger</text>' +
+                    '<text x="8" y="150">OpenAI gpt-6-astra / gpt-6.1-sol</text><rect x="242" y="136" width="144" height="18" rx="3" fill="var(--yes)"/><rect x="388" y="136" width="110" height="18" rx="3" fill="var(--no)"/><text x="510" y="149">5-6 smaller / 3-4 larger</text>' +
+                    '</g></svg>';
+                document.getElementById('judgeHost').innerHTML = svg;
+                document.getElementById('judgeReveal').hidden = false;
+            });
+        });
+
+        /* ---------- Quiz ---------- */
+        var qzs = document.querySelectorAll('#quiz .qz'), qTotal = qzs.length;
+        function updateTally() {
+            var ans = document.querySelectorAll('#quiz .qz.answered').length;
+            var got = document.querySelectorAll('#quiz .qz.answered.got').length;
+            var msg = ans + ' of ' + qTotal + ' answered';
+            if (ans === qTotal) msg += ', ' + got + ' right. ' + (got === qTotal ? 'Ready to merge.' : 'Review the misses before changing the runner.');
+            else msg += '.';
+            document.getElementById('qzTally').textContent = msg;
+        }
+        [].forEach.call(qzs, function (q) {
+            [].forEach.call(q.querySelectorAll('button.opt'), function (b) {
+                b.addEventListener('click', function () {
+                    if (q.classList.contains('answered')) return;
+                    q.classList.add('answered');
+                    if (b.hasAttribute('data-c')) q.classList.add('got');
+                    [].forEach.call(q.querySelectorAll('button.opt'), function (x) {
+                        x.disabled = true;
+                        if (x.hasAttribute('data-c')) x.classList.add('correct');
+                        else if (x === b) x.classList.add('wrong');
+                    });
+                    var expl = q.querySelector('.expl');
+                    if (expl) expl.hidden = false;
+                    updateTally();
+                });
+            });
+        });
+    })();
+    </script>
+    <script src="/blog/newsletter-widget.js" defer></script>
+</body>
+</html>

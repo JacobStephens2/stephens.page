@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    <!-- AI agents: the machine-oriented version of this post is at
+         /blog/maker-checker-tdd-ten-issue-adoption-study/agents.md (text/markdown). -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Ten Replayed Issues: Maker-Checker TDD vs. a Single-Agent Ticket Run | Jacob Stephens</title>
+    <link rel="icon" type="image/png" href="/bee-favicon.png">
+    <link rel="canonical" href="https://stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/">
+    <link rel="alternate" type="text/markdown" href="/blog/maker-checker-tdd-ten-issue-adoption-study/agents.md" title="Agent-oriented version (markdown)">
+    <meta name="description" content="Preregistered, paired, blinded adoption study comparing thirdshift&#x27;s Built-in Ticket run against a Claude-orchestrated multi-agent maker-checker TDD workflow on ten replayed Tourbot issues.">
+    <meta name="citation_title" content="How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ: A Preregistered, Paired, Blinded Comparison on Ten Replayed Tourbot Issues">
+    <meta name="citation_author" content="Stephens, Jacob">
+    <meta name="citation_publication_date" content="2026/11/03">
+    <meta name="citation_pdf_url" content="https://stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/maker-checker-tdd-ten-issue-adoption-study.pdf">
+    <meta property="og:title" content="Ten Replayed Issues: Maker-Checker TDD vs. a Single-Agent Ticket Run">
+    <meta property="og:description" content="Preregistered, paired, blinded adoption study comparing thirdshift&#x27;s Built-in Ticket run against a Claude-orchestrated multi-agent maker-checker TDD workflow on ten replayed Tourbot issues.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/">
+    <meta property="og:image" content="https://stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/media/og-392f498657bb.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ten Replayed Issues: Maker-Checker TDD vs. a Single-Agent Ticket Run">
+    <meta name="twitter:description" content="Preregistered, paired, blinded adoption study comparing thirdshift&#x27;s Built-in Ticket run against a Claude-orchestrated multi-agent maker-checker TDD workflow on ten replayed Tourbot issues.">
+    <meta name="twitter:image" content="https://stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/media/og-392f498657bb.jpg">
+    <!-- Umami (self-hosted) - analytics + session replay -->
+    <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
+    <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/libertinus-serif@5/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/libertinus-serif@5/700.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/libertinus-serif@5/400-italic.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/libertinus-serif@5/700-italic.css">
+    <link rel="stylesheet" href="/theme.css">
+    <script src="/theme.js" defer></script>
+    <style>
+        :root {
+            --pp-ink: #111; --pp-muted: #555; --pp-rule: #999; --pp-shade: #f2f2f2;
+            --pp-desk: #e9e9e6; --pp-sheet: #fff; --pp-shadow: rgba(0,0,0,0.18); --pp-link: #1a3d8f;
+            --theme-toggle-size: 1.85rem;
+        }
+        @media screen {
+            html[data-theme="dark"] { --pp-ink: #e4e0da; --pp-muted: #a7a098; --pp-rule: #6b655e; --pp-shade: #2a2622;
+            --pp-desk: #0e0c0b; --pp-sheet: #1b1815; --pp-shadow: rgba(0,0,0,0.6); --pp-link: #9fb7ee; }
+        }
+        @media screen and (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]):not([data-theme="dark"]) { --pp-ink: #e4e0da; --pp-muted: #a7a098; --pp-rule: #6b655e; --pp-shade: #2a2622;
+            --pp-desk: #0e0c0b; --pp-sheet: #1b1815; --pp-shadow: rgba(0,0,0,0.6); --pp-link: #9fb7ee; }
+        }
+        * { box-sizing: border-box; }
+        html { background: var(--pp-desk); scroll-padding-top: 3.5rem; }
+        body {
+            margin: 0; padding: 2.5rem 1rem 4rem; color: var(--pp-ink); background: var(--pp-desk);
+            font-family: 'Libertinus Serif', 'Linux Libertine O', 'Linux Libertine', 'Palatino Linotype', Palatino, Georgia, serif;
+            font-size: 18px; line-height: 1.5; text-rendering: optimizeLegibility;
+            font-variant-numeric: oldstyle-nums proportional-nums;
+        }
+        html.theme-ready .page { transition: background-color 0.18s ease; }
+        .page {
+            max-width: 46rem; margin: 0 auto; background: var(--pp-sheet);
+            padding: 3.5rem 4rem 3rem; box-shadow: 0 1px 4px var(--pp-shadow);
+        }
+        .page p, .page li, .page td, .page th, .page figcaption { color: var(--pp-ink); }
+        .topnote {
+            max-width: 46rem; margin: 0 auto 0.5rem; font-size: 0.82rem; color: var(--pp-muted);
+            font-family: 'Libertinus Serif', Georgia, serif;
+            position: sticky; top: 0; z-index: 800; background: var(--pp-desk); padding: 0.5rem 0;
+            box-shadow: 0 0 0 100vmax var(--pp-desk); clip-path: inset(0 -100vmax);
+            display: flex; justify-content: space-between; align-items: center; gap: 0.4rem 1rem; flex-wrap: wrap;
+        }
+        .topnote-actions {
+            --ink: var(--pp-ink); --rule: var(--pp-rule); --soft: var(--pp-shade); --brand: var(--pp-link);
+            display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;
+        }
+        .topnote-actions [data-theme-toggle] { display: inline-flex; margin-left: 0.35rem; }
+        .topnote a { color: var(--pp-link); }
+        .linkish { font: inherit; color: var(--pp-link); background: none; border: 0; padding: 0; cursor: pointer; }
+        .linkish:hover, a:hover { text-decoration: underline; }
+        .status { color: var(--pp-muted); font-style: italic; }
+        a { color: var(--pp-link); text-decoration: none; }
+        header.front { text-align: center; margin-bottom: 1.6rem; }
+        header.front p { text-align: center; text-indent: 0; }
+        h1.title { font-size: 1.62rem; line-height: 1.25; font-weight: 700; margin: 0 0 1rem; }
+        .authors { font-size: 1.05rem; margin: 0; }
+        .page .affil { font-size: 0.9rem; color: var(--pp-muted); margin: 0.15rem 0 0; }
+        .page .dates { font-size: 0.85rem; color: var(--pp-muted); margin: 0.7rem 0 0; font-style: italic; }
+        .brief { margin: 1.4rem 0; padding: 1rem 1.3rem 0.6rem; background: var(--pp-shade); border-radius: 3px; font-size: 0.95rem; }
+        .brief h2 { font-size: 1rem; margin: 0 0 0.5rem; letter-spacing: 0.04em; font-variant: small-caps; }
+        .brief p { text-indent: 0; text-align: left; }
+        .brief ul, .brief ol { padding-left: 1.3rem; margin: 0.4rem 0 0.8rem; }
+        .brief li { margin-bottom: 0.35rem; text-align: left; }
+        .brief ol ul { list-style: none; padding-left: 1.1rem; margin: 0.25rem 0 0.35rem; }
+        .brief ol ul li { margin-bottom: 0.2rem; }
+        .brief .table { margin: 0.6rem 0 0.9rem; }
+        .abstract { margin: 1.8rem 2rem 1.2rem; font-size: 0.93rem; }
+        .abstract h2 { text-align: center; font-size: 0.95rem; font-weight: 700; margin: 0 0 0.4rem; letter-spacing: 0.04em; font-variant: small-caps; }
+        .abstract p + p { text-indent: 0; }
+        .keywords { margin: 0 2rem 2rem; font-size: 0.88rem; }
+        .keywords b { font-variant: small-caps; letter-spacing: 0.03em; }
+        hr.sep { border: 0; border-top: 1px solid var(--pp-rule); margin: 0 0 1.4rem; }
+        .fold-hint { font-size: 0.85rem; color: var(--pp-muted); font-style: italic; text-align: left; margin: 0 0 0.6rem; }
+        h2 { font-size: 1.12rem; font-weight: 700; margin: 2rem 0 0.6rem; }
+        h3 { font-size: 1rem; font-weight: 700; font-style: italic; margin: 1.4rem 0 0.4rem; }
+        p { margin: 0 0 0.75rem; text-align: left; }
+        p + p { text-indent: 1.4em; }
+        ul, ol { margin: 0 0 0.85rem; padding-left: 1.6rem; }
+        li { margin-bottom: 0.25rem; }
+        li p { text-indent: 0 !important; }
+        details.sec > summary, details.sub > summary { list-style: none; cursor: pointer; border-radius: 2px; }
+        details.sec > summary::-webkit-details-marker, details.sub > summary::-webkit-details-marker { display: none; }
+        details.sec > summary h2 { display: inline-block; margin: 1.15rem 0 0.35rem; }
+        details.sec > summary h2::before {
+            content: "\25B8"; display: inline-block; width: 1.1em; margin-left: -1.1em;
+            color: var(--pp-muted); font-size: 0.85em; transition: transform 0.15s;
+        }
+        details.sec[open] > summary h2::before { transform: rotate(90deg); }
+        details.sec[open] > summary h2 { margin-bottom: 0.6rem; }
+        details.sub > summary h3 { display: inline-block; margin: 0.55rem 0 0.2rem; }
+        details.sub > summary h3::before {
+            content: "\25B8"; display: inline-block; width: 1.1em; margin-left: -1.1em;
+            color: var(--pp-muted); font-size: 0.85em; font-style: normal; transition: transform 0.15s;
+        }
+        details.sub[open] > summary h3::before { transform: rotate(90deg); }
+        details.sub[open] > summary h3 { margin-bottom: 0.4rem; }
+        details.sub[open] { margin-bottom: 0.8rem; }
+        details.sec > summary:hover h2, details.sub > summary:hover h3 { color: var(--pp-link); }
+        details.sec > summary:focus-visible, details.sub > summary:focus-visible { outline: 2px solid var(--pp-link); outline-offset: 3px; }
+        .sec-body > p:first-child, .sub-body > p:first-child { text-indent: 0; }
+        code {
+            font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 0.8em;
+            background: var(--pp-shade); padding: 0.05em 0.3em; border-radius: 2px; overflow-wrap: anywhere;
+        }
+        pre { background: var(--pp-shade); padding: 0.75rem 0.95rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.42; border-radius: 2px; }
+        pre code { background: none; padding: 0; overflow-wrap: normal; font-size: inherit; }
+        .table { margin: 1.3rem 0 1.4rem; overflow-x: auto; max-width: 100%; }
+        .table:focus-visible { outline: 2px solid var(--pp-link); outline-offset: 2px; }
+        .table .cap, figure figcaption { font-size: 0.86rem; margin-bottom: 0.45rem; text-align: left; line-height: 1.4; text-indent: 0; }
+        .table + p, figure + p, ul + p, ol + p, pre + p { text-indent: 0; }
+        table {
+            border-collapse: separate; border-spacing: 0; width: 100%; font-size: 0.85rem; line-height: 1.35;
+            font-variant-numeric: lining-nums tabular-nums;
+        }
+        .page th {
+            background: none; border-top: 1.5px solid var(--pp-ink); border-bottom: 0.8px solid var(--pp-ink);
+            font-weight: 700; padding: 0.35rem 0.45rem; text-align: left; vertical-align: bottom;
+        }
+        .page td { padding: 0.28rem 0.45rem; vertical-align: top; border: 0; }
+        .page tbody tr:last-child td { border-bottom: 1.5px solid var(--pp-ink); }
+        figure { margin: 1.5rem 0; }
+        figure svg { display: block; margin: 0 auto 0.5rem; max-width: 100%; height: auto; color: var(--pp-ink); }
+        .refs ol { padding-left: 2rem; font-size: 0.88rem; }
+        .refs li { margin-bottom: 0.45rem; }
+        a.hyp { text-decoration: underline dotted; text-underline-offset: 0.15em; }
+        .cite-tip {
+            position: absolute; z-index: 1100; max-width: min(28rem, calc(100vw - 32px)); padding: 0.55rem 0.75rem;
+            background: var(--pp-sheet); color: var(--pp-ink); border: 1px solid var(--pp-rule); border-radius: 3px;
+            box-shadow: 0 4px 14px var(--pp-shadow); font-size: 0.82rem; line-height: 1.4; text-align: left;
+        }
+        .cite-tip[hidden] { display: none; }
+        .cite-tip b { color: var(--pp-muted); font-weight: 600; margin-right: 0.3em; }
+        .back-chip {
+            position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 900;
+            font: inherit; font-size: 0.85rem; padding: 0.35rem 0.9rem; border-radius: 999px; cursor: pointer;
+            background: var(--pp-sheet); color: var(--pp-link); border: 1px solid var(--pp-rule);
+            box-shadow: 0 2px 8px var(--pp-shadow);
+        }
+        .back-chip[hidden] { display: none; }
+        @media (max-width: 640px) {
+            body { padding: 0 0 3rem; font-size: 16px; }
+            html { scroll-padding-top: 5.5rem; }
+            .topnote { padding: 0.55rem 1rem; }
+            .page { padding: 1.8rem 1.15rem 2.2rem; box-shadow: none; }
+            .abstract, .keywords { margin-left: 0; margin-right: 0; }
+            details.sec > summary h2, details.sub > summary h3 { padding-left: 1.1em; }
+            p, li { text-align: left; }
+            h1.title { font-size: 1.38rem; }
+        }
+
+        #table-4 table { min-width: 44rem; }
+        #table-5 table { min-width: 50rem; }
+        #table-7 table { min-width: 44rem; }
+        #table-8 table { min-width: 48rem; }
+        #table-5 th, #table-5 td, #table-8 th, #table-8 td { white-space: nowrap; }
+        #table-4 th:first-child, #table-4 td:first-child,
+        #table-5 th:first-child, #table-5 td:first-child,
+        #table-7 th:first-child, #table-7 td:first-child,
+        #table-8 th:first-child, #table-8 td:first-child {
+            position: sticky; inset-inline-start: 0; background: var(--pp-sheet); z-index: 1;
+        }
+
+        @media print {
+            @page { size: letter; margin: 0.72in 0.72in; @bottom-center { content: "stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/"; font: 8pt Georgia, serif; color: #666; } }
+            html, html[data-theme], html:not([data-theme="light"]):not([data-theme="dark"]) { color-scheme: light; }
+            html, body { background: #fff; padding: 0; font-size: 9.8pt; }
+            .page { max-width: none; padding: 0; box-shadow: none; }
+            .topnote, .fold-hint, .cite-tip, .back-chip, .theme-toggle { display: none !important; }
+            details.sec > summary h2::before, details.sub > summary h3::before { content: none; }
+            a { color: inherit; }
+            h2, h3, .cap { break-after: avoid; }
+            .table, pre, figure { break-inside: avoid; }
+            thead { display: table-header-group; }
+            tr { break-inside: avoid; }
+            .brief { background: #f5f5f5; padding: 0.7rem 1rem 0.45rem; }
+            pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 7.3pt; line-height: 1.28; padding: 0.55rem 0.75rem; }
+
+            #table-A, #table-5, #table-8, #table-12 { break-inside: auto; }
+            #table-4 table, #table-5 table, #table-7 table, #table-8 table { min-width: 0; font-size: 7.4pt; }
+            #table-5 th, #table-5 td, #table-8 th, #table-8 td { white-space: normal; word-break: normal; overflow-wrap: normal; padding: 0.24rem 0.25rem; font-size: 7.1pt; }
+            #table-4 th:first-child, #table-4 td:first-child,
+            #table-5 th:first-child, #table-5 td:first-child,
+            #table-7 th:first-child, #table-7 td:first-child,
+            #table-8 th:first-child, #table-8 td:first-child { position: static; background: transparent; }
+
+        }</style>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/app-icons/apple-touch-icon.png">
+</head>
+<body>
+    <div class="topnote">
+        <span><a href="/blog/one-mind-to-build-one-blind-mind-to-break/">&larr; Blog essay</a> &middot; <a href="/blog/">All posts</a> &middot; <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">Study 2 (17 tasks, Codex orchestrator) &rarr;</a></span>
+        <span class="topnote-actions"><button type="button" class="linkish" data-to-top>top</button> &middot; <button type="button" class="linkish" data-fold-all aria-pressed="false">expand all</button> &middot; <button type="button" class="linkish" id="copy-md">copy Markdown</button> &middot; <a href="paper.md" download="maker-checker-tdd-ten-issue-adoption-study.md">Markdown</a> &middot; <a href="maker-checker-tdd-ten-issue-adoption-study.pdf">PDF</a> &middot; <a href="agents.md">agents.md</a><span class="status" id="paper-status" role="status"></span><span data-theme-toggle></span></span>
+    </div>
+    <main class="page">
+<header class="front">
+<h1 class="title">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ: A Preregistered, Paired, Blinded Comparison on Ten Replayed Tourbot Issues</h1>
+<p class="authors">Jacob Stephens</p>
+<p class="affil">Educational Travel Adventures · <a href="https://stephens.page" target="_blank" rel="noopener">stephens.page</a></p>
+<p class="dates">Experiments 30 October – 1 November 2026 · Public edition 17 November 2026 · <a href="/blog/one-mind-to-build-one-blind-mind-to-break/">← Narrative essay (30-pair synthesis)</a> · <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">Follow-up second study (17 tasks, Codex orchestrator) →</a></p>
+</header>
+<section class="brief" id="in-brief"><h2>In brief</h2><p>Educational Travel Adventures (ETA) compared an independently proposed multi-agent, maker-checker test-driven workflow against <a href="https://thirdshift.app" target="_blank" rel="noopener">thirdshift</a>'s Built-in Ticket run, the way ETA currently runs AI coding agents on Tourbot. In the proposed workflow, separate agents plan the tests, write the tests, write the code and check each other's work across model families. In the Built-in Ticket run, one agent does the whole job. Both processes were given the same ten real Tourbot issues to replay in isolation. Neither could see the other's work, and the reviewers did not know which process wrote which change.</p>
+<div class="table" id="table-A" tabindex="0" role="region" aria-labelledby="table-A-cap"><p class="cap" id="table-A-cap"><b>Table A.</b> The two processes on the same ten fixes. Money is the price of the agents' work at the providers' published rates; for cost and time, the middle value of the ten is shown.</p><table>
+<thead>
+<tr>
+<th scope="col"></th>
+<th scope="col">Current process (Baseline)</th>
+<th scope="col">Proposed maker-checker process (Candidate)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixes it won</td>
+<td>3 of 10 (2 because the other delivered nothing)</td>
+<td>2 of 10</td>
+</tr>
+<tr>
+<td>Changes the author would merge as they stood, judging blind</td>
+<td>7 of 8</td>
+<td>1 of 8</td>
+</tr>
+<tr>
+<td>Fixes judged even</td>
+<td>5 of 10</td>
+<td>5 of 10</td>
+</tr>
+<tr>
+<td>Fixes where it delivered no change at all</td>
+<td>0 of 10</td>
+<td>2 of 10</td>
+</tr>
+<tr>
+<td>Cost per fix (middle of ten)</td>
+<td>$1.35</td>
+<td>$14.06</td>
+</tr>
+<tr>
+<td>Time per fix (middle of ten)</td>
+<td>11 minutes</td>
+<td>62 minutes</td>
+</tr>
+<tr>
+<td>Fixes with a confirmed defect or no change</td>
+<td>2 of 10</td>
+<td>3 of 10</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>It cost more and took longer in every one of the ten fixes</strong>, including the two where it did better. With that consistency, the cost and time difference is clear enough to act on.</li>
+<li><strong>The author would merge almost all of the current process's changes as they stood, and almost none of the proposed workflow's</strong>: 7 of 8 against 1 of 8, judging blind. This is the measure closest to what ETA wants from any process, work that needs no review rounds. It is one person's judgement, so it was reported beside the decision rule rather than in it, and it points the same way.</li>
+<li><strong>Its separately written tests caught real problems</strong> that the current process missed in 2 fixes. But it wrote about six times as much test code, and it missed a problem that the current process handled.</li>
+<li><strong>On quality the evidence is less certain.</strong> Ten fixes is a small sample. The result shows that the proposed workflow was not clearly better; it does not show that it is worse.</li>
+<li><strong>Decision:</strong> ETA keeps its current process. Two of the Candidate's ideas are worth trying on their own: a separately written set of tests, and writing down any assumption the agent makes when an issue is unclear.</li>
+</ul></section>
+<section class="brief" id="key-questions"><h2>Key questions</h2><ol>
+<li><strong>What was compared?</strong> Two ways of organising coding agents, run on the same ten fixes in parallel on identical machines (<a href="#23-the-two-processes">Section 2.3</a>, <a href="#figure-1">Figure 1</a>).</li>
+<li><strong>Which made better changes?</strong> Neither clearly. Blind model reviewers preferred the proposed workflow in 2 fixes and the current process in 1, and split or judged even in 5. In the other 2 the proposed workflow delivered nothing (<a href="#41-overview-of-the-ten-pairs">Section 4.1</a>). The author, judging blind, would merge 7 of 8 of the current process's changes as they stood and 1 of 8 of the proposed workflow's (<a href="#47-the-pre-registered-decision-rq1rq4">Section 4.7</a>).</li>
+<li><strong>What did it cost?</strong> The proposed workflow cost a median $14.06 per fix against $1.35, and took 62 minutes against 11 (<a href="#47-the-pre-registered-decision-rq1rq4">Section 4.7</a>, <a href="#figure-3">Figure 3</a>).</li>
+<li><strong>Why was it slower?</strong> Every agent started fresh and re-read the code, and checking rounds repeated; its first code edit came after 24 minutes, against about 1 (<a href="#42-how-they-worked-one-context-against-many-eq1">Section 4.2</a>).</li>
+<li><strong>What did it produce?</strong> Similar fixes with six times the test code, often tied to the exact implementation (<a href="#43-what-they-produced-similar-fixes-six-times-the-tests-eq2">Section 4.3</a>).</li>
+<li><strong>What did each catch that the other missed?</strong> Its tests exposed defects in two of the current process's changes; the current process handled an encoding issue that it missed (<a href="#44-how-they-failed-and-what-each-caught-eq3">Section 4.4</a>).</li>
+<li><strong>How sure are we?</strong> Sure about cost and time, which differed in every fix; unsure about small differences in quality, with ten fixes and one run each (<a href="#6-threats-to-validity">Section 6</a>).</li>
+<li><strong>What should ETA do?</strong> Keep the current process, and test two of the Candidate's ideas on their own (<a href="#55-implications">Section 5.5</a>).</li>
+</ol></section>
+<section class="abstract" id="abstract"><h2>Abstract</h2><p><strong>Background.</strong> Coding agents can be organised in very different ways. ETA currently uses <code>thirdshift</code>'s Built-in Ticket run, in which one agent session implements an issue, has it reviewed once and opens a pull request. An independently proposed maker-checker test-driven workflow instead splits work across separate agents that plan tests, write tests, implement and verify, where no agent checks its own work and two model families review every stage. The two represent opposite bets: one context working quickly, against independent roles that check each other.</p>
+<p><strong>Objective.</strong> To describe how the two processes differ on the same issues: in how they work, what they produce, how they fail and what their reviewers value. To decide, by a rule fixed in advance, whether the proposed workflow (the Candidate) should replace the Built-in Ticket run (the Baseline) on Tourbot, ETA's production PHP application.</p>
+<p><strong>Methods.</strong> Pre-registered, paired, blinded comparison. Ten closed Tourbot issues, chosen by a written rule, were replayed from the commit before their shipped fix. Each process implemented each issue once, in parallel, on identical isolated machines. A Claude grader and a Codex grader compared each pair of formatted, randomly labelled pull requests in both presentation orders, grounded in the issue, continuous-integration (CI) results, cross-run tests and mutation testing. The author judged every pull request blind. After the decision, the differences were analysed from the agent traces of all twenty runs, the pull requests, the cross-tests, and the graders' and author's written reasons, and three pairs were examined in detail. These analyses are exploratory.</p>
+<p><strong>Results.</strong></p>
+<p><em>How they worked.</em> The Candidate started a median 4.9 times as many agent sessions and made 2.8 times as many tool calls per run. Most of the extra calls re-read code and re-ran tests in fresh contexts. Its first code edit came after a median 24 minutes, against 1.3 for the Baseline.</p>
+<p><em>What they produced.</em> The Candidate's pull requests added 1.5 times as much code and 6.0 times as much test code (14.7 test lines per code line, against 3.7).</p>
+<p><em>How they failed.</em> Its independently written tests exposed defects in two Baseline pull requests, and its code tended to fail safe. But it stopped twice at a planning question that the Baseline settled by assumption, and it missed an encoding constraint that the Baseline handled.</p>
+<p><em>What reviewers valued.</em> The model graders credited the Candidate's coverage. The author, judging blind, noted test bloat in 7 of its 8 pull requests and would merge 1 of 8 as is, against 7 of 8 Baseline pull requests.</p>
+<p><em>Decision.</em> The Candidate won 2 pairs, lost 3 and tied 5: a win rate of 20% (exact 95% CI 2.5–56%). Its median per-pair cost was $14.06 against $1.35 at the providers' published per-token (API) prices, a median ratio of 10.4. Its median time was 62 minutes against 11, a median ratio of 6.4. It had 3 correctness failures to the Baseline's 2.</p>
+<p><strong>Limitations.</strong> Each process ran once on each of ten small fixes to one PHP application. The Candidate's spec-writing stage was not tested. The analyses of the differences were designed after the decision.</p>
+<p><strong>Conclusion.</strong> The Candidate buys independent, adversarial checking at about ten times the cost. On these small fixes, the checking produced more tests rather than better pull requests: judging blind, the author would merge 1 of its 8 pull requests as is, against 7 of 8 for the Baseline. The pre-registered rule rejects the Candidate on each of its three criteria, and ETA keeps the Built-in Ticket run. Two of the Candidate's ideas are worth testing as additions to the Baseline: an independently written test pass, and a stated-assumption rule for unclear requirements.</p></section>
+<p class="keywords"><b>Keywords:</b> coding agents, multi-agent systems, maker-checker, test-driven development, cross-family review, agent traces, LLM-as-a-judge, paired comparison, preregistration, replay evaluation.</p>
+<hr class="sep">
+<p class="fold-hint">Sections start folded so the paper reads as an outline. Click a heading to open it, or <button type="button" class="linkish" data-fold-all>expand all</button>.</p>
+<details class="sec" id="1-introduction"><summary><h2>1&ensp;Introduction</h2></summary><div class="sec-body"><p>ETA develops Tourbot, its production booking and operations system, largely through AI coding agents. Most recent Tourbot pull requests come from <code>thirdshift</code>'s Built-in Ticket run. One Codex <code>gpt-6.1-sol</code> session takes a <code>ready-for-agent</code> issue, implements it, runs a built-in code review and a security review, and opens a pull request. In the design research, 102 of 104 Tourbot pull requests carrying <code>thirdshift</code>'s "Built with" line used this configuration.</p>
+<p>An independently authored workflow was proposed for the company's repositories as a safety-critical engineering hypothesis adapted from Cleanroom software engineering [<a class="cite" href="#ref-14">14</a>]: if the person who writes the code should not be the person who writes the tests so a shared misreading of a ticket cannot pass both code and suite, shouldn't coding agents be separated the same way? The workflow combines a maker-checker TDD stage and a cross-family review stage resting on three principles:</p>
+<ul>
+<li>no agent verifies its own work;</li>
+<li>all work is verified;</li>
+<li>tests are written, and fail, before code is written.</li>
+</ul>
+<p>A test planner, test writer, implementer and refactorer each work as separate agents. Each is checked by a verifier from another provider, and every review stage uses at least two model families for up to five rounds.</p>
+<p>The two processes are different bets about where agent errors come from. The Ticket run assumes that one capable session keeps the most context and works best when left to finish. The proposed workflow assumes that an agent cannot see its own mistakes, so independent roles must plan, test and check each step. The published evidence points both ways:</p>
+<ul>
+<li>Writing tests independently of the implementation improved fault detection from 14% to 25% [<a class="cite" href="#ref-1">1</a>].</li>
+<li>Multi-agent pipelines did slightly worse than a single agent on SWE-bench Verified, at several times the tokens [<a class="cite" href="#ref-2">2</a>].</li>
+<li>A second model family's review lowered a strong writer's pass rate from 91.4% to 82.8% [<a class="cite" href="#ref-3">3</a>].</li>
+</ul>
+<p>We found no study comparing such a pipeline with a single-session agent on the same issues in a production codebase, or describing how their behaviour and output differ there.</p>
+<p>The comparison was commissioned to decide one question: should ETA adopt the proposed workflow? We fixed four research questions, <a class="cite hyp" href="#rq-1">RQ1</a> to <a class="cite hyp" href="#rq-4">RQ4</a>, before the first counted run:</p>
+<ul>
+<li id="rq-1"><strong>RQ1 (quality).</strong> Do blind model graders prefer the Candidate's pull requests? <em>Hypothesis:</em> the Candidate wins at least 8 of 10 pairs.</li>
+<li id="rq-2"><strong>RQ2 (cost and time).</strong> What does the Candidate cost relative to the Baseline? <em>Hypothesis:</em> its median per-pair cost and time ratios are at most 2.</li>
+<li id="rq-3"><strong>RQ3 (correctness).</strong> Does the Candidate have fewer correctness failures? <em>Hypothesis:</em> it has no more than the Baseline.</li>
+<li id="rq-4"><strong>RQ4 (human attention).</strong> How often would a reviewer merge each process's pull request as is? This is the outcome closest to ETA's goal of work that needs no human review rounds; the design says that if neither process gets there, "that matters more than which one wins". It is reported, not part of the decision, so that one blind judge, the author, would not cast the deciding vote.</li>
+</ul>
+<p>The Candidate is adopted only if all three hypotheses hold. That answer alone says little about why. Once the decision was made, we asked four further exploratory questions, <a class="cite hyp" href="#eq-1">EQ1</a> to <a class="cite hyp" href="#eq-4">EQ4</a>, of the same evidence. They were not pre-registered:</p>
+<ul>
+<li id="eq-1"><strong>EQ1 (process).</strong> How do the two processes differ in how they work: sessions, tool calls, and where the time goes?</li>
+<li id="eq-2"><strong>EQ2 (output).</strong> How do their pull requests differ in size, shape and testing style?</li>
+<li id="eq-3"><strong>EQ3 (failure).</strong> How does each process fail, and what does each catch that the other misses?</li>
+<li id="eq-4"><strong>EQ4 (judgement).</strong> What do the model graders and the human reviewer value in each?</li>
+</ul>
+<p><a href="#2-methods">Section 2</a> describes the two processes and the design. <a href="#3-conduct-of-the-comparison">Section 3</a> describes how the comparison was carried out. <a href="#4-results">Section 4</a> reports the differences (<a class="cite hyp" href="#eq-1">EQ1</a>–<a class="cite hyp" href="#eq-4">EQ4</a>), three pairs in detail, and then the pre-registered decision (<a class="cite hyp" href="#rq-1">RQ1</a>–<a class="cite hyp" href="#rq-4">RQ4</a>). <a href="#5-discussion">Section 5</a> interprets them, and <a href="#6-threats-to-validity">Section 6</a> discusses the threats to their validity. <a href="#appendix-a-evaluation-and-blinding-protocol">Appendix A</a> summarizes the evaluation and blinding protocol, and <a href="#appendix-b-glossary">Appendix B</a> defines key terms.</p></div></details>
+<details class="sec" id="2-methods"><summary><h2>2&ensp;Methods</h2></summary><div class="sec-body"><details class="sub" id="21-registration"><summary><h3>2.1&ensp;Registration</h3></summary><div class="sub-body"><p>The design was fixed in a structured question-and-answer design session with the author on 29 October 2026 and frozen in a private study repository before any counted run. Two amendments were made before the first counted run and every subsequent operational adjustment is listed in <a href="#34-deviations-from-the-registered-design">Section 3.4</a>.</p></div></details><details class="sub" id="22-design"><summary><h3>2.2&ensp;Design</h3></summary><div class="sub-body"><p>The study is a paired comparison: each issue (the unit) is implemented once by each process, and the two pull requests are compared with each other. Pairing removes variation between issues from the comparison. Ties count as non-wins. Nothing was merged; the "merge as is" judgement is hypothetical.</p></div></details><details class="sub" id="23-the-two-processes"><summary><h3>2.3&ensp;The two processes</h3></summary><div class="sub-body"><div class="table" id="table-1" tabindex="0" role="region" aria-labelledby="table-1-cap"><p class="cap" id="table-1-cap"><b>Table 1.</b> The two processes as run.</p><table>
+<thead>
+<tr>
+<th scope="col"></th>
+<th scope="col">Baseline</th>
+<th scope="col">Candidate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Process</td>
+<td><code>ticket-run</code>, <code>thirdshift</code>'s Built-in Ticket run, as shipped, with Tourbot's repository conventions</td>
+<td>Custom multi-agent workflow: maker-checker TDD and cross-family review stages, then <code>thirdshift</code>'s <code>delivery</code> Step</td>
+</tr>
+<tr>
+<td>Orchestrator</td>
+<td>Codex <code>gpt-6.1-sol</code>, effort <code>high</code></td>
+<td>Claude Code (<code>claude-opus-5-5</code>), effort <code>medium</code></td>
+</tr>
+<tr>
+<td>Other agents</td>
+<td>Codex's own reviewer sub-agents</td>
+<td>Claude Agent-tool roles and <code>codex exec</code> roles as assigned by the workflow; Claude and Codex reviewers in each cross-family review stage</td>
+</tr>
+<tr>
+<td>Reviews</td>
+<td>Built-in code review; security review</td>
+<td>Plan review; test-plan, RED, GREEN and refactor verifiers; cross-provider code review rounds; review verifier. No security review</td>
+</tr>
+<tr>
+<td>Self-merge</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Tool version</td>
+<td><code>thirdshift</code> 0.18.6</td>
+<td><code>thirdshift</code> 0.18.6</td>
+</tr>
+</tbody>
+</table></div>
+<figure class="flow" id="figure-1">
+<svg viewBox="0 0 680 348" role="img" aria-labelledby="fig1-title" xmlns="http://www.w3.org/2000/svg">
+<title id="fig1-title">The two processes side by side in the ten-issue adoption comparison</title>
+<defs>
+  <marker id="fig1-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+    <path d="M0 0 L8 4 L0 8 z" fill="currentColor"/>
+  </marker>
+</defs>
+<g fill="currentColor" font-family="Libertinus Serif, Georgia, serif">
+  <text x="12" y="22" font-size="13" font-weight="700">Baseline: thirdshift Built-in Ticket run</text>
+  <text x="668" y="22" font-size="11" text-anchor="end" fill="var(--pp-muted, #555)">Median: 4 sessions · 1.3m to first PHP edit · $1.35</text>
+</g>
+<g fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.2">
+  <rect x="12" y="34" width="74" height="48" rx="3"/>
+  <rect x="104" y="34" width="206" height="48" rx="3"/>
+  <rect x="328" y="34" width="146" height="48" rx="3"/>
+  <rect x="492" y="34" width="86" height="48" rx="3"/>
+  <rect x="596" y="34" width="72" height="48" rx="3"/>
+</g>
+<g fill="none" stroke="currentColor" stroke-width="1.2" marker-end="url(#fig1-arrow)">
+  <path d="M86 58 H102"/>
+  <path d="M310 58 H326"/>
+  <path d="M474 58 H490"/>
+  <path d="M578 58 H594"/>
+</g>
+<g fill="currentColor" font-family="Libertinus Serif, Georgia, serif" font-size="12" text-anchor="middle">
+  <text x="49" y="62">Issue</text>
+  <text x="207" y="53" font-weight="700">One Codex session (gpt-6.1-sol)</text>
+  <text x="207" y="69" font-size="11">read · test · implement · re-run</text>
+  <text x="401" y="53">Spec &amp; standards</text>
+  <text x="401" y="69" font-size="11">parallel Codex reviews</text>
+  <text x="535" y="53">Security</text>
+  <text x="535" y="69" font-size="11">review</text>
+  <text x="632" y="53">Pull</text>
+  <text x="632" y="69" font-size="11">request</text>
+</g>
+<line x1="12" y1="98" x2="668" y2="98" stroke="var(--pp-rule, #999)" stroke-width="0.6" stroke-dasharray="2 3"/>
+<g fill="currentColor" font-family="Libertinus Serif, Georgia, serif">
+  <text x="12" y="118" font-size="13" font-weight="700">Candidate: Multi-agent maker-checker TDD + cross-family review</text>
+  <text x="668" y="118" font-size="11" text-anchor="end" fill="var(--pp-muted, #555)">Median: 19.5 sessions · 24.4m to first edit · $14.06</text>
+</g>
+<g stroke="currentColor" stroke-width="1.2">
+  <rect x="104" y="130" width="474" height="38" rx="3" fill="var(--pp-shade, #f2f2f2)"/>
+  <rect x="12" y="196" width="74" height="48" rx="3" fill="var(--pp-sheet, #fff)"/>
+  <rect x="104" y="196" width="84" height="48" rx="3" fill="var(--pp-sheet, #fff)"/>
+  <rect x="198" y="196" width="84" height="48" rx="3" fill="var(--pp-sheet, #fff)"/>
+  <rect x="292" y="196" width="84" height="48" rx="3" fill="var(--pp-sheet, #fff)"/>
+  <rect x="386" y="196" width="80" height="48" rx="3" fill="var(--pp-sheet, #fff)"/>
+  <rect x="476" y="196" width="102" height="48" rx="3" fill="var(--pp-sheet, #fff)"/>
+  <rect x="596" y="196" width="72" height="48" rx="3" fill="var(--pp-sheet, #fff)"/>
+  <rect x="104" y="276" width="84" height="34" rx="3" fill="var(--pp-sheet, #fff)" stroke-dasharray="4 3"/>
+  <rect x="198" y="276" width="84" height="34" rx="3" fill="var(--pp-sheet, #fff)" stroke-dasharray="4 3"/>
+  <rect x="292" y="276" width="84" height="34" rx="3" fill="var(--pp-sheet, #fff)" stroke-dasharray="4 3"/>
+  <rect x="386" y="276" width="80" height="34" rx="3" fill="var(--pp-sheet, #fff)" stroke-dasharray="4 3"/>
+  <rect x="476" y="276" width="102" height="34" rx="3" fill="var(--pp-sheet, #fff)" stroke-dasharray="4 3"/>
+</g>
+<g fill="none" stroke="currentColor" stroke-width="1.2" marker-end="url(#fig1-arrow)">
+  <path d="M86 220 H102"/>
+  <path d="M188 220 H196"/>
+  <path d="M282 220 H290"/>
+  <path d="M376 220 H384"/>
+  <path d="M466 220 H474"/>
+  <path d="M578 220 H594"/>
+  <path d="M146 168 V194"/>
+  <path d="M240 168 V194"/>
+  <path d="M334 168 V194"/>
+  <path d="M426 168 V194"/>
+  <path d="M527 168 V194"/>
+  <path d="M139 244 V274"/>
+  <path d="M233 244 V274"/>
+  <path d="M327 244 V274"/>
+  <path d="M419 244 V274"/>
+  <path d="M520 244 V274"/>
+</g>
+<g fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#fig1-arrow)">
+  <path d="M153 276 V246"/>
+  <path d="M247 276 V246"/>
+  <path d="M341 276 V246"/>
+  <path d="M433 276 V246"/>
+  <path d="M534 276 V246"/>
+</g>
+<g fill="currentColor" font-family="Libertinus Serif, Georgia, serif" font-size="12" text-anchor="middle">
+  <text x="341" y="146" font-weight="700">Orchestrator (Claude Code claude-opus-5-5, medium — 24% of spend, 712 active min)</text>
+  <text x="341" y="161" font-size="10.5">writes each role's prompt, passes artifacts on, records each step</text>
+  <text x="49" y="224">Issue</text>
+  <text x="146" y="224">Test plan</text>
+  <text x="240" y="215">RED:</text>
+  <text x="240" y="231" font-size="11">failing tests</text>
+  <text x="334" y="215">GREEN:</text>
+  <text x="334" y="231" font-size="11">code</text>
+  <text x="426" y="224">Refactor</text>
+  <text x="527" y="215">Code review</text>
+  <text x="527" y="231" font-size="11">Claude + Codex</text>
+  <text x="632" y="215">delivery</text>
+  <text x="632" y="231" font-size="11">→ PR</text>
+  <text x="146" y="297" font-size="11">verifier</text>
+  <text x="240" y="297" font-size="11">verifier</text>
+  <text x="334" y="297" font-size="11">verifier</text>
+  <text x="426" y="297" font-size="11">verifier</text>
+  <text x="527" y="297" font-size="10.5">verifier (≤5 rds)</text>
+  <text x="340" y="334" font-size="11" fill="var(--pp-muted, #555)">Every role and verifier starts in a fresh context. Dashed arrows: a failed check sends the work back for another cycle.</text>
+</g>
+</svg>
+<figcaption id="figure-1-cap"><b>Figure 1.</b> The two processes side by side. The Baseline's single session holds the issue, the code it has read and its change from start to finish, and is reviewed once. In the Candidate, each step runs in a separate context checked by a verifier from the other model provider, and a Claude Code orchestrator sequences the roles across up to five cross-family code review rounds.</figcaption>
+</figure>
+<div class="table" id="table-2" tabindex="0" role="region" aria-labelledby="table-2-cap"><p class="cap" id="table-2-cap"><b>Table 2.</b> How the two designs differ.</p><table>
+<thead>
+<tr>
+<th scope="col"></th>
+<th scope="col">Baseline</th>
+<th scope="col">Candidate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Who does the work</td>
+<td>One agent session carries the issue from reading to pull request</td>
+<td>Separate roles: test planner, test writer (RED), implementer (GREEN), refactorer and reviewers</td>
+</tr>
+<tr>
+<td>Context</td>
+<td>One context holds the issue, the code read and the change made</td>
+<td>Each role starts fresh, and is handed the issue and the previous roles' artifacts</td>
+</tr>
+<tr>
+<td>Who writes the tests</td>
+<td>The session that implements</td>
+<td>Roles that do not implement, before any code is written</td>
+</tr>
+<tr>
+<td>Checking</td>
+<td>Two reviewer sub-agents (spec and standards) and a security review, once, after implementation</td>
+<td>A verifier from the other provider after every role; code review by both model families, up to five rounds</td>
+</tr>
+<tr>
+<td>The program</td>
+<td>Fixed by <code>thirdshift</code></td>
+<td>The specification describes the roles; the orchestrator writes the prompts, scripts and sequence each run</td>
+</tr>
+<tr>
+<td>An unclear requirement</td>
+<td>The session decides and carries on</td>
+<td>Escalation rules stop work that depends on a product decision until its owner answers</td>
+</tr>
+<tr>
+<td>Opening the pull request</td>
+<td>The agent, with <code>gh</code></td>
+<td><code>thirdshift</code>'s <code>delivery</code> Step</td>
+</tr>
+</tbody>
+</table></div>
+<p>The Candidate is the proposed workflow as a whole, including its model choices for each role. We packaged it from the latest pinned revisions committed on 29 October 2026 at 18:32–18:33 UTC across its maker-checker TDD stage, its cross-family review stage, and supporting role execution rules; revisions pushed on 1 November or later were outside this freeze (see the <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">follow-up second study</a> for how later updates behaved).</p>
+<p>At the 29 October freeze, the workflow instructions specified orchestration from a top-level harness without locking a single provider, noting in its role execution rules that the supplied recipes covered Claude Code orchestration and did "not yet supply Claude CLI maker or intermediate-verifier recipes for a Codex orchestrator." We therefore ran the Candidate's orchestrator on Claude Code (<code>claude-opus-5-5</code>, medium effort). The workflow's author noted afterward that he runs a Codex orchestrator by default, handing verification to Claude; that configuration was not tested here (<a href="#6-threats-to-validity">Section 6</a>) and became the direct subject of our <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">second comparison</a>. The frozen 44-file package manifest was checksum-verified on the Candidate host before every pair, and nothing was added to Tourbot or the replay repositories for either arm.</p></div></details><details class="sub" id="24-units-issues-and-replays"><summary><h3>2.4&ensp;Units: issues and replays</h3></summary><div class="sub-body"><p>The unit is a closed Tourbot issue, replayed from the commit before its fix, so nothing reaches production and the shipped fix remains a reference. Of 156 issues closed since 1 July 2026 by exactly one merged pull request, the design's research step shortlisted 24: based on <code>master</code>, 2 to 8 files changed, and no staging, migration or marketing work. The list of 24 was not saved, and applying those written criteria again on 3 November gives 77 issues, so the shortlist also rested on filtering that was not written down. Reading the 24, the research step found exactly ten with explicit acceptance criteria, which the correctness criterion needs, and all ten were enrolled, in the order they were labelled <code>ready-for-agent</code>. The author did not choose or drop any issue himself, but the shortlist cannot be rebuilt from its rule (<a href="#6-threats-to-validity">Section 6</a>).</p>
+<div class="table" id="table-3" tabindex="0" role="region" aria-labelledby="table-3-cap"><p class="cap" id="table-3-cap"><b>Table 3.</b> The ten enrolled issues, in pre-registered order.</p><table>
+<thead>
+<tr>
+<th scope="col">Pair</th>
+<th scope="col">Issue</th>
+<th scope="col">Title</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>I1</code></td>
+<td>Expense review gate blocks receipt-unavailable affidavit submissions</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>I2</code></td>
+<td>Alert when background timeclock daemon logs auto-clockouts without applying them</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>I3</code></td>
+<td>Shared mailbox view lists inline embedded images as downloadable attachments</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>I4</code></td>
+<td>Flaky browser test: call-pop wheel scroll intermittently fails in CI</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>I5</code></td>
+<td>Scheduled payment-reminder job: override-date check passes only by accident</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>I6</code></td>
+<td>Saved quote emails retain the sender signature from composition time instead of send time</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>I7</code></td>
+<td>Zero conference-call date logs a phantom audit entry and re-saves itself</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>I8</code></td>
+<td>Profile "address has changed" notification fires on email-only and secondary-line-only edits</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>I9</code></td>
+<td>Summary reporting dashboards hold the PHP session lock during slow queries</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>I10</code></td>
+<td>Profile state selector overwrites non-US addresses with <code>AL</code> (Alabama)</td>
+</tr>
+</tbody>
+</table></div>
+<p>For each pair, a deterministic preparation script pushed an isolated replay branch at the shipped fix's first parent, keeping only Tourbot's CI workflow scoped to replay branches. After that base commit's CI passed, the script filed the issue in each arm's isolated repository with only the title and body it carried when labelled <code>ready-for-agent</code> (recovered from issue edit history), omitting closed-issue comments because they name the shipped fix.</p>
+<p>Both processes started from that issue as written, so this comparison does not test upstream spec writing. The maker-checker TDD stage begins with a requirements decision: it reuses requirements that already define the behaviour and acceptance criteria, and writes a new spec (with planning review) only when scope or design decisions are missing. In every Candidate run here the orchestrator reused the issue as written and began directly with the test planner; no separate archived specification template was packaged.</p></div></details><details class="sub" id="25-isolation-randomisation-and-blinding"><summary><h3>2.5&ensp;Isolation, randomisation and blinding</h3></summary><div class="sub-body"><p><strong>Isolation.</strong> Each process had its own isolated replay repository, its own OS account with its own Claude and Codex subscriptions, and a repository-scoped GitHub token so neither could read the other's work or the production Tourbot repository. The two trials of a pair ran in parallel on two separate, identical 8-vCPU / 16 GB cloud droplets (Ubuntu 24.04), cloned from a common snapshot before splitting credentials so each host held only its own arm's tokens. After each run, its full transcript was searched for the original issue number, closing pull request number and branch, and fix commit prefix; any leak hit would have voided the pair.</p>
+<p><strong>Randomisation.</strong> Setup assigned arms to isolated OS accounts and replay repositories by a coin flip (<code>$RANDOM</code>), recorded only in private operator storage. For each pair, the packet builder assigned the labels X and Y to the two pull requests using <code>random.SystemRandom().shuffle</code>, keeping the mapping hidden outside the grading account.</p>
+<p><strong>Blinding.</strong> The model graders ran under a separate unprivileged <code>grader</code> OS account that never held either mapping, inside a read-only <code>bwrap</code> sandbox mounted over the blind packet. Each packet contained the issue text, CI outcome counts, file snapshots for <code>base/</code>, <code>X/</code> and <code>Y/</code>, and formatted diffs <code>X.diff</code> and <code>Y.diff</code>. It stripped Git history, branch names, commit messages, pull request bodies, plan files and all agent/process directories, and formatted changed PHP files across <code>base/</code>, <code>X/</code> and <code>Y/</code> with a single tool (<code>php-cs-fixer</code> 3.95.27, <code>@PSR12</code>) so style could not identify either arm. The author judged from the same X/Y diffs through an isolated review interface showing no model grader output, and saw neither the X/Y mapping nor any grader verdict until all eight pairs' blind judgements were sealed. Test volume in the diffs could still hint at arm identity (<a href="#6-threats-to-validity">Section 6</a>).</p></div></details><details class="sub" id="26-outcomes-and-measurement"><summary><h3>2.6&ensp;Outcomes and measurement</h3></summary><div class="sub-body"><p><strong>Primary outcome: pair result (<a class="cite hyp" href="#rq-1">RQ1</a>).</strong> The grading harness asked two model-based graders, Claude Code (<code>claude-opus-5-5</code>) and Codex (<code>gpt-6.1-sol</code>), to compare X and Y in both orders. Each was grounded in the issue, CI results, cross-tests and Infection output. The rubric, the same in every call, read: "Compare correctness against the issue and CI, then code quality against repository standards in base/. Read supporting files in X/ and Y/. Cite concrete defects and test evidence. Cross-test failures are disagreements to investigate, not automatic defects." Each call returned only a winner (X, Y or tie) and a reason. The Claude grader could read and search the packet but not run commands; the Codex grader ran in Codex's read-only sandbox, where it could also run commands and tests, which is how it reproduced the Pair 8 defect (<a href="#46-three-pairs-side-by-side">Section 4.6</a>). A verdict scores +1 for X, −1 for Y and 0 for a tie; a grader's preference is the sign of its net across the two orders, so a grader whose verdict flips with the order counts as a tie. The pair goes to a side only if both graders prefer it. Judging both orders is the measured remedy for position bias, which is worst between close candidates [<a class="cite" href="#ref-4">4</a>, <a class="cite" href="#ref-5">5</a>]; grounding addresses the weak agreement between reference-free code judging and execution results [<a class="cite" href="#ref-6">6</a>].</p>
+<p><strong>Cost and time (<a class="cite hyp" href="#rq-2">RQ2</a>).</strong> Time runs from the start of the <code>thirdshift</code> command until the pull request is ready, including CI and repairs, minus detected usage-limit stalls. Cost counts every token either process spent: The metrics collector sums <code>thirdshift</code>'s command-level token counts with every child sub-agent stream (<code>claude -p</code>, <code>codex exec</code>, and Codex native sub-agent rollouts) and prices them using a published API rate table frozen before the first run. A pair with an incomplete record is void. Pricing makes the two providers' tokens comparable; it is not ETA's subscription bill.</p>
+<p><strong>Correctness (<a class="cite hyp" href="#rq-3">RQ3</a>).</strong> The operator counts a correctness failure when a cross-test or a grader's direct test demonstrates a behaviour defect on input the application can realistically hold, or when a process fails to deliver. Cross-tests transplant each side's added and changed tests onto the other side's code and run PHPUnit's Unit and Browser suites; a failure is a disagreement to investigate, not automatically a defect. Infection mutation testing ran on each side's changed <code>src/</code> PHP classes, outside either process's time.</p>
+<p><strong>Human attention (<a class="cite hyp" href="#rq-4">RQ4</a>).</strong> The author recorded one blind judgement per pull request, "merge as is", "merge after small fixes" or "don't merge", with optional notes. It was registered as a reported outcome rather than a criterion because the only judge available was the person who commissioned the comparison (<a href="#6-threats-to-validity">Section 6</a>).</p></div></details><details class="sub" id="27-sample-size"><summary><h3>2.7&ensp;Sample size</h3></summary><div class="sub-body"><p>Ten pairs is the smallest number at which a fixed win count separates a strong process from chance. Under a sign test, 8 or more wins in 10 occurs by chance 5.5% of the time. The two-stage rule in <a href="#28-decision-rule-and-analysis">Section 2.8</a> wrongly adopts 7.9% of the time and detects a process that truly wins 80% of pairs 88% of the time (exact binomial calculation). It cannot detect a small advantage; it was designed to adopt only a process that is clearly better, because adoption means paying for it on every issue. Each process ran once per issue: when effects vary by issue, adding issues reduces uncertainty more than repeating runs [<a class="cite" href="#ref-7">7</a>].</p></div></details><details class="sub" id="28-decision-rule-and-analysis"><summary><h3>2.8&ensp;Decision rule and analysis</h3></summary><div class="sub-body"><p>The tally script applies the decision rule:</p>
+<ul>
+<li>A run that fails because of its own process, for example by ending without the issue implemented, is a <strong>loss</strong> for that process. A failure from outside both processes (a usage-limit stop, a CI or GitHub outage, a leak) <strong>voids</strong> the pair, which runs again; an issue voided twice is replaced by the next on the shortlist.</li>
+<li>With 10 counted pairs: <strong>8 or more</strong> Candidate wins means adopt, <strong>5 or fewer</strong> means reject, and <strong>6 or 7</strong> means running 8 more shortlisted issues and adopting only at 13 or more of 18.</li>
+<li>At a completed stage, the Candidate is rejected regardless of wins if it has more correctness failures than the Baseline, or if the median per-pair cost ratio or time ratio exceeds 2. Ratios are Candidate ÷ Baseline and include losses and ties.</li>
+</ul>
+<p>All ten enrolled issues form the analysis population. The win rate's interval is the exact (Clopper–Pearson) binomial interval. Analyses not listed here are exploratory (<a href="#29-exploratory-analyses-of-the-differences">Section 2.9</a>).</p></div></details><details class="sub" id="29-exploratory-analyses-of-the-differences"><summary><h3>2.9&ensp;Exploratory analyses of the differences</h3></summary><div class="sub-body"><p>The analyses for <a class="cite hyp" href="#eq-1">EQ1</a>–<a class="cite hyp" href="#eq-4">EQ4</a> were designed after the decision was known. They describe the processes and do not enter the decision.</p>
+<p><strong>Traces (<a class="cite hyp" href="#eq-1">EQ1</a>).</strong> An automated trace analyzer parses the redacted agent transcripts from all twenty runs.</p>
+<ul>
+<li>A <em>session</em> is one agent context: a Codex or Claude Code session, a native sub-agent, or a child <code>codex exec</code> or <code>claude -p</code> run.</li>
+<li>Tool calls are counted one by one, including each call inside a Codex code-mode script. They are classified by tool and command:<ul>
+<li>reading or searching (<code>cat</code>, <code>sed</code>, <code>rg</code>, Read, Grep);</li>
+<li>file edits (<code>apply_patch</code>, Edit, Write);</li>
+<li>test runs (PHPUnit, Infection);</li>
+<li>lint and static checks (<code>php -l</code>, PHPStan);</li>
+<li><code>git</code>;</li>
+<li>GitHub (<code>gh</code>);</li>
+<li>starting, messaging or waiting on other agents.</li>
+</ul>
+</li>
+<li>Candidate sessions are assigned to a stage of the workflow from the role names its orchestrator gave them.</li>
+<li><em>Active time</em> counts gaps of up to five minutes between a session's events. An agent that sat idle until it was messaged again does not count the wait.</li>
+<li><em>Cost by phase</em> prices each session's recorded tokens with the frozen price table of <a href="#26-outcomes-and-measurement">Section 2.6</a>. The traces do not separate Claude's cache writes from its other uncached input, so all of it is priced as cache writes. The phases add up to within 0.5% of the recorded cost.</li>
+</ul>
+<p><strong>Pull requests (<a class="cite hyp" href="#eq-2">EQ2</a>).</strong> Lines added are counted in each pull request's diff after the common formatter (<a href="#25-isolation-randomisation-and-blinding">Section 2.5</a>). Lines under <code>tests/</code> count as test code, and everything else as code. Testing styles are taken from the graders' descriptions of each pull request, checked against the diffs.</p>
+<p><strong>Failures (<a class="cite hyp" href="#eq-3">EQ3</a>).</strong> These are the correctness failures and process failures of <a href="#26-outcomes-and-measurement">Section 2.6</a>, together with the cross-tests that disagreed and what each side's traces show about how its pull request came to differ.</p>
+<p><strong>Judgement (<a class="cite hyp" href="#eq-4">EQ4</a>).</strong> The graders' 32 written reasons and the author's blind notes were read in full. Recurring reasons were grouped into themes, and each theme's pairs are listed so that it can be checked against the record. The themes were drafted by Claude Code (<a href="#8-declarations">Section 8</a>) and checked by the author.</p>
+<p><strong>Three pairs in detail.</strong> To show how the differences play out on one issue, one pair was chosen for each way the Candidate's result departed from a tie:</p>
+<ul>
+<li>Pair 6, its clearest win (both graders, both orders);</li>
+<li>Pair 8, its one correctness failure in a graded pair;</li>
+<li>Pair 2, the first of its two runs that stopped without a pull request.</li>
+</ul>
+<p>The rule was fixed before the pairs were written up, so that the examples were not chosen to fit a conclusion.</p></div></details></div></details>
+<details class="sec" id="3-conduct-of-the-comparison"><summary><h2>3&ensp;Conduct of the comparison</h2></summary><div class="sec-body"><details class="sub" id="31-shakedown"><summary><h3>3.1&ensp;Shakedown</h3></summary><div class="sub-body"><p>One uncounted shakedown issue, <code>I0</code>, ran on 30 October 2026 to surface instrumentation issues before the counted pairs. It exposed fourteen plumbing problems — including a missing sandbox profile, a token permission gap for reading check runs, a 17-minute GitHub delay when registering a new repository's CI workflow, and formatter incompatibilities — all fixed across both environments before freezing the apparatus. The Candidate took about 16 times as long as the Baseline (260 vs 16.5 minutes), which led to running the two processes in parallel on separate machines rather than in turn on one.</p>
+<p>Two differences between the processes were recorded and deliberately left unchanged: the Candidate has no security review, while the Baseline's Ticket run includes one; and the Candidate's scripts ran Codex reviewers at effort <code>high</code>, where the cross-family review specification documents <code>low</code> as its default.</p></div></details><details class="sub" id="32-flow-of-issues-and-runs"><summary><h3>3.2&ensp;Flow of issues and runs</h3></summary><div class="sub-body"><figure class="flow" id="figure-2">
+<svg viewBox="0 0 660 416" role="img" aria-labelledby="fig2-title" xmlns="http://www.w3.org/2000/svg">
+<title id="fig2-title">Flow of issues and runs through the ten-issue adoption comparison</title>
+<defs>
+  <marker id="fig2-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+    <path d="M0 0 L8 4 L0 8 z" fill="currentColor"/>
+  </marker>
+</defs>
+<g fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.2">
+  <rect x="165" y="10" width="330" height="46" rx="3"/>
+  <rect x="165" y="82" width="330" height="46" rx="3"/>
+  <rect x="24" y="160" width="282" height="58" rx="3"/>
+  <rect x="354" y="160" width="282" height="58" rx="3"/>
+  <rect x="115" y="252" width="300" height="58" rx="3"/>
+  <rect x="445" y="252" width="191" height="58" rx="3" fill="var(--pp-shade, #f2f2f2)" stroke-dasharray="4 3"/>
+  <rect x="165" y="346" width="330" height="54" rx="3" fill="var(--pp-shade, #f2f2f2)"/>
+</g>
+<g fill="none" stroke="currentColor" stroke-width="1.2" marker-end="url(#fig2-arrow)">
+  <path d="M330 56 V80"/>
+  <path d="M330 128 V144 H165 V158"/>
+  <path d="M330 144 H495 V158"/>
+  <path d="M165 218 V236 H265 V250"/>
+  <path d="M495 218 V236 H540 V250"/>
+  <path d="M495 236 H265 V250"/>
+  <path d="M265 310 V328 H330 V344"/>
+  <path d="M540 310 V328 H330 V344"/>
+</g>
+<g fill="currentColor" font-family="Libertinus Serif, Georgia, serif" font-size="12" text-anchor="middle">
+  <text x="330" y="30" font-weight="700">156 Tourbot issues closed by one merged PR</text>
+  <text x="330" y="46" font-size="11" fill="var(--pp-muted, #555)">24 shortlisted</text>
+  <text x="330" y="102" font-weight="700">10 enrolled (I1–I10, explicit acceptance criteria)</text>
+  <text x="330" y="118" font-size="11" fill="var(--pp-muted, #555)">10 pairs prepared in parallel · 0 voided</text>
+  <text x="165" y="184" font-weight="700">Baseline (Ticket run): 10 runs</text>
+  <text x="165" y="202" font-size="11">10 pull requests delivered, CI green</text>
+  <text x="495" y="184" font-weight="700">Candidate (Maker-Checker): 10 runs</text>
+  <text x="495" y="200" font-size="11">8 PRs delivered, CI green · 2 stopped at planning</text>
+  <text x="265" y="275" font-weight="700">8 pairs graded blind</text>
+  <text x="265" y="292" font-size="11">2 graders × 2 orders = 32 verdicts · 16 human calls</text>
+  <text x="540" y="275" font-weight="700">Pairs 2 (I2) &amp; 10 (I10)</text>
+  <text x="540" y="292" font-size="11">Candidate losses (no PR)</text>
+  <text x="330" y="369" font-weight="700">10 pairs counted under pre-registered rule</text>
+  <text x="330" y="387" font-size="11.5">2 Candidate wins · 3 losses · 5 ties (Reject)</text>
+</g>
+</svg>
+<figcaption id="figure-2-cap"><b>Figure 2.</b> Flow of issues and runs through the comparison. The uncounted shakedown issue (<code>I0</code>) is excluded. Losses by process failure (<code>I2</code> and <code>I10</code>, where the Candidate stopped at planning without opening a pull request) are counted in the decision rule but not graded.</figcaption>
+</figure>
+<p>The ten pairs ran in order from 30 October to 1 November 2026 (<a href="#figure-2">Figure 2</a>). Every completed run passed its leak search, and every metrics record was complete, with no warnings and no detected limit stalls, so no pair was voided.</p>
+<p>In Pairs 2 (<code>I2</code>) and 10 (<code>I10</code>) the Candidate's run stopped at its planning stage. In Pair 2, the maker-checker TDD workflow raised a blocking question asking what should end an "incident" for a once-per-incident alert email, recommended an answer, and stopped; <code>delivery</code> then exited with no commits. In Pair 10 it likewise stopped before writing code. The Baseline opened a pull request with green CI in both. The author ruled both to be Candidate losses under the pre-registered rule ("a run that ends without the issue implemented"), on 30 October and 1 November, before any grading result was known.</p>
+<p>The eight remaining pairs were graded between 30 October and 1 November. The author recorded his judgements on 2 November through a write-once blind review form that sealed each pair's scores without allowing edits after submission. Only then were the verdicts and mappings opened.</p></div></details><details class="sub" id="33-fidelity"><summary><h3>3.3&ensp;Fidelity</h3></summary><div class="sub-body"><p>Both processes ran as frozen: the Candidate's 44 files matched the manifest before every pair, and every run used <code>thirdshift</code> 0.18.6 with the models in <a href="#table-1">Table 1</a>. The Candidate kept its records in several directories; from Pair 3 onward, a root-owned loop mirrored its worktree's temporary scratch directory during each run so internal role artifacts were preserved before cleanup. This observed the Candidate and did not change it. The traces show one departure from the Candidate's own process: in Pair 3 its orchestrator finished after the refactor step without running its code review stage (<a href="#42-how-they-worked-one-context-against-many-eq1">Section 4.2</a>). The run was counted as the process produced it.</p></div></details><details class="sub" id="34-deviations-from-the-registered-design"><summary><h3>3.4&ensp;Deviations from the registered design</h3></summary><div class="sub-body"><div class="table" id="table-4" tabindex="0" role="region" aria-labelledby="table-4-cap"><p class="cap" id="table-4-cap"><b>Table 4.</b> Changes made after the design was fixed. None changed which pull requests were compared, how they were labelled, or the decision rule.</p><table>
+<thead>
+<tr>
+<th scope="col">#</th>
+<th scope="col">Change</th>
+<th scope="col">Reason</th>
+<th scope="col">Approved</th>
+<th scope="col">Effect on the analysis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Run the two processes in parallel on two cloned droplets, not in turn on one</td>
+<td>The shakedown Candidate took 16× as long</td>
+<td>30 Oct, before Pair 1</td>
+<td>Identical hardware per process; no shared usage limits</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Replay preparation waits for CI and may resume after a transient CI failure</td>
+<td>GitHub registered new workflows late</td>
+<td>30 Oct, before Pair 1</td>
+<td>None on outcomes</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Measure Codex child runs from retained rollouts when the Candidate deleted their directories; fix a collector parsing bug</td>
+<td>Pair 2's Candidate deleted three child directories</td>
+<td>30 Oct</td>
+<td>Completes cost records; without it Pair 2 would be void</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Format a file without <code>statement_indentation</code> when <code>php-cs-fixer</code> crashes on it, identically for <code>base</code>, <code>X</code> and <code>Y</code></td>
+<td>Formatter crash on a 10,364-line legacy file in Pair 9</td>
+<td>1 Nov</td>
+<td>Pair 9 only; both sides formatted alike</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cap each test or Infection output at 100,000 characters inline in the grader prompt and attach the full output as a file</td>
+<td>Pair 9's prompt (1.84 M characters) exceeded Codex's 1,048,576-character limit</td>
+<td>1 Nov</td>
+<td>Pair 9 only; earlier prompts byte-identical</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Mirror the Candidate's temporary scratch directory during runs</td>
+<td>Its intermediate role records were lost to worktree cleanup</td>
+<td>30 Oct, from Pair 3</td>
+<td>Observation only</td>
+</tr>
+</tbody>
+</table></div>
+<p>No change was made in response to a pair's result.</p></div></details></div></details>
+<details class="sec" id="4-results"><summary><h2>4&ensp;Results</h2></summary><div class="sec-body"><p><a href="#42-how-they-worked-one-context-against-many-eq1">Sections 4.2</a> to 4.6 report the exploratory analyses of the differences (<a href="#29-exploratory-analyses-of-the-differences">Section 2.9</a>). <a href="#47-the-pre-registered-decision-rq1rq4">Section 4.7</a> reports the pre-registered decision.</p>
+<details class="sub" id="41-overview-of-the-ten-pairs"><summary><h3>4.1&ensp;Overview of the ten pairs</h3></summary><div class="sub-body"><div class="table" id="table-5" tabindex="0" role="region" aria-labelledby="table-5-cap"><p class="cap" id="table-5-cap"><b>Table 5.</b> The Candidate won 2 pairs, lost 3 and tied 5. Results for every pair; ratios are Candidate ÷ Baseline.</p><table>
+<thead>
+<tr>
+<th scope="col">Pair</th>
+<th scope="col">Issue</th>
+<th scope="col">Claude grader</th>
+<th scope="col">Codex grader</th>
+<th scope="col">Pair result</th>
+<th scope="col" style="text-align: right;">Cost ratio</th>
+<th scope="col" style="text-align: right;">Time ratio</th>
+<th scope="col">Author: Baseline</th>
+<th scope="col">Author: Candidate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>I1</code></td>
+<td>Baseline</td>
+<td>Baseline</td>
+<td><strong>Loss</strong></td>
+<td style="text-align: right;">19.4</td>
+<td style="text-align: right;">10.2</td>
+<td>merge as is</td>
+<td>don't merge</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>I2</code></td>
+<td>–</td>
+<td>–</td>
+<td><strong>Loss</strong> (no PR)</td>
+<td style="text-align: right;">6.9</td>
+<td style="text-align: right;">3.8</td>
+<td>not graded</td>
+<td>no PR</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>I3</code></td>
+<td>Candidate</td>
+<td>Candidate</td>
+<td><strong>Win</strong></td>
+<td style="text-align: right;">7.4</td>
+<td style="text-align: right;">5.8</td>
+<td>merge as is</td>
+<td>small fixes</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>I4</code></td>
+<td>Candidate</td>
+<td>no preference</td>
+<td>Tie</td>
+<td style="text-align: right;">18.6</td>
+<td style="text-align: right;">7.4</td>
+<td>merge as is</td>
+<td>merge as is</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>I5</code></td>
+<td>Candidate</td>
+<td>Baseline</td>
+<td>Tie</td>
+<td style="text-align: right;">9.8</td>
+<td style="text-align: right;">6.7</td>
+<td>merge as is</td>
+<td>small fixes</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>I6</code></td>
+<td>Candidate</td>
+<td>Candidate</td>
+<td><strong>Win</strong></td>
+<td style="text-align: right;">46.9</td>
+<td style="text-align: right;">23.6</td>
+<td>small fixes</td>
+<td>don't merge</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>I7</code></td>
+<td>Baseline</td>
+<td>Candidate</td>
+<td>Tie</td>
+<td style="text-align: right;">23.5</td>
+<td style="text-align: right;">12.7</td>
+<td>merge as is</td>
+<td>don't merge</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>I8</code></td>
+<td>Candidate</td>
+<td>Baseline</td>
+<td>Tie</td>
+<td style="text-align: right;">7.9</td>
+<td style="text-align: right;">4.5</td>
+<td>merge as is</td>
+<td>don't merge</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>I9</code></td>
+<td>Candidate</td>
+<td>Baseline</td>
+<td>Tie</td>
+<td style="text-align: right;">11.0</td>
+<td style="text-align: right;">6.2</td>
+<td>merge as is</td>
+<td>small fixes</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>I10</code></td>
+<td>–</td>
+<td>–</td>
+<td><strong>Loss</strong> (no PR)</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">2.0</td>
+<td>not graded</td>
+<td>no PR</td>
+</tr>
+</tbody>
+</table></div>
+<p>CI passed on both pull requests of every graded pair. Five of the eight graded pairs were ties, because the two graders disagreed or one had no preference. <a href="#42-how-they-worked-one-context-against-many-eq1">Sections 4.2</a> to 4.6 analyse the complete session transcripts, formatted blind diffs, cross-test outputs, and written grader notes from all twenty runs.</p>
+<figure class="flow" id="figure-3">
+<svg viewBox="0 0 680 374" role="img" aria-labelledby="fig3-title" xmlns="http://www.w3.org/2000/svg">
+<title id="fig3-title">Candidate cost and time as multiples of Baseline across all ten pairs</title>
+<g fill="currentColor" font-family="Libertinus Serif, Georgia, serif" font-size="11.5">
+<text x="195.9" y="22" text-anchor="middle" font-weight="700">1×</text>
+<text x="272.1" y="22" text-anchor="middle" font-weight="700">2× (cap)</text>
+<text x="372.8" y="22" text-anchor="middle">5×</text>
+<text x="449.0" y="22" text-anchor="middle">10×</text>
+<text x="525.2" y="22" text-anchor="middle">20×</text>
+<text x="626.0" y="22" text-anchor="middle">50×</text>
+</g><g stroke="currentColor" fill="none">
+<path d="M195.9 30 V326" stroke-width="1.3"/>
+<path d="M272.1 30 V326" stroke-width="1.1" stroke-dasharray="4 3" opacity="0.8"/>
+<path d="M372.8 30 V326" stroke-width="0.5" opacity="0.28"/>
+<path d="M449.0 30 V326" stroke-width="0.5" opacity="0.28"/>
+<path d="M525.2 30 V326" stroke-width="0.5" opacity="0.28"/>
+<path d="M626.0 30 V326" stroke-width="0.5" opacity="0.28"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="50.0" x2="646.0" y2="50.0" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="54.0" font-size="11.5" fill="currentColor">Pair 1 (I1) · loss</text>
+<path d="M451.2 50.0 H521.9" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="451.2" cy="50.0" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="521.9" cy="50.0" r="4.3" fill="currentColor"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="74.5" x2="646.0" y2="74.5" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="78.5" font-size="11.5" fill="currentColor">Pair 2 (I2) · loss, no PR</text>
+<path d="M342.6 74.5 H408.2" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="342.6" cy="74.5" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="408.2" cy="74.5" r="4.3" fill="currentColor"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="99.0" x2="646.0" y2="99.0" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="103.0" font-size="11.5" fill="currentColor" font-weight="700">Pair 3 (I3) · win</text>
+<path d="M389.1 99.0 H415.9" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="389.1" cy="99.0" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="415.9" cy="99.0" r="4.3" fill="currentColor"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="123.5" x2="646.0" y2="123.5" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="127.5" font-size="11.5" fill="currentColor">Pair 4 (I4) · tie</text>
+<path d="M415.9 123.5 H517.2" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="415.9" cy="123.5" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="517.2" cy="123.5" r="4.3" fill="currentColor"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="148.0" x2="646.0" y2="148.0" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="152.0" font-size="11.5" fill="currentColor">Pair 5 (I5) · tie</text>
+<path d="M405.0 148.0 H446.8" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="405.0" cy="148.0" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="446.8" cy="148.0" r="4.3" fill="currentColor"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="172.5" x2="646.0" y2="172.5" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="176.5" font-size="11.5" fill="currentColor" font-weight="700">Pair 6 (I6) · win</text>
+<path d="M543.4 172.5 H618.9" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="543.4" cy="172.5" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="618.9" cy="172.5" r="4.3" fill="currentColor"/>
+<text x="535.4" y="176.0" font-size="10" text-anchor="end" fill="var(--pp-muted, #555)">23.6× time, 46.9× cost</text>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="197.0" x2="646.0" y2="197.0" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="201.0" font-size="11.5" fill="currentColor">Pair 7 (I7) · tie</text>
+<path d="M475.3 197.0 H542.9" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="475.3" cy="197.0" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="542.9" cy="197.0" r="4.3" fill="currentColor"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="221.5" x2="646.0" y2="221.5" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="225.5" font-size="11.5" fill="currentColor">Pair 8 (I8) · tie</text>
+<path d="M361.2 221.5 H423.1" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="361.2" cy="221.5" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="423.1" cy="221.5" r="4.3" fill="currentColor"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="246.0" x2="646.0" y2="246.0" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="250.0" font-size="11.5" fill="currentColor">Pair 9 (I9) · tie</text>
+<path d="M396.5 246.0 H459.5" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="396.5" cy="246.0" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="459.5" cy="246.0" r="4.3" fill="currentColor"/>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif">
+<line x1="178.0" y1="270.5" x2="646.0" y2="270.5" stroke="currentColor" stroke-width="0.4" opacity="0.14"/>
+<text x="10" y="274.5" font-size="11.5" fill="currentColor">Pair 10 (I10) · loss, no PR</text>
+<path d="M271.0 270.5 H312.9" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+<circle cx="271.0" cy="270.5" r="4.3" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="312.9" cy="270.5" r="4.3" fill="currentColor"/>
+</g>
+<line x1="10" y1="293.0" x2="646.0" y2="293.0" stroke="currentColor" stroke-width="0.7" stroke-dasharray="3 3" opacity="0.45"/>
+<g font-family="Libertinus Serif, Georgia, serif">
+<text x="10" y="311.0" font-size="12" font-weight="700" font-style="italic" fill="currentColor">Median (10 issues)</text>
+<path d="M400.8 307.0 H453.7" stroke="currentColor" stroke-width="1.4" opacity="0.7"/>
+<rect x="396.3" y="302.5" width="9" height="9" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.6"/>
+<rect x="449.2" y="302.5" width="9" height="9" fill="currentColor"/>
+<text x="392.8" y="311.0" font-size="10.5" text-anchor="end" fill="currentColor">6.4×</text>
+<text x="462.7" y="311.0" font-size="10.5" text-anchor="start" fill="currentColor">10.4×</text>
+</g>
+<g font-family="Libertinus Serif, Georgia, serif" font-size="11" fill="var(--pp-muted, #555)">
+<circle cx="178" cy="353.0" r="4.2" fill="var(--pp-sheet, #fff)" stroke="currentColor" stroke-width="1.5"/>
+<text x="187" y="356.0">Time ratio (C ÷ B)</text>
+<circle cx="315" cy="353.0" r="4.2" fill="currentColor"/>
+<text x="324" y="356.0">API-priced cost ratio (C ÷ B)</text>
+<rect x="505" y="348.5" width="8.5" height="8.5" fill="currentColor"/>
+<text x="518" y="356.0">10-issue median</text>
+</g></svg>
+<figcaption id="figure-3-cap"><b>Figure 3.</b> Candidate cost and time as multiples of the Baseline across every pair (<code>I1</code>–<code>I10</code>, log scale). The solid line marks equal cost or time (<code>1×</code>), and the dashed line marks the pre-registered decision rule's <code>2×</code> cap. Filled dots show API-priced cost ratios and open dots show time ratios; only <code>I10</code>'s time ratio (<code>1.98×</code>, after stopping at planning) fell just under the cap.</figcaption>
+</figure></div></details><details class="sub" id="42-how-they-worked-one-context-against-many-eq1"><summary><h3>4.2&ensp;How they worked: one context against many (EQ1)</h3></summary><div class="sub-body"><div class="table" id="table-6" tabindex="0" role="region" aria-labelledby="table-6-cap"><p class="cap" id="table-6-cap"><b>Table 6.</b> The Candidate did the same kinds of work as the Baseline, about three times as much of it, and edited code last. Work per run: medians over the ten pairs; the ratio is the median of each pair's Candidate ÷ Baseline.</p><table>
+<thead>
+<tr>
+<th scope="col">Per run</th>
+<th scope="col">Baseline</th>
+<th scope="col">Candidate</th>
+<th scope="col">Median ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent sessions</td>
+<td>4</td>
+<td>19.5</td>
+<td>4.9</td>
+</tr>
+<tr>
+<td>Tool calls</td>
+<td>144</td>
+<td>412</td>
+<td>2.8</td>
+</tr>
+<tr>
+<td>Reading and searching</td>
+<td>48</td>
+<td>197</td>
+<td>3.8</td>
+</tr>
+<tr>
+<td>File edits</td>
+<td>12</td>
+<td>20</td>
+<td>1.9</td>
+</tr>
+<tr>
+<td>Test runs</td>
+<td>15</td>
+<td>44</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>Lint and static checks</td>
+<td>6</td>
+<td>11</td>
+<td>1.7</td>
+</tr>
+<tr>
+<td><code>git</code></td>
+<td>13</td>
+<td>28</td>
+<td>2.4</td>
+</tr>
+<tr>
+<td>GitHub (<code>gh</code>)</td>
+<td>17</td>
+<td>0.5</td>
+<td>–</td>
+</tr>
+<tr>
+<td>Starting, messaging or waiting on agents</td>
+<td>8</td>
+<td>53</td>
+<td>4.9</td>
+</tr>
+<tr>
+<td>Minutes to the first edit of a PHP file (8 pairs with one)</td>
+<td>1.3</td>
+<td>24.4</td>
+<td>21.4</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The Candidate did the same kinds of work, much more of it.</strong> Over the ten pairs it made 5,189 tool calls to the Baseline's 1,487. Most of the difference is reading (2,505 calls against 481) and test runs (598 against 162). Every role starts in a fresh context and reads the issue, the code and the plan again, and every verifier runs the suites again. File edits grew least (396 against 128), so the extra work went into reading and checking, not into the change itself. The Baseline's agent opened and watched its own pull request (174 <code>gh</code> calls); in the Candidate, <code>thirdshift</code>'s <code>delivery</code> Step did that outside the agents.</p>
+<p><strong>The Baseline starts coding within three minutes.</strong> Its single session read the instructions and the relevant code, and made its first PHP edit at a median of 1.3 minutes (at most 2.8). It then implemented, ran the focused tests and opened the pull request. In 7 of 10 runs that first edit was a new test. Two native reviewer sub-agents (spec and standards) checked the change in parallel, and a separate session ran the security review. Every Baseline run had exactly these four sessions. The Candidate's first edit to a PHP file came at a median of 24 minutes, after the test plan had been written and verified. Both processes wrote tests first. The difference is who wrote them, and how much verification came before them.</p>
+<div class="table" id="table-7" tabindex="0" role="region" aria-labelledby="table-7-cap"><p class="cap" id="table-7-cap"><b>Table 7.</b> Most of the Candidate's time and money went to coordinating and to planning tests, not to the fix. Where the time and cost went, over all ten runs; verifier sessions are those whose only job was to check another agent's work, and cost is at API prices.</p><table>
+<thead>
+<tr>
+<th scope="col">Phase</th>
+<th scope="col">Sessions</th>
+<th scope="col">Verifier sessions</th>
+<th scope="col">Active minutes</th>
+<th scope="col">Tool calls</th>
+<th scope="col">Cost ($)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Candidate</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Orchestrator (one Claude Code session per run)</td>
+<td>10</td>
+<td>0</td>
+<td>712</td>
+<td>977</td>
+<td>53.45</td>
+</tr>
+<tr>
+<td>Test plan</td>
+<td>56</td>
+<td>46</td>
+<td>270</td>
+<td>1,263</td>
+<td>55.93</td>
+</tr>
+<tr>
+<td>RED: failing tests</td>
+<td>30</td>
+<td>22</td>
+<td>186</td>
+<td>874</td>
+<td>54.57</td>
+</tr>
+<tr>
+<td>GREEN: implementation</td>
+<td>28</td>
+<td>14</td>
+<td>85</td>
+<td>743</td>
+<td>17.57</td>
+</tr>
+<tr>
+<td>Refactor</td>
+<td>19</td>
+<td>6</td>
+<td>27</td>
+<td>266</td>
+<td>5.15</td>
+</tr>
+<tr>
+<td>Code review</td>
+<td>64</td>
+<td>60</td>
+<td>88</td>
+<td>929</td>
+<td>27.93</td>
+</tr>
+<tr>
+<td>Pull request body, diagnosis</td>
+<td>9</td>
+<td>1</td>
+<td>41</td>
+<td>137</td>
+<td>8.08</td>
+</tr>
+<tr>
+<td><strong>Baseline</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Implementation session</td>
+<td>10</td>
+<td>0</td>
+<td>89</td>
+<td>880</td>
+<td>7.18</td>
+</tr>
+<tr>
+<td>Spec and standards reviewers</td>
+<td>20</td>
+<td>20</td>
+<td>19</td>
+<td>309</td>
+<td>3.51</td>
+</tr>
+<tr>
+<td>Security review</td>
+<td>10</td>
+<td>10</td>
+<td>26</td>
+<td>298</td>
+<td>2.68</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Most of the Candidate's time went into planning and writing tests, not into the fix.</strong></p>
+<ul>
+<li>Its sub-agents were active for 456 minutes writing and verifying the test plan and the failing tests.</li>
+<li>They were active for 85 minutes implementing the change: about as long as the Baseline's implementation sessions took in all (89).</li>
+<li>Verification rounds on the test plan drove its cost. The plan needed a median of 3 verifications, but 7 in Pair 1 (where a meta-reviewer was called in to break the deadlock), 8 in Pair 7 and 14 in Pair 6, where a review finding sent the run back to planning. These were three of its four slowest runs (124, 186 and 296 minutes).</li>
+<li>In Pairs 2 and 10 it stopped after 3 and 2 plan verifications without editing any code.</li>
+</ul>
+<p><strong>Half the Candidate's cost came before any production code.</strong> Over the ten runs it cost $222.67 by phase, against the Baseline's $13.39:</p>
+<ul>
+<li>Writing and verifying the test plan and the failing tests cost $110.50, 50%.</li>
+<li>The orchestrator cost $53.45, 24%.</li>
+<li>Code review cost $27.93, 13%, and the implementation itself $17.57, 8%.</li>
+<li>By provider, 85% was Claude and 15% Codex. Most of the Claude cost was cached context read again on every turn of long-running sessions.</li>
+<li>By role, 47% made the change (including test planners and writers), 29% checked it, and 24% coordinated. The Candidate's checking alone, $64.30, cost almost five times the Baseline's whole spend.</li>
+</ul>
+<p>The three most expensive runs (Pairs 6, 7 and 4) were 64% of its total cost. Two of them had the most plan verifications: 14 in Pair 6 and 8 in Pair 7.</p>
+<p><strong>The orchestrator was its largest single cost in time.</strong> The Candidate's orchestrator was active for 712 minutes, eight times as long as the Baseline's whole implementation session. It wrote each role's prompt, froze artifacts with digests, audited which files each verifier had read, and recorded each step. By role, 33% of the Candidate's tool calls made the change, 48% checked it and 19% coordinated. The Baseline's split was 59% making and 41% checking. The maker-checker design raised the share of checking only modestly; most of the added work was coordination and repetition.</p>
+<p><strong>The Baseline ran the same way every time, and the Candidate never did.</strong> The skill describes roles, not a fixed program, and the orchestrator improvised the rest. It named roles, wrote its own runner scripts and chose where to keep state differently in each run, and its number of sessions ranged from 4 to 72. In Pair 3 it ended after the refactor step without running its code review stage. The Baseline's structure was identical in every run.</p>
+<p>These counts come from the redacted transcript archive, where an input or output longer than 3,000 characters is truncated in the middle. A long Codex script could hide a call in the cut, so tool-call counts are a lower bound. Failed calls are not compared, because Codex code-mode reports exit codes inside its output, where they cannot be counted reliably.</p></div></details><details class="sub" id="43-what-they-produced-similar-fixes-six-times-the-tests-eq2"><summary><h3>4.3&ensp;What they produced: similar fixes, six times the tests (EQ2)</h3></summary><div class="sub-body"><div class="table" id="table-8" tabindex="0" role="region" aria-labelledby="table-8-cap"><p class="cap" id="table-8-cap"><b>Table 8.</b> The Candidate added more test code in all eight graded pairs: 14.7 test lines per line of code, against 3.7. Size of each pull request after the common formatter; B is the Baseline and C the Candidate.</p><table>
+<thead>
+<tr>
+<th scope="col">Pair</th>
+<th scope="col">Files changed B</th>
+<th scope="col">Files changed C</th>
+<th scope="col">Code lines added B</th>
+<th scope="col">Code lines added C</th>
+<th scope="col">Test lines added B</th>
+<th scope="col">Test lines added C</th>
+<th scope="col">Tests ÷ code B</th>
+<th scope="col">Tests ÷ code C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>4</td>
+<td>5</td>
+<td>24</td>
+<td>32</td>
+<td>156</td>
+<td>1,013</td>
+<td>6.5</td>
+<td>31.7</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>11</td>
+<td>22</td>
+<td>130</td>
+<td>412</td>
+<td>11.8</td>
+<td>18.7</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>45</td>
+<td>56</td>
+<td>–</td>
+<td>–</td>
+</tr>
+<tr>
+<td>5</td>
+<td>5</td>
+<td>4</td>
+<td>21</td>
+<td>13</td>
+<td>243</td>
+<td>687</td>
+<td>11.6</td>
+<td>52.8</td>
+</tr>
+<tr>
+<td>6</td>
+<td>4</td>
+<td>9</td>
+<td>103</td>
+<td>207</td>
+<td>153</td>
+<td>1,736</td>
+<td>1.5</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>7</td>
+<td>8</td>
+<td>8</td>
+<td>75</td>
+<td>114</td>
+<td>221</td>
+<td>1,808</td>
+<td>2.9</td>
+<td>15.9</td>
+</tr>
+<tr>
+<td>8</td>
+<td>3</td>
+<td>6</td>
+<td>69</td>
+<td>80</td>
+<td>185</td>
+<td>963</td>
+<td>2.7</td>
+<td>12.0</td>
+</tr>
+<tr>
+<td>9</td>
+<td>4</td>
+<td>4</td>
+<td>16</td>
+<td>16</td>
+<td>45</td>
+<td>448</td>
+<td>2.8</td>
+<td>28.0</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>31</strong></td>
+<td><strong>40</strong></td>
+<td><strong>319</strong></td>
+<td><strong>484</strong></td>
+<td><strong>1,178</strong></td>
+<td><strong>7,123</strong></td>
+<td><strong>3.7</strong></td>
+<td><strong>14.7</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The fixes were similar in substance; the tests were not.</strong> CI passed on both pull requests of every graded pair. In five of the eight (Pairs 1, 3, 4, 5 and 9), the graders found that both fixed the issue, with no confirmed defect on either side. In the other three, the difference was an edge case (<a href="#table-9">Table 9</a>). The Candidate added more code in 5 of the 7 pairs that changed code, 1.5 times as much in all. It added more test code in all 8 pairs: 6.0 times as much in all, spread over 22 test files against the Baseline's 10. Its ratio of test to code ranged from 8.4 to 52.8 lines per line; the Baseline's ranged from 1.5 to 11.8. This fits what is known about agent-written tests:</p>
+<ul>
+<li>Coding agents change tests more readily than other contributors. In 1.2 million commits from 2025, 23% of coding-agent commits changed test files, against 13% of other commits [<a class="cite" href="#ref-11">11</a>].</li>
+<li>On SWE-bench Verified, prompting agents to write more or fewer tests changed their cost and number of steps far more than how many tasks they resolved [<a class="cite" href="#ref-12">12</a>].</li>
+</ul>
+<p><strong>The Candidate's tests more often read the code than ran it.</strong> Much of the affected code is top-level PHP in legacy page scripts, which is hard to call from a test, and both processes sometimes tested it by parsing the source. The Baseline did so in Pair 5, running the shipped loops through <code>php-parser</code>. In Pair 9 it asserted an exact whitespace string. In four pairs, the graders described Candidate tests that read the source instead of running it:</p>
+<ul>
+<li>Pair 1: a hand-written fake database that parses SQL with regular expressions, and token scans for helper calls.</li>
+<li>Pair 5: a 597-line tokenizer and <code>eval</code> harness.</li>
+<li>Pair 7: a 956-line wiring test that checks source tokens and runs <code>eval</code> on extracted code. Its own docblock says it can fail on a refactor that changes no behaviour.</li>
+<li>Pair 9: a token-based control-flow analyser of about 400 lines.</li>
+</ul>
+<p>Elsewhere, the Candidate tested combinations exhaustively. In Pair 8 it tested all 729 combinations of unchanged, padded and changed fields, with process-isolated monkey-patching. In Pair 6 it checked the exact wording of generated emails. The Baseline's tests were usually a single file that ran the real handler against a small fixture, for example an in-memory SQLite database in Pair 1.</p>
+<p><strong>The Candidate kept to existing structure; the Baseline restructured more.</strong> The graders' code comparisons show a consistent difference in how each process changed the code.</p>
+<p>The Candidate tended to extend what was there:</p>
+<ul>
+<li>Pair 3: it moved the existing payload decoding into a shared helper, so the renderer and the attachment list agree.</li>
+<li>Pair 5: it placed its helper beside the related functions and kept a check that the issue said must stay unchanged.</li>
+<li>Pair 6: it shared the existing signature builder.</li>
+<li>Pair 9: it added the session release after each existing gate.</li>
+</ul>
+<p>The Baseline more often reshaped code and tightened types:</p>
+<ul>
+<li>Pair 5: a new one-function module, and removal of a dead variable.</li>
+<li>Pair 6: stricter parameter types on the email builder.</li>
+<li>Pair 7: a typed property on the booking domain model.</li>
+<li>Pair 8: a changed signature on the profile-update method.</li>
+<li>Pair 9: a restructured include order on the Revenue YTD page.</li>
+</ul>
+<p>The graders counted some of these restructurings for the Baseline, as bounded refactoring, and some against it, as unrequested scope.</p>
+<p><strong>Both processes added things nobody asked for.</strong> The Candidate added daylight-saving handling (Pair 7), readable labels in a notice email (Pair 8) and long specification-style comments (Pair 6). The Baseline added a signature to generated bus emails (Pair 6) and Latin-1 conversion (Pair 8). Two of these additions, one on each side, turned out to matter most: each prevented the defect that the other process shipped (<a href="#44-how-they-failed-and-what-each-caught-eq3">Section 4.4</a>).</p></div></details><details class="sub" id="44-how-they-failed-and-what-each-caught-eq3"><summary><h3>4.4&ensp;How they failed, and what each caught (EQ3)</h3></summary><div class="sub-body"><div class="table" id="table-9" tabindex="0" role="region" aria-labelledby="table-9-cap"><p class="cap" id="table-9-cap"><b>Table 9.</b> Correctness failures: 3 for the Candidate (two of them runs without a pull request) and 2 for the Baseline, with the evidence for each.</p><table>
+<thead>
+<tr>
+<th scope="col">Pair</th>
+<th scope="col">Baseline</th>
+<th scope="col">Candidate</th>
+<th scope="col">Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2, 10</td>
+<td>–</td>
+<td><strong>Failure</strong></td>
+<td>No pull request: process failure</td>
+</tr>
+<tr>
+<td>6 (<code>I6</code>)</td>
+<td><strong>Failure</strong></td>
+<td>–</td>
+<td>The Candidate's tests, run on the Baseline's code, show coordinator text beside a signature deleted, a signature copy in Notes rewritten, and stale contact sentences left in legacy bus emails</td>
+</tr>
+<tr>
+<td>7 (<code>I7</code>)</td>
+<td><strong>Failure</strong></td>
+<td>–</td>
+<td>Two independent probes: the Baseline's date helper throws on a stored time in the spring-forward hour, which can break the booking page and block unrelated saves</td>
+</tr>
+<tr>
+<td>8 (<code>I8</code>)</td>
+<td>–</td>
+<td><strong>Failure</strong></td>
+<td>Two independent probes: with the application's latin1 connection, the Candidate sends a false change notice, and corrupts the old value, when stored and submitted text match in different encodings</td>
+</tr>
+</tbody>
+</table></div>
+<p>One reported defect was not counted. In Pair 1 the Candidate accepts an affidavit reason of only whitespace, but Tourbot's entry forms trim the reason before storing it, so the input cannot occur. The other cross-test failures came from different helper names and file layouts, an unrelated random-token flake, or a shared environment failure: one test needs Git metadata that the grading copy lacks.</p>
+<p><strong>The Candidate's independent tests found what the Baseline's session missed.</strong> In Pair 6 its tests, run against the Baseline's code, exposed two kinds of defect. One was a name-line match broad enough to delete a coordinator's note written beside the signature. The other was a narrowed condition that left stale contacts in legacy bus emails. Its code also tended to fail safe: when a saved signature did not match exactly, it sent the body unchanged. In Pair 7 it handled the spring-forward hour that broke the Baseline's helper. In Pair 3 it updated a functional test that the Baseline left contradicting the new behaviour, and in Pair 4 it tightened an assertion that the existing test could pass vacuously. This is the independent, adversarial checking the design is for, and it is consistent with evidence that independently written tests detect more faults [<a class="cite" href="#ref-1">1</a>].</p>
+<p><strong>The Baseline's session caught what the Candidate's roles did not look for.</strong> In Pair 8 the Baseline's single session wrote a regression test for latin1-stored values and converted them before comparing. The Candidate's test planner opened the file that sets the database connection to latin1, and one of its Codex reviewers noted that non-ASCII input lacked test evidence. Even so, neither the plan, the 729-combination grid nor the fix allowed for the encoding, and the defect shipped. Verification checked each role's work against the issue and the plan. It did not supply knowledge that no role had gone looking for. In Pair 7 the Baseline reported malformed input to the user, where the Candidate silently dropped the edit; the Claude grader weighed this for the Baseline.</p>
+<p><strong>The Candidate also failed in ways the Baseline cannot.</strong> Its two runs without a pull request stopped at a product question that no one was present to answer (<a href="#46-three-pairs-side-by-side">Section 4.6</a>). Its Pair 3 run skipped its own review stage. Its cost per pair ranged from $3 to $74, against $1–2 for the Baseline. It also has no security review.</p>
+<p><strong>Its failures match known multi-agent failure modes.</strong> MAST, a taxonomy of 14 failure modes built from annotated traces of seven multi-agent frameworks [<a class="cite" href="#ref-10">10</a>], names each of these problems:</p>
+<ul>
+<li>The test plan's repeated verification rounds, up to 14 in Pair 6, are <em>step repetition</em> (FM-1.3).</li>
+<li>The two runs that stopped at a planning question, in an unattended run where no one could answer it, are <em>premature termination</em> (FM-3.1).</li>
+<li>Pair 3's missing review stage is <em>no or incomplete verification</em> (FM-3.2).</li>
+</ul>
+<p>MAST's authors attribute most such failures to system design, meaning how roles, hand-offs and stopping conditions are specified, rather than to model capability [<a class="cite" href="#ref-10">10</a>]. That fits a process whose skill describes roles and leaves the orchestrator to improvise the program.</p></div></details><details class="sub" id="45-what-the-reviewers-valued-eq4"><summary><h3>4.5&ensp;What the reviewers valued (EQ4)</h3></summary><div class="sub-body"><p><strong>The graders weighed coverage; the author weighed size.</strong> Both graders credited thoroughness in the Candidate's pull requests: more acceptance criteria covered, more edge cases, and a test suite kept consistent with the change. Both also noticed its size. In 6 of the 8 graded pairs (1, 3, 5, 6, 7 and 9), at least one grader called its tests verbose, heavy, brittle or over-engineered. In five verdicts, size was among the reasons a grader preferred the Baseline:</p>
+<ul>
+<li>the Claude grader, in Pairs 1 and 7;</li>
+<li>the Codex grader, in Pairs 1, 5 and 9.</li>
+</ul>
+<p>Otherwise, demonstrated defects and coverage outweighed size. The author's blind notes name test bloat or excessive tests on 7 of the 8 Candidate pull requests. An example is "Test bloat, 10x more LOC for the tests … session lock doesn't seem worth that much code relative to the size of the implementation" (Pair 9). His other notes concern:</p>
+<ul>
+<li>tests tied to the exact wording of emails, and scope expansion (Pair 6);</li>
+<li>over-detailed comments (Pair 6);</li>
+<li>tests that name specific staff members (both sides in Pair 6);</li>
+<li>seeded data and process-isolated monkey-patching in place of plain unit tests (Pair 8);</li>
+<li>on the Baseline's side, praise for code that uses the domain's own language (Pair 1).</li>
+</ul>
+<p><strong>The graders disagreed with each other, in the direction self-preference would predict.</strong> Both graders preferred the same side in 3 of 8 pairs and opposite sides in 4. In the eighth, the Codex grader's verdict flipped with the order. 15 of the 16 grader-by-pair judgements were the same in both orders. The Claude grader preferred the Candidate, whose orchestrator is Claude, in 6 of 8 pairs. The Codex grader preferred the Baseline, which runs on Codex, in 4, and the Candidate in 3. With eight pairs this is suggestive only, but it is the direction that self-preference would predict [<a class="cite" href="#ref-8">8</a>]. Each grader was the same model as one arm: <code>claude-opus-5-5</code> ran the Candidate's orchestrator, and <code>gpt-6.1-sol</code> ran the Baseline and many of the Candidate's roles. So this design cannot tell a preference for a grader's own model from a preference for its family. Nor can it rule out a simpler reading of the Claude grader's lean, a preference for more tests: the Candidate added more test code in every graded pair.</p>
+<p><strong>The author and the graders rarely agreed.</strong> The author's judgement matched the graders' pair result only in Pair 1. In both pairs that the graders gave to the Candidate (3 and 6), he rated the Baseline higher. In Pair 6 he marked the Baseline "merge after small fixes", with notes on test size, comments and staff names. Yet the cross-tests show it deleting coordinator-written text (<a href="#table-9">Table 9</a>), which needs more than a small fix. The graders rewarded defects avoided and coverage; the author rewarded small, readable changes that fit the codebase, and read diffs without the cross-test evidence.</p></div></details><details class="sub" id="46-three-pairs-side-by-side"><summary><h3>4.6&ensp;Three pairs side by side</h3></summary><div class="sub-body"><div class="table" id="table-10" tabindex="0" role="region" aria-labelledby="table-10-cap"><p class="cap" id="table-10-cap"><b>Table 10.</b> In all three detailed pairs the Candidate took far longer; it won one, failed one and delivered nothing in one. The pairs were chosen by the rule in <a href="#29-exploratory-analyses-of-the-differences">Section 2.9</a>.</p><table>
+<thead>
+<tr>
+<th scope="col"></th>
+<th scope="col">Pair 2 (<code>I2</code>)</th>
+<th scope="col">Pair 6 (<code>I6</code>)</th>
+<th scope="col">Pair 8 (<code>I8</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Result</td>
+<td>Candidate loss (no PR)</td>
+<td>Candidate win</td>
+<td>Tie; Candidate correctness failure</td>
+</tr>
+<tr>
+<td>Minutes, Baseline / Candidate</td>
+<td>8.6 / 33.1</td>
+<td>12.5 / 295.9</td>
+<td>11.7 / 52.8</td>
+</tr>
+<tr>
+<td>Cost ($), Baseline / Candidate</td>
+<td>1.12 / 7.76</td>
+<td>1.58 / 74.14</td>
+<td>1.47 / 11.62</td>
+</tr>
+<tr>
+<td>Agent sessions, Baseline / Candidate</td>
+<td>4 / 5</td>
+<td>4 / 72</td>
+<td>4 / 17</td>
+</tr>
+<tr>
+<td>Tool calls, Baseline / Candidate</td>
+<td>134 / 153</td>
+<td>137 / 1,639</td>
+<td>180 / 298</td>
+</tr>
+<tr>
+<td>Author, Baseline / Candidate</td>
+<td>not graded / no PR</td>
+<td>small fixes / don't merge</td>
+<td>merge as is / don't merge</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Pair 2: an ambiguity found, and nothing delivered.</strong> The issue asks for an email when the timeclock daemon logs automatic clock-outs without applying them, sent "once per incident, not every run".</p>
+<ul>
+<li><em>Candidate.</em> Its test planner wrote a plan, and three fresh Codex verifiers each failed it. The second and third, working separately, both found that the issue never says what ends an incident. Does the problem leave the one-hour window it is measured in, or must there be evidence that the daemon has resumed? The orchestrator judged this a product rule that tests should not invent. It wrote a fourth plan marking every case that depended on the answer, asked the question with a recommended answer, and stopped. <code>thirdshift</code>'s <code>delivery</code> Step then failed with no commits.</li>
+<li><em>Baseline.</em> Its session met the same question and answered it itself: an incident ends when the check no longer finds unapplied clock-outs. It wrote that rule into a regression test verifying that the alert does not repeat until an incident recovers, and documented it in the pull request description. Both reviewers reported no findings, and it opened the pull request in under nine minutes.</li>
+</ul>
+<p>The Candidate found a real ambiguity that the Baseline settled silently, but in an unattended run, stopping delivered nothing. Pair 10 went the same way: two plan verifications, then two product questions (how to show a NULL state, and whether non-ASCII values must survive an untouched save) and a stop before any test was written.</p>
+<p><strong>Pair 6: the design working, at a price the author would not pay.</strong> The issue asks for saved bid emails to use the current signature when sent, without touching anything a coordinator wrote.</p>
+<ul>
+<li><em>Baseline.</em> It finished in 12.5 minutes with four sessions. Its fix matched any name line of up to 100 characters and rebuilt the whole signature paragraph. Its own tests passed.</li>
+<li><em>Candidate.</em> It ran for nearly five hours across 72 sessions. Its test plan was verified 14 times, and a review finding sent the run back to planning. Its 1,736 lines of tests, built from realistic saved emails, included a coordinator's note written beside the name, a signature pasted into Notes, and legacy bus emails that do not end in the expected block. Run against the Baseline's code, these tests showed it deleting the note, rewriting the Notes copy and leaving stale contacts. The Candidate's own fix replaced only the name, title and phone fields, and sent the body unchanged whenever it could not be sure.</li>
+</ul>
+<p>Both graders preferred the Candidate in both orders. Judging the diffs blind, the author would not merge it. He cited its test volume, a long docblock that reads as a specification, and tests that pin the exact wording of whole emails. He also cited tests naming specific staff members, which he noted on both sides. He would merge the Baseline after small fixes. Both readings are right about different things: the Candidate found real defects, and its pull request is one the team would not want to maintain.</p>
+<p><strong>Pair 8: exhaustive tests of the wrong model.</strong> The issue asks for the "address has changed" email to the tour manager to fire only for real address changes.</p>
+<ul>
+<li><em>Candidate.</em> It ran 17 sessions and produced 963 lines of tests: all 729 combinations of unchanged, padded and changed fields, end-to-end tests of the profile save with a recording mailer, and a check that the class loads without Composer. Its test planner had opened the file that sets the connection's latin1 charset, and one Codex reviewer noted that non-ASCII input lacked test evidence. No role acted on either. Its comparison treats a latin1-stored "Montréal" and the same word submitted as UTF-8 as different, so it sends a false notice and corrupts the old value.</li>
+<li><em>Baseline.</em> Its single session, in 11.7 minutes, wrote a regression test for exactly that case and converted legacy values before comparing.</li>
+</ul>
+<p>The graders split. The Claude grader preferred the Candidate's coverage and labels; the Codex grader reproduced the encoding defect and preferred the Baseline. Many independent checks did not substitute for one agent that knew where to look.</p></div></details><details class="sub" id="47-the-pre-registered-decision-rq1rq4"><summary><h3>4.7&ensp;The pre-registered decision (RQ1–RQ4)</h3></summary><div class="sub-body"><div class="table" id="table-11" tabindex="0" role="region" aria-labelledby="table-11-cap"><p class="cap" id="table-11-cap"><b>Table 11.</b> The pre-registered rule rejects the Candidate on every criterion.</p><table>
+<thead>
+<tr>
+<th scope="col">Criterion</th>
+<th scope="col">Result</th>
+<th scope="col">Threshold</th>
+<th scope="col">Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Candidate wins (<a class="cite hyp" href="#rq-1">RQ1</a>)</td>
+<td><strong>2 of 10</strong>: 3 losses, 5 ties</td>
+<td>≥ 8 adopts; ≤ 5 rejects</td>
+<td>Reject</td>
+</tr>
+<tr>
+<td>Median cost ratio (<a class="cite hyp" href="#rq-2">RQ2</a>)</td>
+<td><strong>10.4×</strong></td>
+<td>≤ 2</td>
+<td>Reject</td>
+</tr>
+<tr>
+<td>Median time ratio (<a class="cite hyp" href="#rq-2">RQ2</a>)</td>
+<td><strong>6.4×</strong></td>
+<td>≤ 2</td>
+<td>Reject</td>
+</tr>
+<tr>
+<td>Correctness failures (<a class="cite hyp" href="#rq-3">RQ3</a>)</td>
+<td>Candidate <strong>3</strong>, Baseline <strong>2</strong></td>
+<td>Candidate ≤ Baseline</td>
+<td>Reject</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Quality (<a class="cite hyp" href="#rq-1">RQ1</a>).</strong> The Candidate won 2 pairs (3 and 6), lost 3 (1, 2 and 10) and tied 5 (<a href="#table-5">Table 5</a>). Its win rate was 20% (exact 95% CI 2.5–56%), which excludes the 80% the rule was built to detect. All three hypotheses fail, and each failure alone rejects the Candidate.</p>
+<p><strong>Cost and time (<a class="cite hyp" href="#rq-2">RQ2</a>).</strong></p>
+<div class="table" id="table-12" tabindex="0" role="region" aria-labelledby="table-12-cap"><p class="cap" id="table-12-cap"><b>Table 12.</b> The Candidate cost more and took longer in every pair. Time and API-priced cost per pair.</p><table>
+<thead>
+<tr>
+<th scope="col">Pair</th>
+<th scope="col">Baseline (min)</th>
+<th scope="col">Candidate (min)</th>
+<th scope="col">Baseline ($)</th>
+<th scope="col">Candidate ($)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>12.2</td>
+<td>124.3</td>
+<td>1.16</td>
+<td>22.57</td>
+</tr>
+<tr>
+<td>2</td>
+<td>8.6</td>
+<td>33.1</td>
+<td>1.12</td>
+<td>7.76</td>
+</tr>
+<tr>
+<td>3</td>
+<td>7.0</td>
+<td>40.6</td>
+<td>0.97</td>
+<td>7.16</td>
+</tr>
+<tr>
+<td>4</td>
+<td>29.7</td>
+<td>219.4</td>
+<td>1.66</td>
+<td>30.82</td>
+</tr>
+<tr>
+<td>5</td>
+<td>9.4</td>
+<td>62.7</td>
+<td>1.28</td>
+<td>12.58</td>
+</tr>
+<tr>
+<td>6</td>
+<td>12.5</td>
+<td>295.9</td>
+<td>1.58</td>
+<td>74.14</td>
+</tr>
+<tr>
+<td>7</td>
+<td>14.7</td>
+<td>185.8</td>
+<td>1.63</td>
+<td>38.34</td>
+</tr>
+<tr>
+<td>8</td>
+<td>11.7</td>
+<td>52.8</td>
+<td>1.47</td>
+<td>11.62</td>
+</tr>
+<tr>
+<td>9</td>
+<td>9.9</td>
+<td>61.3</td>
+<td>1.41</td>
+<td>15.54</td>
+</tr>
+<tr>
+<td>10</td>
+<td>9.4</td>
+<td>18.6</td>
+<td>1.11</td>
+<td>3.18</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>125</strong></td>
+<td><strong>1,095</strong></td>
+<td><strong>13.39</strong></td>
+<td><strong>223.71</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>The Candidate's median cost per pair was $14.06 against the Baseline's $1.35, and its median time 62.0 minutes against 10.8 (<a href="#figure-3">Figure 3</a>). Over ten pairs it spent $223.71 against $13.39 (16.7 times as much) and 1,095 minutes against 125 (8.7 times as long).</p>
+<ul>
+<li><em>Tokens.</em> The Baseline used 56.6 M Codex input tokens (including cache) and 0.30 M output tokens. The Candidate used 319.6 M Claude and 80.9 M Codex input tokens, and 2.78 M and 0.61 M output tokens.</li>
+<li><em>Range.</em> On every pair where it opened a pull request, the Candidate cost at least 7.4 times as much. Its lowest ratio, 2.9, was Pair 10, where it stopped at planning. It cost more than twice as much in all ten pairs, and took more than twice as long in nine (Pair 10's time ratio is 1.98).</li>
+<li><em>Interval.</em> The registered rule uses the medians as point estimates. As a check, a distribution-free interval from the order statistics (the 2nd and 9th of ten ratios, 97.9% coverage) puts the median cost ratio between 6.9 and 23.5, and the median time ratio between 3.8 and 12.7. Both lie wholly above the cap of 2. This interval is not part of the registered analysis.</li>
+</ul>
+<p><strong>Correctness (<a class="cite hyp" href="#rq-3">RQ3</a>).</strong> The Candidate had 3 correctness failures: two runs without a pull request and the encoding defect in Pair 8. The Baseline had 2, in Pairs 6 and 7 (<a href="#table-9">Table 9</a>). The decision would be the same if every correctness call went the other way, because the quality and the cost-and-time criteria (<a class="cite hyp" href="#rq-1">RQ1</a>, <a class="cite hyp" href="#rq-2">RQ2</a>) each reject on their own. Mutation testing gave no evidence. Infection is limited to changed <code>src/</code> PHP classes, and in seven pairs neither side changed one, because the fixes were in legacy code, so no mutations were generated. In Pair 8 its initial test run failed on both sides, because one test calls <code>git</code> and the grading copy has no Git metadata.</p>
+<p><strong>Human attention (<a class="cite hyp" href="#rq-4">RQ4</a>).</strong></p>
+<div class="table" id="table-13" tabindex="0" role="region" aria-labelledby="table-13-cap"><p class="cap" id="table-13-cap"><b>Table 13.</b> Judging blind, the author would merge 7 of 8 Baseline pull requests as is and 1 of 8 Candidate pull requests.</p><table>
+<thead>
+<tr>
+<th scope="col"></th>
+<th scope="col">Baseline (8 graded)</th>
+<th scope="col">Candidate (8 graded)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Merge as is</td>
+<td><strong>7</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Merge after small fixes</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Don't merge</td>
+<td>0</td>
+<td><strong>4</strong></td>
+</tr>
+<tr>
+<td>No pull request (Pairs 2, 10)</td>
+<td>0</td>
+<td>2</td>
+</tr>
+</tbody>
+</table></div>
+<p>Comparing his two judgements per pair, the author rated the Baseline higher in 7 pairs and both equally in 1 (Pair 4, a test-only fix). He never rated the Candidate higher. Had the registered rule also required the Candidate to be merge-ready as often as the Baseline, it would have failed that criterion too; the decision would be the same.</p></div></details></div></details>
+<details class="sec" id="5-discussion"><summary><h2>5&ensp;Discussion</h2></summary><div class="sec-body"><details class="sub" id="51-principal-findings"><summary><h3>5.1&ensp;Principal findings</h3></summary><div class="sub-body"><p>On the same ten issues, the two processes behaved as their designs predict, and the differences decided the outcome.</p>
+<p>The Baseline's single session started coding within minutes, wrote compact tests, settled unclear requirements itself and finished in about twelve minutes for a dollar or two. The Candidate spread each issue across a median of twenty fresh-context agents. Each re-read the code and re-ran the tests, and most of their time went into planning and verifying tests before any fix.</p>
+<p>That independence bought real things:</p>
+<ul>
+<li>defects found in the Baseline's code;</li>
+<li>edge cases the Baseline missed;</li>
+<li>code that failed safe;</li>
+<li>an ambiguity the Baseline settled silently.</li>
+</ul>
+<p>It also cost a median ten times as much and six times the time. It produced six times the test code, often coupled to the implementation, and it stopped twice without delivering anything.</p>
+<p>The model graders, which weigh coverage and demonstrated defects, split their preferences. The author, who weighs what the team will maintain, preferred the Baseline in seven pairs and the Candidate in none. The pre-registered rule rejects the Candidate on every criterion, and ETA keeps the Built-in Ticket run.</p></div></details><details class="sub" id="52-what-each-design-buys-and-what-it-costs"><summary><h3>5.2&ensp;What each design buys, and what it costs</h3></summary><div class="sub-body"><p><strong>Independence finds defects that one context misses.</strong> A role that writes tests without having written the code, and a verifier from another model family, look for different failures than the author of the change does. In Pairs 6 and 7 this found defects the Baseline shipped. In Pair 2, two verifiers working separately found the same gap in the issue. Across pairs, the Candidate's code more often failed safe, and more often extended existing structure than reshaped it. These are the strengths those three maker-checker principles aim at, and they appeared.</p>
+<p><strong>Independence also loses context, and pays to rebuild it.</strong> Every fresh role read the issue, the code and the plan again (<a href="#table-6">Table 6</a>), and the orchestrator spent eight times as long coordinating as the Baseline spent implementing. Independence did not guarantee coverage. In Pair 8, seventeen sessions tested 729 combinations, and still none allowed for the database encoding that the Baseline's single session handled. That was despite one role having read the relevant line, and one reviewer having flagged the gap. Verification checks work against the issue and the plan. It cannot check against knowledge that no role went looking for.</p>
+<p><strong>The comparison was not between test-driven development and its absence.</strong> Both processes wrote tests first; the Baseline's first PHP edit was a new test in 7 of 10 runs, about a minute after it started. Writing tests first helps agents in other settings, raising full-stack application accuracy by 15.5 to 23.7 percentage points with capable models [<a class="cite" href="#ref-13">13</a>]. What the Candidate added was the separation of test planning, test writing, implementation and refactoring into independent agents, each verified by another provider. Its cost came from that separation, not from writing tests first. Its own maker-checker specification calls separating test writing from implementation "an initial allocation to evaluate, not a proven performance advantage". On these issues, the evaluation came out against it.</p>
+<p><strong>Verification without a stopping rule produces tests, not quality.</strong> The Candidate's verifiers failed the test plan a median of three times and up to fourteen, and each round could add cases. The result was test suites of 8 to 53 lines per line of code, with harnesses that parse and <code>eval</code> the source. The graders partly credited these, and the author consistently judged them a maintenance burden. Agents' readiness to write and change tests is documented [<a class="cite" href="#ref-11">11</a>], and more agent-written tests mostly change cost rather than outcomes [<a class="cite" href="#ref-12">12</a>]. A process that rewards a verifier for finding gaps, without limiting how much test code closing them may add, will keep growing its tests.</p>
+<p><strong>Stopping for a human is right in a conversation and wrong in an unattended run.</strong> Both of the Candidate's stops were faithful to its skill. Each named a real product question, with a recommended answer. In a run that no one is watching, though, a question means no pull request. The Baseline made the same kind of call itself and recorded it where a reviewer would see it: in a test and in the pull request description.</p></div></details><details class="sub" id="53-model-graders-and-the-human-measured-different-things"><summary><h3>5.3&ensp;Model graders and the human measured different things</h3></summary><div class="sub-body"><p>The graders rewarded coverage and defensive handling, and had the cross-test evidence in front of them. The author rewarded small, readable changes that fit the codebase, and judged from the diffs alone. Each missed something. The graders gave Pair 6 to a pull request the author would not merge. The author would have merged, after small fixes, a Baseline pull request that deletes coordinator text. The graders' preferences also pointed the way self-preference would predict, though eight pairs cannot establish it (<a href="#45-what-the-reviewers-valued-eq4">Section 4.5</a>). The design kept human judgement out of the decision, and here it would not have changed the outcome. It matters for future comparisons: a process tuned to win model-graded comparisons may drift away from what the team will merge, and a human reviewer working from diffs alone will miss defects that only tests reveal.</p>
+<p>By ETA's own goal, the human measure matters most: the point of a process is work that a person can merge without review rounds. Here the model graders were a poor stand-in for it. Their pair result matched the author's only in Pair 1, and in both pairs they gave the Candidate, he preferred the Baseline. A comparison decided on model-graded preference alone could adopt a process whose pull requests the team would not merge.</p></div></details><details class="sub" id="54-limits-of-the-decision-rule"><summary><h3>5.4&ensp;Limits of the decision rule</h3></summary><div class="sub-body"><p>The rule was built to adopt only a clearly better process, and it is weak at detecting a modest advantage. A process that truly wins 60% of pairs would usually be rejected or sent to the 18-pair stage. That limit does not affect this result. To be adopted at the first stage, the Candidate needed 6 more wins. Even then, both the cost and time caps would have rejected it: its median cost ratio would have had to fall by a factor of five. A different price table would change the ratios, but not by that much. The caps reflect the author's stated tolerance of at most twice the time and cost. A team willing to pay more for quality would weigh quality (<a class="cite hyp" href="#rq-1">RQ1</a>) alone, and that also fails.</p></div></details><details class="sub" id="55-implications"><summary><h3>5.5&ensp;Implications</h3></summary><div class="sub-body"><p><strong>For ETA.</strong> ETA keeps the Built-in Ticket run for Tourbot. Two of the Candidate's ideas are worth testing as additions to it, separately and far more cheaply than adopting the whole process:</p>
+<ul>
+<li><em>An independently written test pass.</em> An agent that has not seen the change writes tests from the issue alone, and they are run against the Baseline's code. This targets the defects of Pairs 6 and 7.</li>
+<li><em>An explicit assumptions section.</em> Where the issue leaves a rule open, the Ticket run records the rule it chose in the pull request, as it did in Pair 2, so that a reviewer can check it.</li>
+</ul>
+<p><strong>For the next comparison.</strong> These recommendations were made after the results were known and were not applied to this one (several were carried directly into our <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">follow-up second study</a>):</p>
+<ul>
+<li>Make merge-readiness a registered criterion, not only a reported outcome: for example, the Candidate must be judged "merge as is" at least as often as the Baseline.</li>
+<li>Use at least two blind human reviewers working independently, at least one of whom did not commission the comparison.</li>
+<li>Give the human reviewers the cross-test evidence, so that defects only tests reveal (as in Pair 6) count in their judgement.</li>
+<li>Fix Infection's scope so that mutation testing reaches the code that actually changed.</li>
+</ul>
+<p><strong>For the proposed workflow.</strong> The traces point to what to change first:</p>
+<ul>
+<li>a fixed limit on verification rounds, and a budget for test code relative to the change;</li>
+<li>a rule that turns an unanswered planning question into a stated assumption when no human is available, rather than a stopped run;</li>
+<li>a fixed program for the orchestrator, rather than one it improvises each run;</li>
+<li>a step that asks each role what in the environment (encodings, time zones, legacy callers) could break the change, since verification against the plan cannot find what the plan left out.</li>
+</ul>
+<p><strong>For multi-agent design generally.</strong> These results fit MAST's finding that multi-agent failures come mostly from how roles, hand-offs and stopping conditions are specified [<a class="cite" href="#ref-10">10</a>]. Separating roles gave independent viewpoints. Without limits on rounds and scope, and without a way to proceed under uncertainty, it also gave repetition, growth and premature stops. On small fixes to a mature codebase, a single capable session was the better default. Whether the balance shifts for larger features or new code, where an independent specification has more to catch, is the open question this comparison cannot answer.</p></div></details></div></details>
+<details class="sec" id="6-threats-to-validity"><summary><h2>6&ensp;Threats to validity</h2></summary><div class="sec-body"><p><strong>Construct validity.</strong></p>
+<ul>
+<li><em>Grader preference as a measure of quality.</em> The graders disagreed in most pairs and may favour their own model or its family; each was the same model as one arm (<a href="#45-what-the-reviewers-valued-eq4">Section 4.5</a>). Requiring both to agree makes the win count conservative for adoption.</li>
+<li><em>API prices as a measure of cost.</em> ETA pays by subscription, not per token. Pricing both providers at API rates is a comparable proxy, and with a median ratio of 10.4 a different table would not bring it under 2.</li>
+<li><em>Mutation testing</em> contributed nothing (<a href="#47-the-pre-registered-decision-rq1rq4">Section 4.7</a>), so correctness rests on CI, cross-tests and the graders' direct tests.</li>
+<li><em>Correctness calls</em> are the operator's judgement; the quality and cost-and-time criteria (<a class="cite hyp" href="#rq-1">RQ1</a>, <a class="cite hyp" href="#rq-2">RQ2</a>) reject independently of them.</li>
+<li><em>Trace counts</em> (<a href="#42-how-they-worked-one-context-against-many-eq1">Section 4.2</a>) depend on a classification of tool calls written after the results were known, and on traces cut at 3,000 characters per field.</li>
+<li><em>Lines of code</em> (<a href="#43-what-they-produced-similar-fixes-six-times-the-tests-eq2">Section 4.3</a>) are counted after the common formatter and do not distinguish test fixtures from test logic.</li>
+</ul>
+<p><strong>Internal validity.</strong></p>
+<ul>
+<li><em>Blinding.</em> Labels, history and process files were hidden and the diffs were formatted alike, but the volume of tests can hint at the origin of a pull request, to graders and to the author.</li>
+<li><em>Leakage.</em> Every trace search for the shipped fix was clean.</li>
+<li><em>Process fidelity.</em> We packaged the Candidate from unmerged workflow specifications at the 29 October freeze without tuning or confirming run-time adaptations with the workflow's author, ran it under a Claude Code orchestrator, without a security review, and with Codex reviewers at a higher effort than documented (<a href="#23-the-two-processes">Section 2.3</a>). The workflow's author subsequently noted running a Codex orchestrator by default — a change tested directly in our <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">follow-up second study</a>. Since the orchestrator was 24% of the Candidate's cost, all of it on Claude (<a href="#42-how-they-worked-one-context-against-many-eq1">Section 4.2</a>), that configuration would change the cost mix by an amount this comparison did not measure.</li>
+<li><em>Single human judge.</em> The author commissioned the comparison, set the caps, and has a stated preference for small diffs; his blind judgements are evidence for the human-attention question (<a class="cite hyp" href="#rq-4">RQ4</a>) only. Adding them to the rule would not have changed the outcome: he rated the Baseline higher in 7 pairs and the Candidate in none.</li>
+</ul>
+<p><strong>The exploratory analyses.</strong> <a href="#42-how-they-worked-one-context-against-many-eq1">Sections 4.2</a> to 4.6 were designed after the decision was known, and are descriptive.</p>
+<ul>
+<li><em>Theme coding.</em> The themes of <a href="#45-what-the-reviewers-valued-eq4">Section 4.5</a> and the accounts of <a href="#46-three-pairs-side-by-side">Section 4.6</a> were drafted by Claude Code, the same model family as the Candidate's orchestrator and one grader. To limit this, every theme lists its pairs, so that it can be checked against the scores, notes and traces.</li>
+<li><em>Issue selection.</em> The shortlist of 24 cannot be rebuilt: its written criteria now give 77 issues, and whether an issue had explicit acceptance criteria was the research step's reading, not a mechanical test (<a href="#24-units-issues-and-replays">Section 2.4</a>). The author chose no issue, but a filter that was not recorded could have favoured one kind of issue.</li>
+<li><em>Case selection.</em> The three detailed pairs were chosen by a rule (<a href="#29-exploratory-analyses-of-the-differences">Section 2.9</a>), not for how well they illustrate a point. Other pairs could show other things, and all ten pairs' transcripts were preserved and analysed for that reason.</li>
+</ul>
+<p><strong>External validity.</strong> The issues are small fixes (2–8 files) to one legacy PHP application, chosen without the author's taste, though by criteria not all written down (<a href="#24-units-issues-and-replays">Section 2.4</a>). The result may not hold for larger features, new code, other languages or other repositories, where an independent specification may have more to catch. The comparison starts from issues that are already ready for an agent, so it says nothing about the Candidate's spec writing and spec review, which its author may regard as half of the process; evaluating those stages requires a comparison starting earlier in triage. The proposed workflow was built for a Python repository with stronger test conventions. Model and tool versions will change.</p>
+<p><strong>Conclusion validity.</strong></p>
+<ul>
+<li><em>Run-to-run variation.</em> One run per process per issue leaves each pair exposed to it, measured at 2.2–6.0 points of pass@1 between runs of the same agent [<a class="cite" href="#ref-9">9</a>]. <code>thirdshift</code>'s own earlier repeatability check with identical arms disagreed on 2 of 10 tasks.</li>
+<li><em>Sample size.</em> Ten pairs give a wide interval on the win rate (2.5–56%).</li>
+<li><em>Margin.</em> The decision does not rest on a narrow margin: 2 wins against a threshold of 8, and cost ratios between 2.9 and 46.9 against a cap of 2. The distribution-free intervals for the median cost and time ratios lie wholly above the cap (<a href="#47-the-pre-registered-decision-rq1rq4">Section 4.7</a>).</li>
+<li><em>The differences</em> in <a href="#42-how-they-worked-one-context-against-many-eq1">Sections 4.2</a> to 4.6 are consistent across pairs (the Candidate added more test code in all eight graded pairs, cost more in all ten, and started more sessions in nine of ten), but each rests on ten runs per process.</li>
+</ul></div></details>
+<details class="sec" id="7-conclusion"><summary><h2>7&ensp;Conclusion</h2></summary><div class="sec-body"><p>Given the same ten issues, a single agent session and a maker-checker team of agents worked, produced and failed in characteristically different ways. The Candidate's independent roles found defects and ambiguities that the Baseline's session missed. They also rebuilt context at every step, multiplied tests well beyond the size of each fix, missed what no role thought to check, and stopped when no human could answer. Against the pre-registered criteria:</p>
+<ul>
+<li><strong>Quality (<a class="cite hyp" href="#rq-1">RQ1</a>):</strong> blind model graders did not prefer the Candidate (2 wins in 10).</li>
+<li><strong>Cost and time (<a class="cite hyp" href="#rq-2">RQ2</a>):</strong> it cost a median 10.4 times as much and took 6.4 times as long.</li>
+<li><strong>Correctness (<a class="cite hyp" href="#rq-3">RQ3</a>):</strong> it had 3 correctness failures to the Baseline's 2.</li>
+<li><strong>Human attention (<a class="cite hyp" href="#rq-4">RQ4</a>):</strong> a blind human reviewer would merge 7 of 8 Baseline pull requests as is and 1 of 8 Candidate pull requests.</li>
+</ul>
+<p>Human attention was reported rather than decisive, but it is the measure closest to ETA's goal, and it points the same way. The rule rejects the proposed workflow on every criterion, and ETA keeps <code>thirdshift</code>'s Built-in Ticket run for Tourbot. Two of the Candidate's ideas, an independent test pass and an explicit record of assumptions, are worth testing on their own.</p></div></details>
+<details class="sec" id="8-declarations"><summary><h2>8&ensp;Declarations</h2></summary><div class="sec-body"><p><strong>Data and code availability.</strong> <a href="https://thirdshift.app" target="_blank" rel="noopener"><code>thirdshift</code></a> is open source at <a href="https://github.com/JacobStephens2/thirdshift" target="_blank" rel="noopener">github.com/JacobStephens2/thirdshift</a>. All aggregated metrics, per-pair outcomes, phase breakdowns, diff sizes, correctness findings and blind human ratings from this study are reported in <a href="#table-A">Tables A</a> and 1–13 of this paper (and summarized in machine-readable form in <code>agents.md</code>). The replay repositories, raw agent transcripts, per-task diffs and unpublished Candidate workflow files are withheld because they contain private Tourbot production application code and third-party workflow materials.</p>
+<p><strong>Conflicts of interest.</strong> The author works on Tourbot at Educational Travel Adventures, commissioned the comparison and set its pre-registered thresholds. He also develops <a href="https://thirdshift.app" target="_blank" rel="noopener"><code>thirdshift</code></a>, which executed both processes and whose Built-in Ticket run is the Baseline. The Candidate workflow was proposed independently for adoption on Tourbot. To guard against bias, the decision rule was fixed before any counted pair ran, both model graders were blinded and evaluated both presentation orders, and the author's own blind merge-readiness judgements were reported alongside the rule rather than inside the adopt/reject vote.</p>
+<p><strong>Packaging independence.</strong> To prevent mid-study prompt tuning while the ten counted pairs ran, the 29 October workflow revision was packaged directly from its written specifications without consulting its author during execution. Once the ten pairs and blind grading concluded, the full report, frozen package and score breakdowns were shared with him for review prior to designing the <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">second comparison</a>.</p>
+<p><strong>Funding.</strong> Internal. Model usage ran through ETA's Claude and ChatGPT subscriptions on ETA cloud droplets.</p>
+<p><strong>AI use and contributions.</strong> The author designed the comparison through a structured question-and-answer design session with Claude Code, reviewed and merged the grading and metrics tooling, made every ruling on losses and operational deviations, and recorded all blind human judgements. <code>thirdshift</code> Ticket runs and Claude Code wrote the comparison tooling; Claude Code (<code>claude-opus-5-5</code>) coordinated the counted runs, collected evidence, ran grading and the tally, assisted in drafting the exploratory analyses and manuscript prose for the author's review, and prepared this public edition with Gemini (<code>gemini-4-argon</code>).</p></div></details>
+<details class="sec refs" id="references"><summary><h2>References</h2></summary><div class="sec-body"><ol>
+<li><span id="ref-1"></span>Independent test generation and fault detection. <a href="https://arxiv.org/abs/2607.05139" target="_blank" rel="noopener">arXiv:2607.05139</a>, 2026. Tests generated after faulty code detected 14% of faults; tests generated independently, 25%.</li>
+<li><span id="ref-2"></span>Kim et al. <a href="https://arxiv.org/abs/2512.08296" target="_blank" rel="noopener">arXiv:2512.08296</a>, 2025. 260 agent-system configurations; on SWE-bench Verified every multi-agent architecture did slightly worse than a single agent (−2.1% to −14.9%).</li>
+<li><span id="ref-3"></span>Cross-family review on LiveCodeBench. <a href="https://arxiv.org/abs/2607.21656" target="_blank" rel="noopener">arXiv:2607.21656</a>, KDD 2026 workshop. Claude drafts passed 91.4% alone and 82.8% after GPT review.</li>
+<li><span id="ref-4"></span>Zheng et al. Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. <em>NeurIPS</em>, 2023. <a href="https://arxiv.org/abs/2306.05685" target="_blank" rel="noopener">arXiv:2306.05685</a>.</li>
+<li><span id="ref-5"></span>Shi et al. Position bias in pairwise LLM judging. <em>AACL</em>, 2025. Bias is strongest when candidates are close in quality.</li>
+<li><span id="ref-6"></span>Crupi et al. LLM-as-a-judge for code generation. <em>IEEE Transactions on Software Engineering</em>. <a href="https://arxiv.org/abs/2507.16587" target="_blank" rel="noopener">arXiv:2507.16587</a>. Reference-free judging agreed with execution results at Cohen's κ 0.10–0.21.</li>
+<li><span id="ref-7"></span>Miller. Adding error bars to evals. <a href="https://arxiv.org/abs/2411.00640" target="_blank" rel="noopener">arXiv:2411.00640</a>, 2024.</li>
+<li><span id="ref-8"></span>Pombal et al. <a href="https://arxiv.org/abs/2604.06996" target="_blank" rel="noopener">arXiv:2604.06996</a>, 2026. Judges passed failing tests far more often on code from their own model family.</li>
+<li><span id="ref-9"></span>Run-to-run variance of coding agents on SWE-bench Verified. <a href="https://arxiv.org/abs/2602.07150" target="_blank" rel="noopener">arXiv:2602.07150</a>, 2026. Single-run pass@1 estimates vary by 2.2–6.0 points.</li>
+<li><span id="ref-10"></span>Cemri et al. Why do multi-agent LLM systems fail? <a href="https://arxiv.org/abs/2503.13657" target="_blank" rel="noopener">arXiv:2503.13657</a>, 2025. The MAST taxonomy: 14 failure modes in three categories (specification or system design, inter-agent misalignment, task verification), from traces of seven multi-agent frameworks; inter-annotator Cohen's κ 0.88.</li>
+<li><span id="ref-11"></span>Hora and Robbes. Are coding agents generating over-mocked tests? An empirical study. <em>MSR</em>, 2026. <a href="https://arxiv.org/abs/2602.00409" target="_blank" rel="noopener">arXiv:2602.00409</a>. 23% of coding-agent commits changed test files, against 13% of other commits; 36% against 26% added mocks.</li>
+<li><span id="ref-12"></span>Chen et al. Rethinking the value of agent-generated tests for LLM-based software engineering agents. <a href="https://arxiv.org/abs/2602.07900" target="_blank" rel="noopener">arXiv:2602.07900</a>, 2026. Changing how many tests agents wrote did not significantly change outcomes on SWE-bench Verified; it changed process and cost.</li>
+<li><span id="ref-13"></span>Wan et al. From runnable to shippable: multi-agent test-driven development for generating full-stack web applications from requirements. <em>ASE</em>, 2026. <a href="https://arxiv.org/abs/2605.17242" target="_blank" rel="noopener">arXiv:2605.17242</a>. With capable models, test-driven development raised accuracy by 15.5–23.7 percentage points.</li>
+<li><span id="ref-14"></span>Mills, H. D., Dyer, M., and Linger, R. C. Cleanroom software engineering. <em>IEEE Software</em>, 4(5):19–25, 1987.</li>
+</ol>
+<p>Reporting follows the ACM SIGSOFT Empirical Standards for experiments and registered reports, and the CONSORT 2025 items that transfer to a paired comparison of software processes.</p></div></details>
+<details class="sec" id="appendix-a-evaluation-and-blinding-protocol"><summary><h2>Appendix A&ensp;Evaluation and blinding protocol</h2></summary><div class="sec-body"><p>All ten pairs ran unattended in parallel on freshly imaged cloud hosts under a pre-registered protocol fixed before Pair 1 launched:</p>
+<ol>
+<li><strong>Parallel isolation and leak checks.</strong> Each arm ran inside its own OS user account with a repository-scoped token reaching only its private Tourbot replay repository. Both arms executed simultaneously on cloned 8-vCPU / 16 GB Ubuntu 24.04 droplets stripped of the other arm's credentials. After completion, an automated leak scanner searched every session stream and sub-agent rollout for the original issue number, shipped PR number/branch, and fix commit hash; all twenty trials passed with zero leaks.</li>
+<li><strong>Deterministic replay preparation.</strong> A preparation script branched each replay repository at the first parent of the shipped fix, preserved CI scoped to replay branches, waited for base CI to turn green, and filed the issue using only the exact title and body present when it was first labelled <code>ready-for-agent</code>. Any trial ending without a pull request from its own process failure counted as a loss (<code>I2</code> and <code>I10</code>); external outages or incomplete telemetry would void and re-run the pair (zero pairs were voided).</li>
+<li><strong>Blinding, formatting and execution evidence.</strong> A packet builder stripped Git history, branch names, commit messages, PR descriptions, plan files, and all agent configuration directories, formatted modified <code>.php</code> files across <code>base/</code>, <code>X/</code> and <code>Y/</code> with <code>php-cs-fixer</code> (<code>3.95.27</code>, <code>@PSR12</code>), and assigned random <code>X</code>/<code>Y</code> labels via <code>random.SystemRandom().shuffle</code>. Inside an unprivileged <code>bwrap</code> grading sandbox, PHPUnit ran both cross-test suites (<code>X</code>'s tests on <code>Y</code>'s code and <code>Y</code>'s tests on <code>X</code>'s code) alongside scoped Infection mutation testing on changed <code>src/</code> classes.</li>
+<li><strong>Dual-order model grading and sealed human review.</strong> Both Claude (<code>claude-opus-5-5</code>) and Codex (<code>gpt-6.1-sol</code>) judged every graded pair twice — in presentation order <code>[X, Y]</code> and <code>[Y, X]</code> — grounded in the issue text, CI outcomes, cross-tests and Infection output. Any order flip cancelled to a <code>tie</code>, and a pair counted as a process win only when both graders agreed. The author evaluated the same formatted X/Y diffs blind through a write-once form showing no model grader output before any verdicts or mappings were unsealed.</li>
+<li><strong>Pre-registered two-stage decision rule.</strong> Stage 1 enrolled 10 pairs (<code>8+</code> Candidate wins adopts; <code>≤ 5</code> rejects; <code>6–7</code> advances to 8 additional shortlisted issues requiring <code>≥ 13/18</code>), coupled with strict veto caps rejecting adoption if Candidate correctness failures exceed Baseline or if the Candidate's median cost ratio or median time ratio exceeds <code>2.0×</code>. Both per-pair totals (<code>$223.71</code> vs <code>$13.39</code>; <code>1,095</code> vs <code>125</code> minutes) and exact order-statistic intervals (<code>6.9–23.5×</code> cost; <code>3.8–12.7×</code> time) lay wholly above the <code>2×</code> cap.</li>
+</ol></div></details>
+<details class="sec" id="appendix-b-glossary"><summary><h2>Appendix B&ensp;Glossary</h2></summary><div class="sec-body"><ul>
+<li><strong>Process (arm).</strong> One of the two ways of implementing an issue: the Baseline (<code>thirdshift</code>'s Built-in Ticket run) or the Candidate (the multi-agent maker-checker TDD and cross-family review workflow).</li>
+<li><strong>Pair.</strong> One issue implemented independently by both arms from the same parent commit.</li>
+<li><strong>Replay.</strong> A closed issue filed again with its pre-fix <code>ready-for-agent</code> text on a branch at the parent commit before its real fix merged.</li>
+<li><strong>Cross-test.</strong> One arm's added or modified tests transplanted onto the other arm's implementation and executed through PHPUnit.</li>
+<li><strong>Grader.</strong> A model-based evaluator or human reviewer comparing a blinded pair of pull requests (<code>X</code> and <code>Y</code>).</li>
+<li><strong>Win, loss, tie.</strong> A pair goes to an arm only if both model graders prefer it on net across both presentation orders. A run ending without a pull request due to its own process rules counts as a loss. All disagreements, flips and equal ratings are ties.</li>
+<li><strong>thirdshift.</strong> The open-source agent orchestrator running both processes; a command executes one run cleanly in an isolated Git worktree, and a custom process defines a user-supplied sequence of steps.</li>
+</ul></div></details>
+    </main>
+
+    <script>
+    (function () {
+        function secs() { return [].slice.call(document.querySelectorAll('details.sec, details.sub')); }
+        var btns = [].slice.call(document.querySelectorAll('[data-fold-all]'));
+        function allOpen() { var s = secs(); return s.length > 0 && s.every(function (d) { return d.open; }); }
+        function sync() {
+            var o = allOpen();
+            btns.forEach(function (b) {
+                b.textContent = o ? 'collapse all' : 'expand all';
+                b.setAttribute('aria-pressed', o ? 'true' : 'false');
+            });
+        }
+        btns.forEach(function (b) {
+            b.addEventListener('click', function () {
+                var o = allOpen();
+                secs().forEach(function (d) { d.open = !o; });
+                sync();
+            });
+        });
+        secs().forEach(function (d) { d.addEventListener('toggle', sync); });
+        function openHash() {
+            var id = decodeURIComponent(location.hash.slice(1));
+            if (!id) return;
+            var t = document.getElementById(id);
+            if (!t) return;
+            for (var d = t.closest('details'); d; d = d.parentElement.closest('details')) d.open = true;
+            t.scrollIntoView();
+        }
+        window.addEventListener('hashchange', openHash);
+        openHash();
+
+        var chip = document.createElement('button'), mark = null;
+        chip.type = 'button';
+        chip.className = 'back-chip';
+        chip.hidden = true;
+        chip.textContent = '\u21A9 back to where you were';
+        document.body.appendChild(chip);
+        chip.addEventListener('click', function () {
+            chip.hidden = true;
+            if (mark === null) return;
+            var y = mark;
+            mark = null;
+            window.scrollTo(0, y);
+        });
+        document.addEventListener('click', function (e) {
+            var a = e.target.closest && e.target.closest('a[href^="#"]');
+            if (!a || a.closest('.back-chip')) return;
+            mark = window.scrollY;
+            chip.hidden = false;
+            if (a.getAttribute('href') === location.hash) openHash();
+        });
+        [].forEach.call(document.querySelectorAll('[data-to-top]'), function (b) {
+            b.addEventListener('click', function () {
+                if (window.scrollY > 0) { mark = window.scrollY; chip.hidden = false; }
+                window.scrollTo(0, 0);
+            });
+        });
+        var was = null;
+        window.addEventListener('beforeprint', function () {
+            var s = secs();
+            was = s.map(function (d) { return d.open; });
+            s.forEach(function (d) { d.open = true; });
+        });
+        window.addEventListener('afterprint', function () {
+            if (was) secs().forEach(function (d, i) { d.open = was[i]; });
+            was = null;
+        });
+        sync();
+    })();
+    </script>
+    <script>
+    (function () {
+        var tip = document.createElement('div'), timer = null, current = null;
+        tip.className = 'cite-tip';
+        tip.id = 'cite-tip';
+        tip.setAttribute('role', 'tooltip');
+        tip.hidden = true;
+        document.body.appendChild(tip);
+        function show(a) {
+            var ref = document.getElementById(a.getAttribute('href').slice(1));
+            if (!ref) return;
+            clearTimeout(timer);
+            if (current === a && !tip.hidden) return;
+            current = a;
+            var item = (ref.tagName === 'LI' ? ref : ref.parentElement).cloneNode(true);
+            var marker = item.querySelector('span[id^="ref-"]');
+            if (marker) item.removeChild(marker);
+            tip.innerHTML = (a.classList.contains('hyp') ? '' : '<b>[' + a.textContent + ']</b>') + item.innerHTML;
+            tip.hidden = false;
+            a.setAttribute('aria-describedby', 'cite-tip');
+            var r = a.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+            var left = Math.max(16, Math.min(r.left + r.width / 2 - w / 2, document.documentElement.clientWidth - w - 16));
+            var top = r.bottom + 6;
+            if (top + h > window.innerHeight - 8 && r.top - h - 6 > 8) top = r.top - h - 6;
+            tip.style.left = (left + window.scrollX) + 'px';
+            tip.style.top = (top + window.scrollY) + 'px';
+        }
+        function hide() {
+            timer = setTimeout(function () {
+                tip.hidden = true;
+                if (current) current.removeAttribute('aria-describedby');
+                current = null;
+            }, 150);
+        }
+        function cite(e) { return e.target.closest && e.target.closest('a.cite'); }
+        var touch = false, openBefore = null;
+        document.addEventListener('pointerdown', function (e) {
+            touch = e.pointerType === 'touch';
+            openBefore = tip.hidden ? null : current;
+        });
+        document.addEventListener('click', function (e) {
+            var a = cite(e);
+            if (a && touch && openBefore !== a) { e.preventDefault(); show(a); }
+            else if (a && !touch) { tip.hidden = true; current = null; }
+            else if (touch && !a && !(e.target.closest && e.target.closest('#cite-tip'))) {
+                tip.hidden = true; current = null;
+            }
+        }, true);
+        document.addEventListener('mouseover', function (e) {
+            var a = cite(e);
+            if (a) show(a);
+            else if (e.target.closest && e.target.closest('#cite-tip')) clearTimeout(timer);
+        });
+        document.addEventListener('mouseout', function (e) {
+            if (cite(e) || (e.target.closest && e.target.closest('#cite-tip'))) hide();
+        });
+        document.addEventListener('focusin', function (e) { var a = cite(e); if (a) show(a); });
+        document.addEventListener('focusout', function (e) { if (cite(e)) hide(); });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                tip.hidden = true;
+                if (current) current.removeAttribute('aria-describedby');
+                current = null;
+            }
+        });
+    })();
+    </script>
+    <script>
+    (function () {
+        var cachedMd = null, statusTimer = null, lastMsg = '';
+        var btn = document.getElementById('copy-md');
+        var status = document.getElementById('paper-status');
+        if (!btn) return;
+        function say(msg) {
+            if (!status) return;
+            clearTimeout(statusTimer);
+            var out = (msg === lastMsg) ? msg + '\u00A0' : msg;
+            lastMsg = out;
+            status.textContent = out;
+            statusTimer = setTimeout(function () { status.textContent = ''; }, 2000);
+        }
+        function writeText(md) {
+            var done = function () { say('copied'); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(md).then(done, fallback);
+            } else {
+                fallback();
+            }
+            function fallback() {
+                var t = document.createElement('textarea');
+                t.value = md;
+                document.body.appendChild(t);
+                t.select();
+                document.execCommand('copy');
+                t.remove();
+                done();
+            }
+        }
+        btn.addEventListener('click', function () {
+            if (cachedMd !== null) { writeText(cachedMd); return; }
+            fetch('paper.md').then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.text();
+            }).then(function (txt) {
+                cachedMd = txt;
+                writeText(txt);
+            }).catch(function () {
+                say('copy failed');
+            });
+        });
+    })();
+    </script>
+
+</body>
+</html>

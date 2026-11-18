@@ -89,7 +89,7 @@ async function checkPreviews(context, baseUrl) {
         console.log(`PASS ${file}: paired tags, HTTP 200 JPEG, fingerprint, 1200x630, no retired palette`);
         count++;
     }
-    assert.equal(count, 28, '26 existing previews plus About and Contact');
+    assert.equal(count, 31, '28 existing previews plus 3 maker-checker studies');
     const oldFiles = execFileSync('git', ['ls-files', '*og.jpg'], { cwd: root, encoding: 'utf8' })
         .trim().split('\n').filter(Boolean);
     for (const file of oldFiles) {

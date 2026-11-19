@@ -23,11 +23,11 @@
     <meta property="og:description" content="30 preregistered paired replays testing multi-agent maker-checker TDD against a single-agent ticket run, what broke inside the 11.7-hour loop, and the selective 4+1 hybrid I am building instead.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/">
-    <meta property="og:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-cc3fbe702109.jpg">
+    <meta property="og:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-08a036e44da5.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="One Mind to Build, One Blind Mind to Break">
     <meta name="twitter:description" content="30 preregistered paired replays testing multi-agent maker-checker TDD against a single-agent ticket run, and why independent verification belongs in post-hoc execution rather than pre-code handoffs.">
-    <meta name="twitter:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-cc3fbe702109.jpg">
+    <meta name="twitter:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-08a036e44da5.jpg">
     <!-- Umami (self-hosted) - analytics + session replay -->
     <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
     <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
@@ -75,6 +75,36 @@
         .panel-label { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 0.45rem; }
         .tldr p, .tldr li { font-size: 0.96rem; }
         .tldr ul { margin-bottom: 0.5rem; }
+        .visually-hidden:where(:not(:focus-within, :active)) {
+            position: absolute !important; clip-path: inset(50%) !important; overflow: hidden !important;
+            width: 1px !important; height: 1px !important; margin: -1px !important; padding: 0 !important;
+            border: 0 !important; white-space: nowrap !important;
+        }
+        .papers-callout { margin: 0 0 1.65rem; padding: 1rem 1.15rem 1.1rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--soft); }
+        .papers-heading { font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin: 0 0 0.35rem; }
+        .papers-intro { font-size: 0.94rem; color: var(--muted); margin-bottom: 0.85rem; }
+        .papers-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
+        article.paper-card {
+            display: grid; grid-template-rows: subgrid; grid-row: span 3; gap: 0.45rem;
+            padding: 0.85rem 0.95rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface);
+            transition: border-color 0.15s ease;
+        }
+        article.paper-card:has(a.card-link) { position: relative; }
+        article.paper-card a.card-link::after { content: ""; position: absolute; inset: 0; border-radius: 6px; }
+        article.paper-card a.card-link:focus-visible { outline: none; }
+        article.paper-card:has(a.card-link:focus-visible) { outline: 2px solid var(--brand); outline-offset: 2px; }
+        article.paper-card:has(a.card-link:hover) { border-color: var(--brand); }
+        article.paper-card a:not(.card-link) { position: relative; z-index: 1; }
+        article.paper-card header { margin: 0; }
+        .paper-kicker { font-size: 0.73rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.2rem; }
+        article.paper-card h3 { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.04rem; font-weight: 700; line-height: 1.28; margin: 0; }
+        article.paper-card h3 a { color: var(--ink); text-decoration: none; }
+        article.paper-card:has(a.card-link:hover) h3 a { color: var(--brand); text-decoration: underline; text-underline-offset: 0.14em; }
+        article.paper-card > p { font-size: 0.88rem; line-height: 1.5; color: var(--muted); margin: 0; }
+        article.paper-card footer { display: flex; flex-wrap: wrap; gap: 0.35rem 0.65rem; align-items: center; padding-top: 0.35rem; border-top: 1px dashed var(--rule); font-size: 0.84rem; }
+        .paper-cta { font-weight: 700; color: var(--brand); margin-right: auto; }
+        article.paper-card footer a { display: inline-flex; align-items: center; min-block-size: 24px; padding: 0.1rem 0.48rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--soft); color: var(--brand); font-weight: 600; font-size: 0.81rem; text-decoration: none; }
+        article.paper-card footer a:hover, article.paper-card footer a:focus-visible { border-color: var(--brand); text-decoration: underline; text-underline-offset: 0.14em; }
         .fold-hint { font-size: 0.92rem; color: var(--muted); margin: 1.35rem 0 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
         button.linkish { background: none; border: 0; padding: 0.25rem 0; min-height: 24px; font: inherit; color: var(--brand); cursor: pointer; text-decoration: underline; text-underline-offset: 0.15em; }
         button.linkish:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
@@ -155,7 +185,7 @@
         .sources .cite-title { color: var(--ink); font-weight: 600; }
         .ai-note { margin-top: 1.8rem; padding: 0.95rem 1.15rem; background: var(--soft); border-left: 3px solid var(--brand); border-radius: 0 6px 6px 0; color: var(--muted); font-size: 0.9rem; }
         .footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); text-align: center; color: var(--muted); font-size: 0.85rem; }
-        @media (max-width: 640px) { .container { padding: 1.25rem 1rem 2.5rem; } .topbar { flex-direction: column; align-items: flex-start; } }
+        @media (max-width: 640px) { .container { padding: 1.25rem 1rem 2.5rem; } .topbar { flex-direction: column; align-items: flex-start; } .papers-grid { grid-template-columns: 1fr; } article.paper-card { grid-template-rows: auto; grid-row: auto; } }
         @media print {
             html, html[data-theme], html:not([data-theme="light"]):not([data-theme="dark"]) { color-scheme: light; }
             .fold-hint, .ctl, [data-theme-toggle] { display: none !important; }
@@ -171,8 +201,8 @@
         <header class="topbar">
             <nav class="top-links" aria-label="Breadcrumb">
                 <a href="/blog/" class="back-link">&larr; All posts</a>
-                <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/" class="back-link">Study 1 (10 issues)</a>
-                <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/" class="back-link">Study 2 (20 pairs)</a>
+                <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/" class="back-link">Paper 1 (10 issues)</a>
+                <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/" class="back-link">Paper 2 (20 pairs)</a>
                 <a href="https://github.com/JacobStephens2/stephens.page/tree/main/blog/one-mind-to-build-one-blind-mind-to-break/" class="back-link" rel="noopener">Source on GitHub</a>
             </nav>
             <div class="top-right">
@@ -185,7 +215,7 @@
             <article class="note">
                 <div class="eyebrow">Notes &middot; AI coding agents &middot; Multi-agent systems</div>
                 <h1 class="title">One Mind to Build, One Blind Mind to Break</h1>
-                <p class="meta"><strong>November 17, 2026</strong> &middot; ~2,500 words &middot; 4 interactive figures and a quiz &middot; companion papers: <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/">Study 1 (10 issues)</a> &amp; <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">Study 2 (20 pairs)</a> &middot; AI agent? read <a href="/blog/one-mind-to-build-one-blind-mind-to-break/agents.md">agents.md</a></p>
+                <p class="meta"><strong>November 17, 2026</strong> &middot; ~2,500 words &middot; 4 interactive figures and a quiz &middot; Prefer the scientific paper format? <a href="#research-papers">Read Paper 1 &amp; Paper 2 (HTML, PDF &amp; Markdown)</a> &middot; AI agent? read <a href="/blog/one-mind-to-build-one-blind-mind-to-break/agents.md">agents.md</a></p>
 
                 <section class="tldr" aria-labelledby="tldr-label">
                     <div class="panel-label" id="tldr-label">TL;DR</div>
@@ -197,9 +227,40 @@
                     </ul>
                 </section>
 
+                <div class="papers-callout" id="research-papers">
+                    <h2 class="papers-heading">Prefer the scientific paper format?</h2>
+                    <p class="papers-intro">This essay synthesizes two preregistered, blinded experimental papers written in full academic format with methods, per-task tables, statistical tests, and typeset PDFs:</p>
+                    <div class="papers-grid">
+                        <article class="paper-card">
+                            <header>
+                                <p class="paper-kicker">Research Paper 1 &middot; Adoption Gate (10 Issues)</p>
+                                <h3><a class="card-link" href="/blog/maker-checker-tdd-ten-issue-adoption-study/">Ten Replayed Issues: Maker-Checker TDD vs. a Single-Agent Ticket Run</a></h3>
+                            </header>
+                            <p>Preregistered 10-pair adoption test (Claude Code orchestrator vs. thirdshift Ticket run): experimental design, blind human and LLM grading tables, session telemetry, and Pair 6 cross-test analysis.</p>
+                            <footer>
+                                <span class="paper-cta" aria-hidden="true">HTML paper &rarr;</span>
+                                <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/maker-checker-tdd-ten-issue-adoption-study.pdf">PDF (26 pp.)<span class="visually-hidden"> - Paper 1</span></a>
+                                <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/paper.md">Markdown<span class="visually-hidden"> - Paper 1</span></a>
+                            </footer>
+                        </article>
+                        <article class="paper-card">
+                            <header>
+                                <p class="paper-kicker">Research Paper 2 &middot; 20-Pair Census</p>
+                                <h3><a class="card-link" href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">Maker-Checker TDD vs. a Single-Agent Ticket Run: Seventeen Tasks &amp; Three Repeats</a></h3>
+                            </header>
+                            <p>Preregistered 20-pair descriptive study equalizing the Codex orchestrator: hypotheses H1&ndash;H6, 8-model position and family bias, T3 11.7-hour loop trace, and five governing CS mechanisms.</p>
+                            <footer>
+                                <span class="paper-cta" aria-hidden="true">HTML paper &rarr;</span>
+                                <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf">PDF (32 pp.)<span class="visually-hidden"> - Paper 2</span></a>
+                                <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/paper.md">Markdown<span class="visually-hidden"> - Paper 2</span></a>
+                            </footer>
+                        </article>
+                    </div>
+                </div>
+
                 <p>Separating coding agents into isolated planner, test-writer, implementer, and multi-round reviewer roles degraded delivery, multiplied cost by <code>4.6&times;</code> to <code>10.4&times;</code> across 30 paired replay runs, and produced half as many merge-ready pull requests as one continuous coding session - yet executing one independently written behavioral test suite after the fact caught real defects that a single session and its reviewers missed.</p>
 
-                <p>I ran these experiments because I carry the merge gate. At Educational Travel Adventures, most bug fixes and small features on Tourbot - our ~100,000-line PHP 8 and MySQL 8 operations platform - start inside <a href="https://thirdshift.app" rel="noopener">thirdshift</a>, an open-source Rust orchestrator I built to run coding agents cleanly. One Codex session reads an issue, writes a failing test first, builds the change, spawns parallel spec, standards, and security sub-agents, and opens a pull request. That ships fast, but it breaks a rule from Cleanroom software engineering (Mills, Dyer, &amp; Linger, 1987): <em>nobody should grade their own homework.</em> If one context misreads a ticket, both its code and its test suite carry the blind spot. Before migrating our upcoming feature builds onto an isolated multi-agent Maker-Checker TDD pipeline, I wanted to measure what role separation actually buys - and what it quietly breaks.</p>
+                <p>I ran these experiments because I carry the merge gate. At Educational Travel Adventures, most bug fixes and small features on Tourbot - our million-line PHP 8 and MySQL 8 operations platform - start inside <a href="https://thirdshift.app" rel="noopener">thirdshift</a>, an open-source Rust orchestrator I built to run coding agents cleanly. One Codex session reads an issue, writes a failing test first, builds the change, spawns parallel spec, standards, and security sub-agents, and opens a pull request. That ships fast, but it breaks a rule from Cleanroom software engineering (Mills, Dyer, &amp; Linger, 1987): <em>nobody should grade their own homework.</em> If one context misreads a ticket, both its code and its test suite carry the blind spot. Before migrating our upcoming feature builds onto an isolated multi-agent Maker-Checker TDD pipeline, I wanted to measure what role separation actually buys - and what it quietly breaks.</p>
 
                 <p class="fold-hint">Each section below starts folded so the questions read as the argument in brief. Click any heading to open it, search natively with Find in Page, or <button type="button" class="linkish" id="foldAllBtn" aria-expanded="false"><span class="lbl-expand">expand all sections</span><span class="lbl-collapse">collapse all sections</span></button>.</p>
                 <noscript>
@@ -603,7 +664,7 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                 </section>
 
                 <div class="ai-note">
-                    Synthesized from our two internal preregistered experiment reports (30 paired Tourbot replays), session traces, and primary literature notes, with AI drafting assistance. Figures 1, 2, and 4 use hand-built inline SVG rendered by local JavaScript; Figure 3 switches hand-built DOM cards. All four include static text fallbacks. Every metric, blind human call, and meta-reviewer trace quote traces directly to the underlying studies linked above; all architecture decisions and open questions are mine.
+                    Synthesized from our two internal preregistered experiment reports (30 paired Tourbot replays), session traces, and primary literature notes, with AI drafting assistance. Figures 1, 2, and 4 use hand-built inline SVG rendered by local JavaScript; Figure 3 switches hand-built DOM cards. All four include static text fallbacks. Every metric, blind human call, and meta-reviewer trace quote traces directly to <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/">Research Paper 1</a> and <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">Research Paper 2</a>; all architecture decisions and open questions are mine.
                 </div>
                 <p><strong>For AI agents:</strong> <a href="agents.md">agents.md</a> contains the workflow contract, verified numbers, operational checklist, and self-test with answers.</p>
             </article>

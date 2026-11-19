@@ -82,7 +82,7 @@ class MakerCheckerPublications(unittest.TestCase):
 
     def test_house_punctuation(self):
         for slug in (STUDY_1, STUDY_2, ESSAY):
-            names = ("index.html", "agents.md") + (() if slug == ESSAY else ("paper.md",))
+            names = ("index.html", "agents.md") + (("follow-up-replay.md",) if slug == ESSAY else ("paper.md",))
             for name in names:
                 with self.subTest(slug=slug, name=name):
                     self.assertFalse(chr(8212) in unescape(read(slug, name)), "Rendered em dash")
@@ -183,6 +183,60 @@ class MakerCheckerPublications(unittest.TestCase):
         self.assertIn(f"${total:.2f}", combined)
         caption = text_content(re.findall(r'<div class="fig-caption">(.*?)</div>', read(ESSAY), re.S)[1])
         self.assertIn("$0.02 rounding difference", caption)
+
+    def test_study2_test_line_totals_match_table_5(self):
+        rows = trial_rows(STUDY_2, "**Table 5.**", "## 4 Results")
+        self.assertEqual(len(rows), 20)
+        p_base = p_cand = a_base = a_cand = 0
+        for row in rows:
+            sizes = re.findall(r"`([\d,]+)/([\d,]+)`", row[5])
+            if len(sizes) == 2:
+                b_tl = int(sizes[0][1].replace(",", ""))
+                c_tl = int(sizes[1][1].replace(",", ""))
+                a_base += b_tl
+                a_cand += c_tl
+                if int(row[0]) <= 17:
+                    p_base += b_tl
+                    p_cand += c_tl
+        self.assertEqual((p_base, p_cand), (1832, 5063))
+        self.assertEqual((a_base, a_cand), (2250, 6433))
+        for doc in (read(STUDY_2, "paper.md"), text_content(read(STUDY_2)), read(STUDY_2, "agents.md")):
+            norm = doc.replace("`", "").replace("**", "")
+            self.assertRegex(norm, r"5,063 vs\.? 1,832 total test lines")
+            self.assertRegex(norm, r"6,433 vs\.? 2,250 across")
+        self.assertRegex(read(ESSAY, "agents.md").replace("`", ""), r"1,832 vs\.? 5,063 test LOC across 11 pairs")
+
+    def test_study2_h6_bloat_count_matches_enumerated_pairs(self):
+        paper = read(STUDY_2, "paper.md")
+        m_md = re.search(r"Candidate pull request on \*\*(\d+) of the 13\*\* graded pairs \((.*?)\)\.", paper)
+        self.assertIsNotNone(m_md)
+        ids_md = re.findall(r"`(T\d+(?:-r2)?)`", m_md[2])
+        self.assertEqual(int(m_md[1]), len(set(ids_md)))
+        self.assertEqual(int(m_md[1]), 10)
+        html_txt = text_content(read(STUDY_2))
+        self.assertIn("10 of the 13 graded pairs", html_txt)
+        self.assertIn("10/13 graded Candidate PRs", read(STUDY_2, "agents.md").replace("`", ""))
+
+    def test_primary_citations_named(self):
+        for slug in (STUDY_1, STUDY_2, ESSAY):
+            self.assertIn("Konstantinou", read(slug))
+            if slug != ESSAY:
+                self.assertIn("Konstantinou", read(slug, "paper.md"))
+        self.assertIn("Konstantinou", read(STUDY_2, "agents.md"))
+        self.assertIn("Konstantinou", read(ESSAY, "agents.md"))
+
+    def test_service_worker_and_cache_headers_prevent_stale_theme(self):
+        root = BLOG.parent
+        sw = (root / "sw.js").read_text()
+        self.assertNotIn("VERSION = 'v1'", sw)
+        self.assertNotIn("caches.match(", sw)
+        self.assertIn("PRECACHE_ASSETS", sw)
+        precache_pages = re.search(r"PRECACHE_PAGES\s*=\s*\[(.*?)\]", sw, re.S)[1]
+        self.assertNotIn(".css", precache_pages)
+        self.assertNotIn(".js", precache_pages)
+        htaccess = (root / ".htaccess").read_text()
+        self.assertIn('<FilesMatch "\\.(html|css|js|md)$">', htaccess)
+        self.assertIn('Header set Cache-Control "no-cache"', htaccess)
 
 
 if __name__ == "__main__":

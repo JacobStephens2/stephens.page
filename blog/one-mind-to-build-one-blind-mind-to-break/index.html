@@ -23,11 +23,11 @@
     <meta property="og:description" content="30 preregistered paired replays testing multi-agent maker-checker TDD against a single-agent ticket run, what broke inside the 11.7-hour loop, and the selective 4+1 hybrid I am building instead.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/">
-    <meta property="og:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-08a036e44da5.jpg">
+    <meta property="og:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-eb1affda020d.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="One Mind to Build, One Blind Mind to Break">
     <meta name="twitter:description" content="30 preregistered paired replays testing multi-agent maker-checker TDD against a single-agent ticket run, and why independent verification belongs in post-hoc execution rather than pre-code handoffs.">
-    <meta name="twitter:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-08a036e44da5.jpg">
+    <meta name="twitter:image" content="https://stephens.page/blog/one-mind-to-build-one-blind-mind-to-break/media/og-eb1affda020d.jpg">
     <!-- Umami (self-hosted) - analytics + session replay -->
     <script defer src="https://analytics.stephens.page/script.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f" data-domains="stephens.page"></script>
     <script defer src="https://analytics.stephens.page/recorder.js" data-website-id="e9c6630b-643d-4555-bcb0-2642266f5c8f"></script>
@@ -215,7 +215,7 @@
             <article class="note">
                 <div class="eyebrow">Notes &middot; AI coding agents &middot; Multi-agent systems</div>
                 <h1 class="title">One Mind to Build, One Blind Mind to Break</h1>
-                <p class="meta"><strong>November 17, 2026</strong> &middot; ~2,500 words &middot; 4 interactive figures and a quiz &middot; Prefer the scientific paper format? <a href="#research-papers">Read Paper 1 &amp; Paper 2 (HTML, PDF &amp; Markdown)</a> &middot; AI agent? read <a href="/blog/one-mind-to-build-one-blind-mind-to-break/agents.md">agents.md</a></p>
+                <p class="meta"><strong>November 17, 2026</strong> (updated Nov 18 with a <a href="#breaker-replay">4-pair follow-up replay</a>) &middot; ~2,800 words &middot; 4 interactive figures and a quiz &middot; Prefer the scientific paper format? <a href="#research-papers">Read Paper 1 &amp; Paper 2 (HTML, PDF &amp; Markdown)</a> &middot; AI agent? read <a href="/blog/one-mind-to-build-one-blind-mind-to-break/agents.md">agents.md</a></p>
 
                 <section class="tldr" aria-labelledby="tldr-label">
                     <div class="panel-label" id="tldr-label">TL;DR</div>
@@ -223,7 +223,7 @@
                     <ul>
                         <li><strong>Both workflows used TDD; this compared complete workflows:</strong> My single-context Ticket run in <a href="https://thirdshift.app" rel="noopener">thirdshift</a> delivered <strong>27 of 27</strong> unique primary pull requests (<code>89%</code> rated <em>merge as is</em> blind) while writing a test first at minute <code>1.3&ndash;1.8</code>. The maker-checker workflow delivered <strong>19 of 27</strong>, raised test-to-production line ratios to <strong>14.7:1</strong> and <strong>10.10:1</strong>, and cost <strong>$422.84</strong> and about <strong>49.5 active hours</strong> across the 30 pairs vs. <strong>$39.32</strong> and <strong>8.0 hours</strong>, summing elapsed trial time in both studies. Study 1 also differed in orchestrator and review configuration; Study 2 equalized the top-level orchestrator while retaining other workflow differences.</li>
                         <li><strong>Equalizing the orchestrator halved cost, not failure modes:</strong> Moving the multi-agent orchestrator from Claude Code to Codex in Study 2 dropped the median cost ratio from <code>10.4&times;</code> to <code>4.62&times;</code>, yet the blind maintainer still preferred the single-agent run <strong>8&ndash;0&ndash;3</strong> (and a blind colleague scored <strong>1&ndash;0&ndash;1</strong> on two sampled pairs), while a 17-line web server access-control rule trapped the multi-agent pipeline in an <strong>11-hour 39-minute, 64-session, $64.22 loop</strong> with no PR opened.</li>
-                        <li><strong>The one mechanism worth keeping:</strong> Post-hoc, <em>diff-blind behavioral execution</em> exposed real bugs in <strong>2 of 19</strong> delivered pairs (Study 1 Pairs 6 and 7) that single sessions and diff reviewers missed - falling to <strong>0 of 11</strong> in Study 2. Instead of pre-code handoffs, I am testing deterministic <code>tests_on_base</code> checks on every ticket and a selective, runner-bounded <code>+1</code> Blind Behavioral Breaker fed only public signatures (<code>public_api_delta.txt</code>).</li>
+                        <li><strong>The one mechanism worth keeping:</strong> Post-hoc, <em>diff-blind behavioral execution</em> exposed real bugs in <strong>2 of 19</strong> delivered pairs (Study 1 Pairs 6 and 7) that single sessions and diff reviewers missed - falling to <strong>0 of 11</strong> in Study 2. Instead of pre-code handoffs, I am testing deterministic <code>tests_on_base</code> checks on every ticket and a selective, runner-bounded <code>+1</code> Blind Behavioral Breaker fed only public signatures (<code>public_api_delta.txt</code>); an initial <a href="#breaker-replay">4-pair follow-up replay</a> cut false positives to <code>0/4</code> at ~<code>$0.32</code> API per gated task, caught an unguarded zero-date variant in Study 1 Pair 7, and missed Pair 6's deeper inline-signature bug within <code>139</code> test lines.</li>
                     </ul>
                 </section>
 
@@ -251,7 +251,7 @@
                             <p>Preregistered 20-pair descriptive study equalizing the Codex orchestrator: hypotheses H1&ndash;H6, 8-model position and family bias, T3 11.7-hour loop trace, and five governing CS mechanisms.</p>
                             <footer>
                                 <span class="paper-cta" aria-hidden="true">HTML paper &rarr;</span>
-                                <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf">PDF (32 pp.)<span class="visually-hidden"> - Paper 2</span></a>
+                                <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf">PDF (33 pp.)<span class="visually-hidden"> - Paper 2</span></a>
                                 <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/paper.md">Markdown<span class="visually-hidden"> - Paper 2</span></a>
                             </footer>
                         </article>
@@ -434,7 +434,7 @@
                         <p>When the evaluation harness transplanted the Candidate's independently authored tests onto the Baseline's code, they failed immediately and proved three real bugs: the Baseline deleted coordinator text written beside a signature, rewrote a historical signature copy stored inside notes, and left stale contacts in legacy templates. In Pair 7 (<code>I7</code>), independent tests caught a daylight-saving spring-forward failure too.</p>
                         <p>Three results explain both the Pair 6 catch and why Study 2 changed how I would deploy it:</p>
                         <ul>
-                            <li><strong>Intrinsic self-correction blindness vs. execution oracles (Huang et al., 2024; Kamoi et al., 2024; Knight &amp; Leveson, 1986):</strong> Language models cannot reliably spot their own reasoning mistakes without an external ground-truth failure signal, and separate reviewers shown the implementer's diff anchor on the same framing (correlated misses). Independent tests written without seeing the implementation catch nearly double the faults (<code>25%</code> vs. <code>14%</code>; arXiv:2607.05139) - <em>but you get that lift from post-hoc execution of a diff-blind test suite, not from 14 rounds of pre-code planning</em> (Pair 6 cost 72 sessions and $74.14!).</li>
+                            <li><strong>Intrinsic self-correction blindness vs. execution oracles (Huang et al., 2024; Kamoi et al., 2024; Knight &amp; Leveson, 1986; Konstantinou, Tambon, &amp; Papadakis, 2026):</strong> Language models cannot reliably spot their own reasoning mistakes without an external ground-truth failure signal, and separate reviewers shown the implementer's diff anchor on the same framing (correlated misses). Independent tests written without seeing the implementation catch nearly double the faults (<code>25%</code> vs. <code>14%</code>; <a href="#sec-h-9">Konstantinou et al., 2026</a>) - <em>but you get that lift from post-hoc execution of a diff-blind test suite, not from 14 rounds of pre-code planning</em> (Pair 6 cost 72 sessions and $74.14!).</li>
                             <li><strong>Study 2 answered my open question cleanly (H1 = 0 in Study 2; 2 of 19 overall):</strong> Across all 11 newly delivered primary pairs (13 with repeats) in Study 2, Candidate cross-tests found <strong>zero</strong> confirmed defects in Baseline PRs (the two failures, on <code>T5</code> and <code>T10</code>, merely asserted private Candidate helper structure), while a Baseline unit test caught one real Candidate regression (<code>filter_var(..., FILTER_VALIDATE_INT)</code> rejecting valid zero-padded IDs like <code>'0010'</code> on <code>T17</code>). Combined across both studies, independent Candidate tests caught Baseline bugs on <strong>2 of 19 delivered pairs (10.5%)</strong> - and Pair 6 needed 1,736 test lines to get there.</li>
                             <li><strong>Human attention economics vs. LLM length bias (Sadowski et al., 2018; Pombal et al., 2026):</strong> Make a prediction in Fig. 4 before revealing how blind human reviewers and eight model graders traded off test size and quality.</li>
                         </ul>
@@ -504,6 +504,57 @@ retain_test_only_if = "fails_on_head_or_increases_branch_coverage"
 [steps.repair_if_needed]
 type = "resume_builder"        # keeps warm KV context intact
 max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pre>
+
+                        <h3 id="breaker-replay">Follow-up replay (November 18): testing the bounded Blind Breaker on four saved pairs</h3>
+                        <p>Before leaving the configuration above as an untested sketch, I replayed four saved tasks from Studies 1 and 2 on November 18 using those exact bounds (<code>claude-opus-5-5</code> at <code>medium</code> effort, <code>&le; 180s</code>, <code>&le; 25</code> tool calls, <code>&le; 150</code> test lines, <code>&le; 5</code> test methods, <code>public_api_delta.txt</code> with function bodies and <code>tests/</code> stripped; full log in <a href="/blog/one-mind-to-build-one-blind-mind-to-break/follow-up-replay.md">follow-up-replay.md</a>): Study 1 <code>I6</code> and <code>I7</code> (the two Baseline defects exposed by <code>1,736</code>-line and <code>1,808</code>-line Candidate suites in Study 1) plus Study 2 <code>T5</code> and <code>T10</code> (the two tasks where Study 2 Candidate cross-tests failed solely on mismatched internal helper names). I also forced <code>T5</code> to run despite its zero-signature gate so we could verify false-positive rate on a non-PHP configuration task.</p>
+
+                        <div class="table-wrap" tabindex="0" role="region" aria-labelledby="tbl-breaker-cap">
+                            <table class="grid">
+                                <caption id="tbl-breaker-cap">Table 2. Follow-up 4-pair replay of the bounded +1 Blind Behavioral Breaker (180s, 150 LOC, 5-test cap).</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Task (Study)</th>
+                                        <th scope="col">Public API &amp; Gate</th>
+                                        <th scope="col" class="num">Size / Time / API Cost</th>
+                                        <th scope="col">Base Check</th>
+                                        <th scope="col">Target PR Outcome (Baseline / Candidate)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Study 1 <code>I6</code> (signature repointing)</th>
+                                        <td>5 sigs / Run</td>
+                                        <td class="num">139 LOC / 61.7s / $0.35</td>
+                                        <td>5/5 fail (expected)</td>
+                                        <td>Baseline <strong>5/5 pass</strong> (29 assertions); missed deeper inline-note case</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Study 1 <code>I7</code> (zero call-date reset)</th>
+                                        <td>2 sigs / Run</td>
+                                        <td class="num">106 LOC / 54.1s / $0.27</td>
+                                        <td>5/5 fail (expected)</td>
+                                        <td>Baseline <strong>1 error / 4 pass</strong> (threw on <code>'0000-00-00 00:00'</code>; 40 assertions)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Study 2 <code>T5</code> (container webroot)</th>
+                                        <td>0 PHP sigs / Skip*</td>
+                                        <td class="num">123 LOC / 56.3s / $0.32*</td>
+                                        <td>2/5 fail (expected)</td>
+                                        <td><strong>5/5 pass on both arms</strong> (39 / 41 assertions; 0 false positives)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Study 2 <code>T10</code> (deck override apply)</th>
+                                        <td>1 sig / Run</td>
+                                        <td class="num">128 LOC / 65.5s / $0.34</td>
+                                        <td>5/5 fail (expected)</td>
+                                        <td><strong>5/5 pass on both arms</strong> (46 / 46 assertions; 0 false positives)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p><em>*Note on <code>T5</code> and cross-arm runs:</em> With selective gating turned on, <code>T5</code> extracts zero PHP signatures and skips the breaker for <code>$0.00</code>. Because <code>public_api_delta.txt</code> was extracted from Baseline's pull request, running the <code>I6</code> and <code>I7</code> probes against Candidate rightly stopped at the missing-function signature guard; in production the breaker inspects the builder branch's own extracted signatures.</p>
+
+                        <p>Two crisp lessons fell straight out of those four runs. First, <code>public_api_delta.txt</code> eliminated both Study 2 false positives (<code>T5</code> and <code>T10</code> went from 2/2 spurious cross-test failures to <strong>0/2</strong>) while costing <strong>$0.95 API total</strong> across the three gated runs ($0.27&ndash;$0.35 each in 54&ndash;66 seconds; CLI-reported equivalent $1.26). Second, the 150-line budget showed an honest depth trade-off: on <code>I7</code>, 106 lines of black-box boundary inputs surfaced an unhandled zero-date sentinel missing seconds (<code>'0000-00-00 00:00'</code>, throwing an uncaught <code>InvalidArgumentException</code> alongside 40 passing assertions), whereas on <code>I6</code>, 139 lines tested clean role handoffs, HTML whitespace reflow, and a standalone coordinator notes block - passing all 29 assertions on Baseline without discovering the trickier defect Study 1 Candidate exposed after 14 plan rounds and 1,736 fixture lines (coordinator notes typed inside the trailing signature block or a pasted signature inside Notes). Short bounded probes give you a cheap, clean interface oracle; deep adversarial corpus testing belongs selectively on high-risk text parsers and full feature branches.</p>
                     </div></div>
                 </section>
 
@@ -514,14 +565,14 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
 
                         <p><strong>What I still don't know:</strong></p>
                         <ol>
-                            <li>Does a 150-line, 3-minute Blind Behavioral Breaker still catch subtle data-corruption bugs like Study 1 Pair 6, or did Pair 6 depend on exploring 1,736 lines of realistic email corpus fixtures? Our saved 30-pair replay trees let us test that hypothesis directly.</li>
+                            <li>What happens when we scale the November 18 bounded Blind Behavioral Breaker across the remaining delivered Baseline pairs? The <a href="#breaker-replay">initial 4-pair replay</a> answered the first half: a 139-line pass stayed cheap (<code>$0.35</code> API), kept false positives at zero, and missed Pair 6's subtler inline-signature corruption, while a 106-line pass caught an unguarded <code>'0000-00-00 00:00'</code> edge case in Pair 7. Whether a slightly higher adversarial budget on risky diffs or feature-level runs recovers Pair 6 without ballooning back toward bloat stays open.</li>
                             <li>Where should the boundary sit between ticket-level probes and feature-level probes? Study 2 found <code>0/11</code> Baseline bugs on small tickets, whereas <a href="/blog/fresh-eyes-beat-a-second-family/">Fresh Eyes</a> found missed bugs in more than half of finished multi-ticket Spec branches. Running both checks cleanly on upcoming feature builds will tell.</li>
                             <li>How do we run fast mutation testing (<code>Infection</code>) on legacy procedural PHP files outside <code>src/</code>? Seven of ten pairs in Study 1 and many procedural tasks in Study 2 generated zero mutants, leaving an instrumentation blind spot.</li>
                         </ol>
 
                         <div class="table-wrap" tabindex="0" role="region" aria-labelledby="tbl-score-cap">
                             <table class="grid">
-                                <caption id="tbl-score-cap">Table 2. Author scorecard (1&ndash;10 across 30 replay pairs and the selective 4+1 hybrid design target).</caption>
+                                <caption id="tbl-score-cap">Table 3. Author scorecard (1&ndash;10 across 30 replay pairs and the selective 4+1 hybrid design target).</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Dimension</th>
@@ -609,7 +660,7 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                                         <button type="button" class="opt" data-c="1">It exposes only added/changed public class and method signatures while stripping all method bodies and tests/ diffs.</button>
                                         <button type="button" class="opt">It forces both arms to use the same model family.</button>
                                     </div>
-                                    <p class="expl" hidden>Giving public signatures prevents guessing private helper names while hiding method bodies prevents anchoring bias (Huang et al., 2024; arXiv:2607.05139).</p>
+                                    <p class="expl" hidden>Giving public signatures prevents guessing private helper names while hiding method bodies prevents anchoring bias (Huang et al., 2024; Konstantinou, Tambon, &amp; Papadakis, 2026).</p>
                                 </div>
                                 <div class="qz">
                                     <div class="q">5. Why did the eight LLM judges in Study 2 disagree with the blind maintainer on test-heavy PRs?</div>
@@ -642,7 +693,8 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                             <h3>Companion studies &amp; software</h3>
                             <ul>
                                 <li><span class="cite-title">Study 1 (10-issue adoption test):</span> <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ (Ten Replayed Tourbot Issues)</a> &middot; <a href="/blog/maker-checker-tdd-ten-issue-adoption-study/maker-checker-tdd-ten-issue-adoption-study.pdf">PDF (26 pp.)</a></li>
-                                <li><span class="cite-title">Study 2 (17 tasks + 3 repeats, Codex orchestrator):</span> <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ (Seventeen Tasks &amp; 8-Model Panel)</a> &middot; <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf">PDF (32 pp.)</a></li>
+                                <li><span class="cite-title">Study 2 (17 tasks + 3 repeats, Codex orchestrator):</span> <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/">How a Maker-Checker, Test-Driven Process and a Single-Agent Ticket Run Differ (Seventeen Tasks &amp; 8-Model Panel)</a> &middot; <a href="/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf">PDF (33 pp.)</a></li>
+                                <li><span class="cite-title">Follow-up replay &amp; reconciliation record:</span> <a href="follow-up-replay.md">Four-pair bounded Blind Breaker replay and Issue #69 reconciliation (Markdown)</a></li>
                                 <li><span class="cite-title">Prior review study:</span> <a href="/blog/fresh-eyes-beat-a-second-family/">Fresh Eyes Beat a Second Family</a> (183 replayed code reviews showing why post-feature review finds real missed bugs).</li>
                                 <li><span class="cite-title">Orchestrator under test:</span> <a href="https://thirdshift.app" rel="noopener">thirdshift</a> (<a href="https://github.com/JacobStephens2/thirdshift" rel="noopener">github.com/JacobStephens2/thirdshift</a>).</li>
                             </ul>
@@ -650,13 +702,13 @@ max_rounds = 1                 # never spawns RED->GREEN helper loops</code></pr
                             <ul>
                                 <li>Frederick P. Brooks, Jr., <span class="cite-title">The Mythical Man-Month</span> (1975) &amp; <span class="cite-title">"No Silver Bullet"</span> (1986): conceptual integrity and quadratic coordination overhead.</li>
                                 <li>Walden Yan, <span class="cite-title">"Don't Build Multi-Agents: Principles of Context Engineering"</span> (Cognition, June 2025): sharing full context traces vs. colliding implicit decisions.</li>
-                                <li>Y. Kim et al., <span class="cite-title">"Towards a Science of Scaling Agent Systems"</span> (2025): 260 multi-agent configurations on SWE-bench Verified. <a href="https://arxiv.org/abs/2512.08296" rel="noopener">arxiv.org/abs/2512.08296</a></li>
+                                <li>Yubin Kim, Ken Gu, Chanwoo Park, et al., <span class="cite-title">"Towards a Science of Scaling Agent Systems"</span> (December 2025): 260 multi-agent configurations on SWE-bench Verified. <a href="https://arxiv.org/abs/2512.08296" rel="noopener">arxiv.org/abs/2512.08296</a></li>
                                 <li>Harlan D. Mills, Michael Dyer, &amp; Richard C. Linger, <span class="cite-title">"Cleanroom Software Engineering"</span> (<em>IEEE Software</em>, 1987): specification-complete separation of coding and verification.</li>
                                 <li>Charles Goodhart (1975) &amp; Marilyn Strathern (1997): metric targeting - when verifier approval becomes the optimization target.</li>
                                 <li>Mert Cemri, Matei Zaharia, Ion Stoica, et al., <span class="cite-title">"Why Do Multi-Agent LLM Systems Fail?"</span> (MAST taxonomy, 2025). <a href="https://arxiv.org/abs/2503.13657" rel="noopener">arxiv.org/abs/2503.13657</a></li>
                                 <li>Erik Schluntz &amp; Barry Zhang, <span class="cite-title">"Building Effective Agents"</span> (Anthropic, December 2024): deterministic workflows vs. open-ended agent loops.</li>
-                                <li>Jie Huang et al., <span class="cite-title">"Large Language Models Cannot Self-Correct Reasoning Yet"</span> (<em>ICLR</em>, 2024); Ryo Kamoi et al. (<em>TACL</em>, 2024); John C. Knight &amp; Nancy G. Leveson (<em>IEEE TSE</em>, 1986); independent test generation (<code>25%</code> vs. <code>14%</code>, <a href="https://arxiv.org/abs/2607.05139" rel="noopener">arxiv.org/abs/2607.05139</a>).</li>
-                                <li>Andre Hora &amp; Romain Robbes (<em>MSR</em>, 2026, <a href="https://arxiv.org/abs/2602.00409" rel="noopener">arxiv.org/abs/2602.00409</a>); Z. Chen et al. (2026, <a href="https://arxiv.org/abs/2602.07900" rel="noopener">arxiv.org/abs/2602.07900</a>); Caitlin Sadowski et al., <span class="cite-title">"Modern Code Review: A Case Study at Google"</span> (<em>ICSE</em>, 2018); J. Pombal et al. (2026, <a href="https://arxiv.org/abs/2604.06996" rel="noopener">arxiv.org/abs/2604.06996</a>).</li>
+                                <li>Jie Huang et al., <span class="cite-title">"Large Language Models Cannot Self-Correct Reasoning Yet"</span> (<em>ICLR</em>, 2024); Ryo Kamoi et al., <span class="cite-title">"When Can LLMs Actually Correct Their Own Mistakes?"</span> (<em>TACL</em>, 2024); John C. Knight &amp; Nancy G. Leveson (<em>IEEE TSE</em>, 1986); Michael Konstantinou, Florian Tambon, &amp; Mike Papadakis, <span class="cite-title">"On the risk of coding before testing: An empirical study on LLM-based test generation workflow"</span> (<code>25%</code> vs. <code>14%</code>, July 2026, <a href="https://arxiv.org/abs/2607.05139" rel="noopener">arxiv.org/abs/2607.05139</a>); Zuodong Xiang, Yike Zhang, YueMing Zhang, &amp; Hailu Xu, <span class="cite-title">"Cross-Model LLM Code Review: Should you use Claude to review Codex or vice versa?"</span> (<em>Agentic SE @ KDD '26</em>, <a href="https://arxiv.org/abs/2607.21656" rel="noopener">arxiv.org/abs/2607.21656</a>).</li>
+                                <li>Andre Hora &amp; Romain Robbes (<em>MSR</em>, 2026, <a href="https://arxiv.org/abs/2602.00409" rel="noopener">arxiv.org/abs/2602.00409</a>); Zhi Chen et al. (2026, <a href="https://arxiv.org/abs/2602.07900" rel="noopener">arxiv.org/abs/2602.07900</a>); Caitlin Sadowski et al., <span class="cite-title">"Modern Code Review: A Case Study at Google"</span> (<em>ICSE</em>, 2018); José Pombal, Ricardo Rei, &amp; André F. T. Martins, <span class="cite-title">"Self-Preference Bias in Rubric-Based Evaluation of Large Language Models"</span> (April 2026, <a href="https://arxiv.org/abs/2604.06996" rel="noopener">arxiv.org/abs/2604.06996</a>); Bjarni Haukur Bjarnason, André Silva, &amp; Martin Monperrus, <span class="cite-title">"On Randomness in Agentic Evals"</span> (February 2026, <a href="https://arxiv.org/abs/2602.07150" rel="noopener">arxiv.org/abs/2602.07150</a>).</li>
                                 <li>Brian A. Nosek et al., <span class="cite-title">"The preregistration revolution"</span> (<em>PNAS</em>, 2018); Ryan Singer, <span class="cite-title">Shape Up</span> (Basecamp, 2019).</li>
                             </ul>
                         </div>

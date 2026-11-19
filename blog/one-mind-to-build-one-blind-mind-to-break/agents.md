@@ -15,7 +15,7 @@ license: MIT (per the site repository's LICENSE)
 This is the machine-oriented synthesis of two preregistered, paired, blinded replay experiments (**30 pairs in all**) comparing [thirdshift](https://thirdshift.app)'s single-context Built-in Ticket run (**Baseline**) against an isolated multi-agent maker-checker test-driven workflow with cross-family review (**Candidate**) on Educational Travel Adventures' production PHP 8 / MySQL 8 platform (Tourbot):
 
 - **Study 1 (`10` pairs, `I1`–`I10`, 30 Oct – 1 Nov 2026):** Claude Code (`claude-opus-5-5`) Candidate orchestrator vs. Codex (`gpt-6.1-sol`) Baseline. [Full HTML paper](https://stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/) · [PDF (26 pp.)](https://stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/maker-checker-tdd-ten-issue-adoption-study.pdf) · [paper.md](https://stephens.page/blog/maker-checker-tdd-ten-issue-adoption-study/paper.md)
-- **Study 2 (`20` pairs: `17` unique tasks `T1`–`T17` + `3` repeats, 3–5 Nov 2026):** **Both** orchestrators equalized on Codex `gpt-6.1-sol` (`high`), after 64 commits to the Candidate rules, scored on a 5-criterion rubric by a blind maintainer, a colleague sample (`2` pairs), and an 8-model panel (`6` voting families + `2` diagnostic). [Full HTML paper](https://stephens.page/blog/maker-checker-tdd-vs-single-agent-ticket-run/) · [PDF (32 pp.)](https://stephens.page/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf) · [paper.md](https://stephens.page/blog/maker-checker-tdd-vs-single-agent-ticket-run/paper.md)
+- **Study 2 (`20` pairs: `17` unique tasks `T1`–`T17` + `3` repeats, 3–5 Nov 2026):** **Both** orchestrators equalized on Codex `gpt-6.1-sol` (`high`), after 64 commits to the Candidate rules, scored on a 5-criterion rubric by a blind maintainer, a colleague sample (`2` pairs), and an 8-model panel (`6` voting families + `2` diagnostic). [Full HTML paper](https://stephens.page/blog/maker-checker-tdd-vs-single-agent-ticket-run/) · [PDF (33 pp.)](https://stephens.page/blog/maker-checker-tdd-vs-single-agent-ticket-run/maker-checker-tdd-vs-single-agent-ticket-run.pdf) · [paper.md](https://stephens.page/blog/maker-checker-tdd-vs-single-agent-ticket-run/paper.md)
 
 Governing finding:
 
@@ -29,7 +29,7 @@ Governing finding:
 | Paired median cost ratio (`C ÷ B`) | **`10.4×`** (`$14.06` vs `$1.35`; totals `$223.71` vs `$13.39`) | **`4.62×`** (`$5.46` vs `$1.27`; totals `$177.07` vs `$22.50` across 17; `$199.13` vs `$25.93` across 20) |
 | Paired median time ratio (`C ÷ B`) | **`6.4×`** (`62.0m` vs `10.8m`; totals `1,095m` vs `125m`) | **`3.28×`** (`55.1m` vs `18.9m`; totals `1,686.7m` vs `311.4m` across 17) |
 | Median minutes to first PHP edit (`B` vs `C`) | `1.3m` vs `24.4m` (`21.4×`) | `1.8m` vs `11.4m` (`6.11×`) |
-| Test lines per production line (`B` vs `C`) | `3.7` vs `14.7` (`1,178 / 319` vs `7,123 / 484`) | `2.64` vs `10.10` (`1,832` vs `4,953` test LOC across 11 pairs) |
+| Test lines per production line (`B` vs `C`) | `3.7` vs `14.7` (`1,178 / 319` vs `7,123 / 484`) | `2.64` vs `10.10` (`1,832` vs `5,063` test LOC across 11 pairs) |
 | Actual implementation active time (`B` vs `C`) | `89m` vs `85m` (virtually identical) | `193.5m` vs `199.1m` across 20 pairs (`$14.53` vs `$13.97`) |
 | Pre-GREEN Candidate spend share | `74%` (`$163.95` of `$222.67`: orchestrator + plan + RED) | `76.0%` (`$150.32` of `$197.70` across 20 pairs; `56.1%` orchestrator alone) |
 | Blind author `merge as is` (delivered pairs) | **`7 / 8` (`88%`)** vs **`1 / 8` (`13%`)** (`4` `no`) | **`10 / 11` (`91%`)** vs **`2 / 11` (`18%`)** (`3` `no`; `12/13` vs `2/13` all) |
@@ -50,7 +50,7 @@ Governing finding:
    - `FM-2.6` (*Reasoning–Action Mismatch*): meta-reviews 12 and 14 wrote `"Twelve meta invocations and earlier capture/assignment failures are expensive churn"` and `"Thirteen earlier meta calls make another unchanged opinion or model loop unjustified"` while still authorizing another loop.
    - `FM-1.5` (*Unaware of Termination Conditions*): rules forbade follow-up deferral and kept looping whenever `"changed evidence"` existed.
    - `FM-3.1` (*Premature Termination*): `6` unattended halts across the two studies (`I2`, `I10`, `T1`, `T8`, `T13`, `T16`) when minor ambiguities hit a human escalation rule.
-4. **Intrinsic self-correction blindness vs. diff-blind post-hoc oracles (`Huang et al. 2024`; `Kamoi et al. 2024`; `Knight & Leveson 1986`; `arXiv:2607.05139`):**
+4. **Intrinsic self-correction blindness vs. diff-blind post-hoc oracles (`Huang et al. 2024`; `Kamoi et al. 2024`; `Knight & Leveson 1986`; `Konstantinou, Tambon, & Papadakis 2026 [arXiv:2607.05139]`):**
    Diff-conditioned reviewers anchored on the builder's regex in Study 1 `I6` (`25%` vs `14%` detection for independent tests). Transplanting an implementation-blind test exposed `I6` and `I7` without requiring pre-implementation role separation. Reconciled across both studies: `2/19` (`10.5%`) yield argues for **selective** gating rather than running an extra session on every deletion/config ticket (`T6`, `T12`).
 5. **Code-review attention economics & *Shape Up* (`Sadowski et al. 2018`; `Singer 2019`):**
    Human defect detection and mergeability collapse on large diffs (`14/14` non-tied primary pairs won by smaller diff; `0` for larger). Runner enforcement must encode fixed appetite, baseline comparison, scope hammering, and hard circuit breakers in code.
@@ -103,6 +103,17 @@ retain_test_only_if = "fails_on_head_or_increases_branch_coverage"
 type = "resume_builder"        # keeps warm KV context intact
 max_rounds = 1                 # never spawns RED->GREEN helper loops
 ```
+
+## Follow-up empirical replay (4 saved pairs, Nov 18, 2026)
+
+To test the Section 6 contract directly against saved replay trees (`follow-up-replay.md`), we ran `claude-opus-5-5` (`medium` effort, hard caps `180s`, `25` tools, `150` test lines, `5` methods, `$1.50` budget) given only the issue, base checkout, and deterministically extracted `public_api_delta.txt` (public/protected signatures only; bodies and `tests/` hidden):
+
+- **Study 1 `I6` (email signature repointing, `5` signatures, `gate = run`):** `139` LOC, `5` tests, `61.7s`, `$0.35` API (`$0.46` CLI). Passed `5/5` (`29` assertions) on Baseline (`exit 0`): covered role handoffs, HTML reflow, and a separate coordinator notes paragraph, without finding Study 1's deeper inline-signature / pasted-notes corruption (which took `1,736` lines and `$74.14` in Study 1).
+- **Study 1 `I7` (zero call-date normalization, `2` signatures, `gate = run`):** `106` LOC, `5` tests, `54.1s`, `$0.27` API (`$0.35` CLI). Passed `4/5` (`40` assertions) and threw `InvalidArgumentException` on Baseline (`exit 2`) specifically for `'0000-00-00 00:00'` (omitting seconds after normalizing `'0000-00-00 00:00:00'` and `'0000-00-00'` to `null`).
+- **Study 2 `T5` (Docker Apache vhost config, `0` PHP signatures, `gate = skip`):** Forced run took `123` LOC, `5` tests, `56.3s`, `$0.32` API (`$0.42` CLI; `$0.00` when gated). Passed `5/5` on both Baseline (`39` assertions) and Candidate (`41` assertions) - eliminating Study 2's cross-test false positive.
+- **Study 2 `T10` (proposal deck override apply, `1` signature, `gate = run`):** `128` LOC, `5` tests, `65.5s`, `$0.34` API (`$0.44` CLI). Passed `5/5` (`46` assertions) on both Baseline and Candidate - eliminating Study 2's helper-name false positive.
+
+Across the three gated runs, total spend was `$0.95` API (`$1.26` CLI, `$0.32` API mean) with `0/4` spurious false positives on target branches sharing the extracted interface.
 
 ## Operational checklist
 
